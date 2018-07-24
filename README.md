@@ -11,6 +11,7 @@ If the repository does not contain a data folder, [download] a zipped data file 
 - John Cobb
 - Sarah Wiener
 - Sarah Champion
+- Rachel Schattman
 
 
 
