@@ -1,15 +1,11 @@
-##Project description
+## Project Description
 SESYNC Cyberinfrastructure Course - Climate Drivers Team
 
-View full application here
-View climate data summary here
-
-Team Members and Roles:
-Sarah Wiener
-Rachel Schattman
-John Cobb
-Assist in processing climate data in advance of course
-Sarah Champion
+Team Members:
+- Sarah Wiener
+- Rachel Schattman
+- John Cobb
+- Sarah Champion
 
 Research Questions:
 How do reported crop losses, specifically from drought, extreme precipitation, high heat, and frost or freeze, relate to concerns of USDA field staff over those climate or weather stressors?
@@ -73,12 +69,6 @@ Climate Data
 
 If the repository does not contain a data folder, [download] a zipped data file to accompany the worksheets. A "good" data-synthesis pipeline stores the data separate from the code&mdash;we may take a shortcut for these lessons.
 
-## Collaborators
-
-- John Cobb
-- Sarah Wiener
-- Sarah Champion
-- Rachel Schattman
 
 
 
