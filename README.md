@@ -9,6 +9,7 @@ If the repository does not contain a data folder, [download] a zipped data file 
 ## Collaborators
 
 - John Cobb
+- Sarah Champion
 
 
 [download]: https://files.sesync.org/pydio/public/09bb83
