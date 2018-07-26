@@ -100,6 +100,8 @@ variables_used <- c(y_var_clean, x_var_clean)
 #########
 
 data_subset <- dataDR [,variables_used]
+data_subset$y_var <- factor(data_subset[[y_var_name]])
+
 data_subset <- na.omit(data_subset)
 
 data_subset$y_var <- factor(data_subset[[y_var_name]])
@@ -118,7 +120,57 @@ list_models <- c("y_var ~ PercLossDrought + Agency",
                 "y_var ~ PercLossDrought + Agency + PDSI_STD_2006",
                 "y_var ~ PercLossDrought + Agency + PDSI_STD_2001")
 
-# Create a model loop
+# input parameters for future function
+
+n_model <- length(list_models)
+n_model <- 2
+list_mod <- vector("list", length=n_model)
+model_type <- "glm"
+
+
+# Loop 
+
+for(i in 1:n_model){
+  formula_model <- list_models[i]
+  
+  variables_used <- strsplit(formula_model,'\\+')
+  variables_used <- unlist(strsplit(variables_used[[1]],'\\~'))
+  variables_used <- unlist(lapply(variables_used,function(x){sub(" ","",x)}))
+  variables_used <- unlist(lapply(variables_used,function(x){gsub(" ","",x)}))
+  
+  variables_used
+  
+  data_subset <- dataDR [,variables_used]
+  data_subset <- na.omit(data_subset)
+  
+  #data_subset$y_var <- factor(data_subset[[y_var_name]])
+  
+  
+  if(model_type == 'glm'){
+    data_subset$y_var <- as.numeric(data_subset$y_var)
+    
+    mod <- try(glm(formula_model,
+               family = poisson,
+               data = data_subset))
+  }
+  if(model_type == "ordinal_model"){
+    mod <- try(polr(formula_model,
+                data = data_subset,
+                weights = rep(1, nrow(data_subset)),
+                Hess = TRUE,
+                start = rep(1,4)))
+  }
+    list_mod[[i]] <- mod 
+}
+  
+list_mod 
+  
+### The polr model below was our first attempt, but we could not debug it
+  mod <- polr(formula_model,
+              data = data_subset,
+              weights = rep(1, nrow(data_subset)),
+              Hess = TRUE,
+              start = rep(1,4))
 
 
 formula_model <- list_models[1]
@@ -132,8 +184,4 @@ mod <- glm(formula_model,
 mod
 
 ### The polr model below was our first attempt, but we could not debug it
-mod <- polr(formula_model,
-            data = data_subset,
-            weights = rep(1, nrow(data_subset)),
-            Hess = TRUE,
-            start = rep(1,4))
+
