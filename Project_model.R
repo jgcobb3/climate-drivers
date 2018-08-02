@@ -8,11 +8,11 @@
 
 library(MASS)
 library(lme4)
-library(rstanarm)
+library(rstanarm) 
 
 #################                     Load Data                          ###############
 
-in_dir <- 'C:\Users\rschattman\Documents\Research\FSA NRCS Survey Project 2016_2018\SESYNC_7_2018\climate-drivers'
+in_dir <- 'C:\Users\rschattman\Documents\Research\climate-drivers'
 in_filename <- 'NRCS_FSAMergeDataset_w_PDSI2_7_28_18'
 
 
