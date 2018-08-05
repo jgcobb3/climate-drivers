@@ -202,20 +202,36 @@ for(i in 1:n_model){                #n_model = 1
                          iter = 200))
   }
   print(paste("i=",i))
-  #list_mod[[i]] <- mod   #this would be useful if we wanted to save the output to one file
+  list_mod[[i]] <- mod   
   summary(list_mod[[1]]) 
-  save(mod,file= paste("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\model",i,"output.rdata", sep =""))
+  #save(mod,file= paste("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\model",i,"output.rdata", sep ="")) # This save would be useful if you wanted to save each of the 11 models as their own file
 }
 ```
 
-Save the model output to an rdata file
+Save all output to a single rdata file - this has been commented out to avoid rewriting my current saved file
 ```{r}
 #save(list_mod,file="C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\modeloutput.rdata")
 ```
 
-load the models from the saved files
+Load the models
 ```{r}
-for(i in 1:n_model){
-  load(file= paste("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\model",i,"output.rdata", sep =""))
-}
+# for(i in 1:n_model){           #use this if you've saved multiple rdata files
+# load(file= paste("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\model",i,"output.rdata", sep =""))
+# }
+
+#use the code below if you've saved one rdata file with all the models in it
+
+load(file=paste("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\modeloutput.rdata", sep = ""))
+
+```
+
+Extract coefficients from the rdata file
+```{r}
+
+summary(modeloutput)
+modeloutput
+ls(modeloutput)
+
+
+
 ```
