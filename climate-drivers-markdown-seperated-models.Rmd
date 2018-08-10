@@ -1,9 +1,3 @@
----
-title: "climate-drivers-markdown-seperated-models"
-author: "Rachel Schattman"
-date: "August 10, 2018"
-output: html_document
----
 <<<<<<< HEAD
 ---
 title: "Climate Drivers Project @ SESYNC CYBERINFRASTRUCTURE COURSE"
@@ -13,7 +7,11 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = TRUE,
+	warning = TRUE
+)
 ```
 
 
