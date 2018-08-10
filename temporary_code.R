@@ -114,7 +114,7 @@ data_subset$y_var <- factor(data_subset[[y_var_name]])
 My goal was to compare the fit of each of the 11 models listed below:
 ```{r}
 list_models <- c("y_var ~ PercLossDrought + stdiv",
-                 "y_var ~ PercLossDrought + PDSI_MEAN_2016"), 
+                 "y_var ~ PercLossDrought + PDSI_MEAN_2016", 
                  "y_var ~ PercLossDrought + PDSI_MEAN_2014",
                  "y_var ~ PercLossDrought + PDSI_MEAN_2012",
                  "y_var ~ PercLossDrought + PDSI_MEAN_2007",
@@ -124,23 +124,22 @@ list_models <- c("y_var ~ PercLossDrought + stdiv",
                  "y_var ~ PercLossDrought + PDSI_STD_2012",
                  "y_var ~ PercLossDrought + PDSI_STD_2007",
                  "y_var ~ PercLossDrought + PDSI_STD_2002")
-
 ```
 
 Our original list of models looked like this. I am preserving it here in case we decide to use it again, but it will not run as code unless turned on.
 
 
-list_models <- c("y_var ~ PercLossDrought + Agency",
-                 "y_var ~ PercLossDrought + Agency + PDSI_MEAN_2016", 
-                 "y_var ~ PercLossDrought + Agency + PDSI_MEAN_2014",
-                 "y_var ~ PercLossDrought + Agency + PDSI_MEAN_2012",
-                 "y_var ~ PercLossDrought + Agency + PDSI_MEAN_2007",
-                 "y_var ~ PercLossDrought + Agency + PDSI_MEAN_2002",
-                 "y_var ~ PercLossDrought + Agency + PDSI_STD_2016",
-                 "y_var ~ PercLossDrought + Agency + PDSI_STD_2014",
-                 "y_var ~ PercLossDrought + Agency + PDSI_STD_2012",
-                 "y_var ~ PercLossDrought + Agency + PDSI_STD_2007",
-                 "y_var ~ PercLossDrought + Agency + PDSI_STD_2002")
+#list_models <- c("y_var ~ PercLossDrought + Agency",
+#                 "y_var ~ PercLossDrought + Agency + PDSI_MEAN_2016", 
+#                 "y_var ~ PercLossDrought + Agency + PDSI_MEAN_2014",
+#                 "y_var ~ PercLossDrought + Agency + PDSI_MEAN_2012",
+#                 "y_var ~ PercLossDrought + Agency + PDSI_MEAN_2007",
+#                 "y_var ~ PercLossDrought + Agency + PDSI_MEAN_2002",
+#                 "y_var ~ PercLossDrought + Agency + PDSI_STD_2016",
+#                 "y_var ~ PercLossDrought + Agency + PDSI_STD_2014",
+#                 "y_var ~ PercLossDrought + Agency + PDSI_STD_2012",
+#                 "y_var ~ PercLossDrought + Agency + PDSI_STD_2007",
+#                 "y_var ~ PercLossDrought + Agency + PDSI_STD_2002")
 
 
 I set up the models to run in a future function
@@ -203,86 +202,20 @@ for(i in 1:n_model){                #n_model = 1
                          iter = 200))
   }
   print(paste("i=",i))
-  list_mod[[i]] <- mod   
+  #list_mod[[i]] <- mod   #this would be useful if we wanted to save the output to one file
   summary(list_mod[[1]]) 
-  #save(mod,file= paste("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\model",i,"output.rdata", sep ="")) # This save would be useful if you wanted to save each of the 11 models as their own file
+  save(mod,file= paste("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\model",i,"output.rdata", sep =""))
 }
 ```
-```{r}
-list_mod
-```
 
-
-```{r}
-plot(loo(mod))
-
-```
-tools for critiquing the model
-```{r}
-shinystan::launch_shinystan(mod)
-```
-### If you are going to save the model and use it later, the following will be useful:
-Save all output to a single rdata file - this has been commented out to avoid rewriting my current saved file
+Save the model output to an rdata file
 ```{r}
 #save(list_mod,file="C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\modeloutput.rdata")
 ```
 
-Load the models
+load the models from the saved files
 ```{r}
-# for(i in 1:n_model){           #use this if you've saved multiple rdata files
-# load(file= paste("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\model",i,"output.rdata", sep =""))
-# }
-
-#use the code below if you've saved one rdata file with all the models in it
-
-load(file=paste("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\modeloutput.rdata", sep = ""))
-
-```
-
-Examine the characteristics of the rdata object
-```{r}
-str(list_mod)
-str(summary(list_mod))
-```
-
-Display the coefficients - this code doesn't work yet.
-```{r}
-
-print(list_mod, digets = 3)
-round(apply(rstan:: extract(list_mod$stanfit, pars = "drought") [[1]], 2, median), digits = 3)
-
-loo(x, list_mod, cores = 1)
-  save_psis = FALSE, K_threshold = NULL)
-
-table1 <- data.frame (list_mod = 1, 
-                    intercept = 1, 
-                    intercept.se = 1, 
-                    slope = 1, 
-                    slope.se = 1, 
-                    r.squared = 1, 
-                    p.value = 1)
-```
-
-Extract coefficients from the rdata file and put them in a dataframe - also doesn't work yet
-```{r}
-for(i in 1:11){
-  x<-rnorm(11)
-  y<-rnorm(11)
-  list_mod <- list_mod
-  summary(list_mod)
+for(i in 1:n_model){
+  load(file= paste("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\model",i,"output.rdata", sep =""))
 }
-
-for (i in 1:11){
-  print(i)
-}
-
-table1[i,] <- c(i,
-                summary(list_mod)[['coefficients']]['(Intercept)','Estimate'],
-                     summary(list_mod)[['coefficients']]['(Intercept)','Std. Error'],
-                summary(list_mod)[['coefficients']]['x','Estimate'],
-                     summary(list_mod)[['coefficients']]['x','Std. Error'],
-                summary(list_mod)[['r.squared']],
-                     summary(list_mod)[['coefficients']]['x','Pr(>|t|)'])
-
-write.csv(table1, file = 'table1.csv')
 ```
