@@ -115,87 +115,27 @@ data_subset$y_var <- factor(data_subset[[y_var_name]])
 ```
 
 ### Now, onto the models!
-My goal was to compare the fit of each of the 11 models listed below:
+My goal was to compare the fit of each of the 11 models listed below. Originally, I compiled these into a single list_mod, which is preserved in the original climate-drivers-markdown.Rmd. This version seperates the models so that I can compare the LOOIC and other diagnostic outputs to determine best fit.
 ```{r}
-list_models <- c("y_var ~ PercLossDrought + stdiv",
-                 "y_var ~ PercLossDrought + PDSI_MEAN_2016", 
-                 "y_var ~ PercLossDrought + PDSI_MEAN_2014",
-                 "y_var ~ PercLossDrought + PDSI_MEAN_2012",
-                 "y_var ~ PercLossDrought + PDSI_MEAN_2007",
-                 "y_var ~ PercLossDrought + PDSI_MEAN_2002",
-                 "y_var ~ PercLossDrought + PDSI_STD_2016",
-                 "y_var ~ PercLossDrought + PDSI_STD_2014",
-                 "y_var ~ PercLossDrought + PDSI_STD_2012",
-                 "y_var ~ PercLossDrought + PDSI_STD_2007",
-                 "y_var ~ PercLossDrought + PDSI_STD_2002")
-
+mod_noPDSI <- "y_var ~ PercLossDrought + stdiv"
+mod_mean2016 <- "y_var ~ PercLossDrought + PDSI_MEAN_2016"
+mod_mean2014 <- "y_var ~ PercLossDrought + PDSI_MEAN_2014"
+mod_mean2012 <- "y_var ~ PercLossDrought + PDSI_MEAN_2012"
+mod_mean2007 <- "y_var ~ PercLossDrought + PDSI_MEAN_2007"
+mod_mean2002 <- "y_var ~ PercLossDrought + PDSI_MEAN_2002"
+mod_STD2016 <- "y_var ~ PercLossDrought + PDSI_STD_2016"
+mod_STD2014 <- "y_var ~ PercLossDrought + PDSI_STD_2014"
+mod_STD2012 <- "y_var ~ PercLossDrought + PDSI_STD_2012"
+mod_STD2007 <- "y_var ~ PercLossDrought + PDSI_STD_2007"
+mod_STD2002 <-  "y_var ~ PercLossDrought + PDSI_STD_2002"
+               
 ```
 
-Our original list of models looked like this. I am preserving it here in case we decide to use it again, but it will not run as code unless turned on.
-
-
-list_models <- c("y_var ~ PercLossDrought + Agency",
-                 "y_var ~ PercLossDrought + Agency + PDSI_MEAN_2016", 
-                 "y_var ~ PercLossDrought + Agency + PDSI_MEAN_2014",
-                 "y_var ~ PercLossDrought + Agency + PDSI_MEAN_2012",
-                 "y_var ~ PercLossDrought + Agency + PDSI_MEAN_2007",
-                 "y_var ~ PercLossDrought + Agency + PDSI_MEAN_2002",
-                 "y_var ~ PercLossDrought + Agency + PDSI_STD_2016",
-                 "y_var ~ PercLossDrought + Agency + PDSI_STD_2014",
-                 "y_var ~ PercLossDrought + Agency + PDSI_STD_2012",
-                 "y_var ~ PercLossDrought + Agency + PDSI_STD_2007",
-                 "y_var ~ PercLossDrought + Agency + PDSI_STD_2002")
-
-
-I set up the models to run in a future function
+I set the models to run as bayesian ordinal regression models using polr from the rstanarm package
 ```{r}
-n_model <- length(list_models)
-list_mod <- vector("list", length=n_model)
-```
-
-I wanted to test several types of regression models, knowing that some form of ordinal model would  be most appropriate. I set up a loop with three types of models included. Turn model types *on* one at a time by removing the hashtag in front of it.
-```{r}
-# model_type <- "glm"
-# model_type <- "ordinal"
 model_type <- "bayes_stan"                        
-```
 
-Here is the loop
-```{r}
-for(i in 1:n_model){                #n_model = 1
-  formula_model <- list_models[i]
-  
-  variables_used <- strsplit(formula_model,'\\+')
-  variables_used <- unlist(strsplit(variables_used[[1]],'\\~'))
-  variables_used <- unlist(lapply(variables_used,function(x){sub(" ","",x)}))
-  variables_used <- unlist(lapply(variables_used,function(x){gsub(" ","",x)}))
-  
-  # variables_used
-  
-  data_subset <- dataDR [,variables_used]
-  data_subset <- na.omit(data_subset)
-  
-  #data_subset$y_var <- factor(data_subset[[y_var_name]])
-  
-  if(model_type == 'glm'){                                   
-    # generlized linear model from base R
-    data_subset$y_var <- as.numeric(data_subset$y_var)
-    
-    mod <- try(glm(formula_model,
-                   family = poisson,
-                   data = data_subset))
-  }
-  if(model_type == "ordinal_model"){
-    # ordinal regression model from MASS package
-    mod <- try(polr(formula_model,
-                    data = data_subset,
-                    weights = rep(1, nrow(data_subset)),
-                    Hess = TRUE,
-                    start = rep(1,4)))
-  }
-  if (model_type == "bayes_stan"){
-    # polr from the rstanarm package, for bayesian slope estimation 
-    mod <- try(stan_polr(formula_model, 
+mod1_noPDSI <- try(stan_polr(mod_noPDSI, 
                          data = data_subset, 
                          #prior = R2(0.25), 
                          prior = NULL,
@@ -205,17 +145,124 @@ for(i in 1:n_model){                #n_model = 1
                          #cores = CORES, 
                          seed = 1234, 
                          iter = 200))
-  }
+
+mod2_mean2016 <- try(stan_polr(mod_mean2016, 
+                         data = data_subset, 
+                         #prior = R2(0.25), 
+                         prior = NULL,
+                         prior_counts = dirichlet(1),
+                         shape = NULL,
+                         chains = 4, 
+                         #cores = CORES, 
+                         seed = 1234, 
+                         iter = 200))
+
+mod3_mean2014 <- try(stan_polr(mod_mean2014, 
+                         data = data_subset, 
+                         #prior = R2(0.25), 
+                         prior = NULL,
+                         prior_counts = dirichlet(1),
+                         shape = NULL,
+                         chains = 4, 
+                         #cores = CORES, 
+                         seed = 1234, 
+                         iter = 200))
+
+mod4_mean2012 <- try(stan_polr(mod_mean2012, 
+                         data = data_subset, 
+                         #prior = R2(0.25), 
+                         prior = NULL,
+                         prior_counts = dirichlet(1),
+                         shape = NULL,
+                         chains = 4, 
+                         #cores = CORES, 
+                         seed = 1234, 
+                         iter = 200))
+
+mod5_mean2007 <- try(stan_polr(mod_mean2007, 
+                         data = data_subset, 
+                         #prior = R2(0.25), 
+                         prior = NULL,
+                         prior_counts = dirichlet(1),
+                         shape = NULL,
+                         chains = 4, 
+                         #cores = CORES, 
+                         seed = 1234, 
+                         iter = 200))
+
+mod6_mean2002 <- try(stan_polr(mod_mean2002, 
+                         data = data_subset, 
+                         #prior = R2(0.25), 
+                         prior = NULL,
+                         prior_counts = dirichlet(1),
+                         shape = NULL,
+                         chains = 4, 
+                         #cores = CORES, 
+                         seed = 1234, 
+                         iter = 200))
+
+mod7_STD2016 <- try(stan_polr(mod_STD2016, 
+                         data = data_subset, 
+                         #prior = R2(0.25), 
+                         prior = NULL,
+                         prior_counts = dirichlet(1),
+                         shape = NULL,
+                         chains = 4, 
+                         #cores = CORES, 
+                         seed = 1234, 
+                         iter = 200))
+
+mod8_STD2014 <- try(stan_polr(mod_STD2014, 
+                         data = data_subset, 
+                         #prior = R2(0.25), 
+                         prior = NULL,
+                         prior_counts = dirichlet(1),
+                         shape = NULL,
+                         chains = 4, 
+                         #cores = CORES, 
+                         seed = 1234, 
+                         iter = 200))
+
+mod9_STD2012 <- try(stan_polr(mod_STD2012, 
+                         data = data_subset, 
+                         #prior = R2(0.25), 
+                         prior = NULL,
+                         prior_counts = dirichlet(1),
+                         shape = NULL,
+                         chains = 4, 
+                         #cores = CORES, 
+                         seed = 1234, 
+                         iter = 200))
+
+mod10_STD2007 <- try(stan_polr(mod_STD2007, 
+                         data = data_subset, 
+                         #prior = R2(0.25), 
+                         prior = NULL,
+                         prior_counts = dirichlet(1),
+                         shape = NULL,
+                         chains = 4, 
+                         #cores = CORES, 
+                         seed = 1234, 
+                         iter = 200))
+
+mod11_STD2002 <- try(stan_polr(mod_STD2002, 
+                         data = data_subset, 
+                         #prior = R2(0.25), 
+                         prior = NULL,
+                         prior_counts = dirichlet(1),
+                         shape = NULL,
+                         chains = 4, 
+                         #cores = CORES, 
+                         seed = 1234, 
+                         iter = 200))
+
   print(paste("i=",i))
   list_mod[[i]] <- mod   
   summary(list_mod[[1]]) 
   #save(mod,file= paste("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\model",i,"output.rdata", sep ="")) # This save would be useful if you wanted to save each of the 11 models as their own file
-}
 ```
-```{r}
-list_mod
-```
-###Tools for critiquing the model
+
+###Tools for critiquing the model - not yet revised
 
 ```{r}
 plot(loo(mod))
