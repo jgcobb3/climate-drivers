@@ -23,7 +23,7 @@ library("ggplot2")
 Data used in this project comes from three sources: (1) A survey of NRCS and FSA employees conducted by the USDA Climate Hubs in 2016/2017, (2) Crop idemnity payments made by FSA to farmers for weather-related crop loss between 2013-2016, and (3) mean and standard deviations of drought data over 1, 3, 5, 10, and 15 year periods.
 
 ```{r}
-dataDR <- read.csv("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\NRCS_FSAMergeDataset_w_PDSI2_7_28_18.csv", header = TRUE)
+dataDR <- read.csv("C:\\Users\\rache\\Documents\\GitHub\\climate-drivers\\NRCS_FSAMergeDataset_w_PDSI2_7_28_18.csv", header = TRUE)
 ```
 ## Description of variables
 ### Dependent variable
@@ -114,7 +114,7 @@ data_subset$y_var <- factor(data_subset[[y_var_name]])
 My goal was to compare the fit of each of the 11 models listed below:
 ```{r}
 list_models <- c("y_var ~ PercLossDrought + stdiv",
-                 "y_var ~ PercLossDrought + PDSI_MEAN_2016"), 
+                 "y_var ~ PercLossDrought + PDSI_MEAN_2016", 
                  "y_var ~ PercLossDrought + PDSI_MEAN_2014",
                  "y_var ~ PercLossDrought + PDSI_MEAN_2012",
                  "y_var ~ PercLossDrought + PDSI_MEAN_2007",
@@ -211,13 +211,21 @@ for(i in 1:n_model){                #n_model = 1
 ```{r}
 list_mod
 ```
-
+###Tools for critiquing the model
 
 ```{r}
 plot(loo(mod))
-
 ```
-tools for critiquing the model
+
+```{r}
+loo1 <- (loo(mod, 
+             save_psis = TRUE))
+print(loo1)
+```
+```{r}
+compare_models(mod)
+```
+
 ```{r}
 shinystan::launch_shinystan(mod)
 ```
