@@ -265,7 +265,16 @@ mod11_STD2002 <- try(stan_polr(mod_STD2002,
 ###Tools for critiquing the model - not yet revised
 
 ```{r}
-plot(loo(mod))
+plot(loo(mod2_mean2016, k_threshold = 0.7))
+plot(loo(mod3_mean2014, k_threshold = 0.7))
+plot(loo(mod4_mean2012, k_threshold = 0.7))
+plot(loo(mod5_mean2007, k_threshold = 0.7))
+plot(loo(mod6_mean2002, k_threshold = 0.7))
+plot(loo(mod7_STD2016, k_threshold = 0.7))
+plot(loo(mod8_STD2014)) #no observations with pareto_k > 0.7
+plot(loo(mod9_STD2012)) #no observations with pareto_k > 0.7
+plot(loo(mod10_STD2007))
+plot(loo(mod11_STD2002))
 ```
 
 ```{r}
