@@ -22,6 +22,7 @@ library(lme4)
 library(rstanarm)
 library("bayesplot")
 library("ggplot2")
+library("loo")
 ```
 
 Data used in this project comes from three sources: (1) A survey of NRCS and FSA employees conducted by the USDA Climate Hubs in 2016/2017, (2) Crop idemnity payments made by FSA to farmers for weather-related crop loss between 2013-2016, and (3) mean and standard deviations of drought data over 1, 3, 5, 10, and 15 year periods.
@@ -133,7 +134,7 @@ mod_STD2002 <-  "y_var ~ PercLossDrought + PDSI_STD_2002"
 
 I set the models to run as bayesian ordinal regression models using polr from the rstanarm package
 ```{r}
-model_type <- "bayes_stan"                        
+model_type <- "bayes_stan"
 
 mod1_noPDSI <- try(stan_polr(mod_noPDSI, 
                          data = data_subset, 
@@ -265,22 +266,41 @@ mod11_STD2002 <- try(stan_polr(mod_STD2002,
 ###Tools for critiquing the model - not yet revised
 
 ```{r}
+options(mc.cores = 2)                      # loo default is 1 core
 plot(loo(mod2_mean2016, k_threshold = 0.7))
 plot(loo(mod3_mean2014, k_threshold = 0.7))
 plot(loo(mod4_mean2012, k_threshold = 0.7))
 plot(loo(mod5_mean2007, k_threshold = 0.7))
 plot(loo(mod6_mean2002, k_threshold = 0.7))
 plot(loo(mod7_STD2016, k_threshold = 0.7))
-plot(loo(mod8_STD2014)) #no observations with pareto_k > 0.7
-plot(loo(mod9_STD2012)) #no observations with pareto_k > 0.7
-plot(loo(mod10_STD2007))
-plot(loo(mod11_STD2002))
+plot(loo(mod8_STD2014))                    #no observations with pareto_k > 0.7
+plot(loo(mod9_STD2012))                    #no observations with pareto_k > 0.7
+plot(loo(mod10_STD2007, k_threshold = 0.7))
+plot(loo(mod11_STD2002, k_threshold = 0.7))
+```
+Diagnostics to figure out why refit of model using acceptable K threshold
+```{r}
+ls(mod2_mean2016)
+
+plot(loo(mod2_mean2016, k_threshold = 0.7))
+
+loo(mod2_mean2016, k_threshold = 0.7)
+
+loo.stanreg(mod2_mean2016, k_threshold = 0.7)
+
+reloo(x, loo_x, obs = bad_obs)
+
+log_lik.stanreg(fit_j, newdata = d[omitted, , drop = FALSE], offset = x$offset[omitted], newx = get_x(x)[omitted, , drop = FALSE], stanmat = as.character.stanreg(fit_j))
+
+ll_args.stanreg(object, newdata = newdata, offset = offset, reloo_or_kfold = calling_fun %in% c("kfold", "reloo"), ...)
+
 ```
 
+
 ```{r}
-loo1 <- (loo(mod, 
+loo2 <- (loo(mod2_mean2016, 
              save_psis = TRUE))
-print(loo1)
+print(loo2)
 ```
 ```{r}
 compare_models(mod)
