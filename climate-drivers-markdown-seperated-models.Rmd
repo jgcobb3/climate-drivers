@@ -32,7 +32,7 @@ dataDR <- read.csv("/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/dat
 ```
 ## Description of variables
 ### Dependent variable
-The dependent variable is y_var, labled in our data frame as 'Concern_DryDrought'. This is a respondent concern about longer dry periods and drought, measured on a 4 point scale where 1 = not concerned, 2 = slightly concerned, 3 = concerned, 4 = very concerned
+The dependent variable is y_var, labeled in our data frame as 'Concern_DryDrought'. This is a respondent concern about longer dry periods and drought, measured on a 4 point scale where 1 = not concerned, 2 = slightly concerned, 3 = concerned, 4 = very concerned
 
 ### Independent variables
 For each regression model, we will use 2 independent variables. The first indedependent variable is 'PercLossDrought' which is the average percent loss due to drought in a state averaged over the years 2013-2016 and normalized for acres of farmland in the state.
@@ -118,6 +118,7 @@ data_subset$y_var <- factor(data_subset[[y_var_name]])
 ### Now, onto the models!
 My goal was to compare the fit of each of the 11 models listed below. Originally, I compiled these into a single list_mod, which is preserved in the original climate-drivers-markdown.Rmd. This version seperates the models so that I can compare the LOOIC and other diagnostic outputs to determine best fit.
 ```{r}
+
 mod_noPDSI <- "y_var ~ PercLossDrought + stdiv"
 mod_mean2016 <- "y_var ~ PercLossDrought + PDSI_MEAN_2016"
 mod_mean2014 <- "y_var ~ PercLossDrought + PDSI_MEAN_2014"
@@ -134,6 +135,9 @@ mod_STD2002 <-  "y_var ~ PercLossDrought + PDSI_STD_2002"
 
 I set the models to run as bayesian ordinal regression models using polr from the rstanarm package
 ```{r}
+
+### This should be a loop or a function:
+
 model_type <- "bayes_stan"
 mod_noPDSI <- "y_var ~ PercLossDrought + stdiv"
 
@@ -148,6 +152,9 @@ mod1_noPDSI <- try(stan_polr(mod_noPDSI,
                          seed = 1234, 
                          iter = 200))
 
+#Got this error
+#Error in qr.solve(decomposition, Q) : singular matrix 'a' in solve
+
 mod2_mean2016 <- try(stan_polr(mod_mean2016, 
                          data = data_subset, 
                          #prior = R2(0.25), 
@@ -158,6 +165,7 @@ mod2_mean2016 <- try(stan_polr(mod_mean2016,
                          #cores = CORES, 
                          seed = 1234, 
                          iter = 200))
+#took about 10min for mod2_mean2016
 
 mod3_mean2014 <- try(stan_polr(mod_mean2014, 
                          data = data_subset, 
@@ -169,6 +177,8 @@ mod3_mean2014 <- try(stan_polr(mod_mean2014,
                          #cores = CORES, 
                          seed = 1234, 
                          iter = 200))
+
+#took about 10min for mod3_mean2014
 
 mod4_mean2012 <- try(stan_polr(mod_mean2012, 
                          data = data_subset, 
@@ -262,6 +272,9 @@ mod11_STD2002 <- try(stan_polr(mod_STD2002,
   list_mod[[i]] <- mod   
   summary(list_mod[[1]]) 
   #save(mod,file= paste("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\model",i,"output.rdata", sep ="")) # This save would be useful if you wanted to save each of the 11 models as their own file
+  
+save(data1, file = "data.RData")
+
 ```
 
 ###Tools for critiquing the model - not yet revised
