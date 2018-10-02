@@ -9,7 +9,7 @@
 ## in the methods.
 ##
 ## DATE CREATED: 09/27/2018
-## DATE MODIFIED: 10/01/2018
+## DATE MODIFIED: 10/02/2018
 ## AUTHORS: Rachel Schattman, Benoit Parmentier  
 ## Version: 1
 ## PROJECT: Climate Percecption
@@ -40,6 +40,28 @@ library("parallel")
 
 ###### Functions used in this script and sourced from other files
 
+run_model_ordinal_logistic <- function(model_formula,model_type="bayes_stan",data,prior = NULL, prior_counts = dirichlet(1),
+                                       shape = NULL,chains = 4, num_cores = NUL, seed_val = 1234, iter_val = 200){
+  
+  if (model_type!="bayes_stan") {
+    stop("Model type not implemented")
+  }
+  
+  if(model_type=="bayes_stan"){
+    mod <- try(stan_polr(formula=model_formula,
+                         data = data_subset, 
+                         prior = prior, 
+                         prior_counts = dirichlet(1),
+                         shape = shape,
+                         chains = chains, 
+                         cores = num_cores, 
+                         seed = seed_val, 
+                         iter = iter_val))
+  }
+  
+  return(mod)
+}
+
 create_dir_fun <- function(outDir,out_suffix=NULL){
   #if out_suffix is not null then append out_suffix string
   if(!is.null(out_suffix)){
@@ -59,6 +81,7 @@ load_obj <- function(f){
   nm <- load(f, env)[1]
   env[[nm]]
 }
+
 ################### Start script ###################
 
 #Benoit setup
@@ -177,7 +200,6 @@ mod_STD2012 <- "y_var ~ PercLossDrought + PDSI_STD_2012"
 mod_STD2007 <- "y_var ~ PercLossDrought + PDSI_STD_2007"
 mod_STD2002 <-  "y_var ~ PercLossDrought + PDSI_STD_2002"
                
-
 list_model_formulas <- list(mod_noPDSI,mod_mean2016,mod_mean2014,mod_mean2012,mod_mean2007,mod_mean2002,
                     mod_STD2016,mod_STD2014,mod_STD2012,mod_STD2007,mod_STD2002)
 ## ------------------------------------------------------------------------
@@ -186,27 +208,6 @@ list_model_formulas <- list(mod_noPDSI,mod_mean2016,mod_mean2014,mod_mean2012,mo
 
 model_type <- "bayes_stan"
 
-run_model_ordinal_logistic <- function(model_formula,model_type="bayes_stan",data,prior = NULL, prior_counts = dirichlet(1),
-                                       shape = NULL,chains = 4, num_cores = NUL, seed_val = 1234, iter_val = 200){
-  
-  if (model_type!="bayes_stan") {
-    stop("Model type not implemented")
-  }
-  
-  if(model_type=="bayes_stan"){
-    mod <- try(stan_polr(formula=model_formula,
-                          data = data_subset, 
-                          prior = prior, 
-                          prior_counts = dirichlet(1),
-                          shape = shape,
-                          chains = chains, 
-                          cores = num_cores, 
-                          seed = seed_val, 
-                          iter = iter_val))
-  }
-  
-  return(mod)
-}
 
 mod2 <- run_model_ordinal_logistic(list_model_formulas[[2]],
                            data = data_subset, 
@@ -217,19 +218,32 @@ mod2 <- run_model_ordinal_logistic(list_model_formulas[[2]],
                            num_cores = 4, 
                            seed_val = 1234, 
                            iter_val = 200)
-
-list_mod <- mclapply(list_model_formulas[1:2],
-         data = data_subset, 
-         prior = NULL,
-         prior_counts = dirichlet(1),
-         shape = NULL,
-         chains = 4, 
-         num_cores = 4, 
-         seed_val = 1234, 
-         iter_val = 200,
-         mc.preschedule = F,
-         mc.cores = 1)
+## does not work
+#list_mod <- mclapply(list_model_formulas,
+#                     FUN=run_model_ordinal_logistic,
+#                     data = data_subset, 
+#                     prior = NULL,
+#                     prior_counts = dirichlet(1),
+#                     shape = NULL,
+#                     chains = 4, 
+#                     num_cores = 4, 
+#                     seed_val = 1234, 
+#                     iter_val = 200,
+#                    mc.preschedule = F,
+#                    mc.cores = 1)
          
+list_mod <- lapply(list_model_formulas,
+                     FUN=run_model_ordinal_logistic,
+                     data = data_subset, 
+                     prior = NULL,
+                     prior_counts = dirichlet(1),
+                     shape = NULL,
+                     chains = 4, 
+                     num_cores = 4, 
+                     seed_val = 1234, 
+                     iter_val = 200,
+                     mc.preschedule = F,
+                     mc.cores = 1)
 
 #save(mod,file= paste("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\model",i,"output.rdata", sep ="")) # This save would be useful if you wanted to save each of the 11 models as their own file
   
@@ -252,16 +266,48 @@ options(mc.cores = 1)                      # loo default is 1 core
 #plot(loo(mod11_STD2002, k_threshold = 0.7))
 
 ### store output of loo in object for further check and outputs
-loo_mod2 <- try(loo(mod2_mean2016, k_threshold = 0.7))
-loo_mod3 <- try(loo(mod3_mean2014,k_threshold = 0.7))
-loo_mod4 <- try(loo(mod4_mean2012, k_threshold = 0.7))
+#loo_mod2 <- try(loo(mod2_mean2016, k_threshold = 0.7))
+#loo_mod3 <- try(loo(mod3_mean2014,k_threshold = 0.7))
+#loo_mod4 <- try(loo(mod4_mean2012, k_threshold = 0.7))
 #loo_mod5 <- try(loo(mod5_mean2007, k_threshold = 0.7))
-loo_mod6 <- try(loo(mod6_mean2002, k_threshold = 0.7))
-loo_mod7 <- try(loo(mod7_STD2016, k_threshold = 0.7))
-loo_mod8 <- try(loo(mod8_STD2014))                    #no observations with pareto_k > 0.7
-loo_mod9 <- try(loo(mod9_STD2012))                    #no observations with pareto_k > 0.7
-loo_mod10 <- try(loo(mod10_STD2007, k_threshold = 0.7))
-loo_mod11 <- try(loo(mod11_STD2002, k_threshold = 0.7))
+#loo_mod6 <- try(loo(mod6_mean2002, k_threshold = 0.7))
+#loo_mod7 <- try(loo(mod7_STD2016, k_threshold = 0.7))
+#loo_mod8 <- try(loo(mod8_STD2014))                    #no observations with pareto_k > 0.7
+#loo_mod9 <- try(loo(mod9_STD2012))                    #no observations with pareto_k > 0.7
+#loo_mod10 <- try(loo(mod10_STD2007, k_threshold = 0.7))
+#loo_mod11 <- try(loo(mod11_STD2002, k_threshold = 0.7))
+
+run_model_assessment <- function(mod,model_type="bayes_stan",k_threshold = 0.7){
+  
+  if (model_type!="bayes_stan") {
+    stop("Model type not implemented")
+  }
+  
+  if(model_type=="bayes_stan"){
+    debug(loo)
+    mod$formula
+    loo_obj <- try(loo(mod, k_threshold = k_threshold))
+  }
+  
+  return(loo_obj)
+}
+
+debug(run_model_assessment)
+
+loo_mod2 <- run_model_assessment(mod2)
+#> loo_mod <- run_model_assessment(mod2)
+#1 problematic observation(s) found.
+#Model will be refit 1 times.
+
+#Fitting model 1 out of 1 (leaving out observation 1432)
+#Error in stats::model.frame(formula = model_formula, data = structure(list( : 
+#                                                                              object 'model_formula' not found
+                                                                            
+loo_mod <- mclapply(list_mod,
+                    FUN=run_model_assessment,
+                    k_threshold=0.7,
+                    mc.preschedule = FALSE,
+                    mc.cores=1)
 
 
 ## ------------------------------------------------------------------------
@@ -346,3 +392,8 @@ table1[i,] <- c(i,
 
 write.csv(table1, file = 'table1.csv')
 
+Fitting model 1 out of 1 (leaving out observation 1432)
+Error in stats::model.frame(formula = model_formula, data = list(Concern_DryDrought = c(4L,  : 
+                                                                                          object 'model_formula' not found
+                                                                                        
+################################# End of script ######################################
