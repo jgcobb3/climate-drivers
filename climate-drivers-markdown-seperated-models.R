@@ -1,9 +1,31 @@
-## ----setup, include=FALSE------------------------------------------------
-knitr::opts_chunk$set(
-	echo = TRUE,
-	message = TRUE,
-	warning = TRUE
-)
+############### Climate perception project ########## 
+##
+##
+#Data used in this project comes from three sources: (1) A survey of NRCS and FSA employees conducted by the USDA Climate Hubs in 2016/2017, (2) Crop idemnity payments made by FSA to farmers for weather-related 
+#crop loss between 2013-2016, and (3) mean and standard deviations of drought data over 1, 3, 5, 10, and 15 year periods.
+##
+## This is an example script using mixed models to test differences in time series
+## for different locations/subjects. Autocorrelation structures is taken into account
+## in the methods.
+##
+## DATE CREATED: 09/27/2018
+## DATE MODIFIED: 10/01/2018
+## AUTHORS: Rachel Schattman, Benoit Parmentier  
+## Version: 1
+## PROJECT: Climate Percecption
+## ISSUE: 
+## TO DO:
+##
+## COMMIT: modifying code
+##
+
+## Very good reference:
+#http://rpsychologist.com/r-guide-longitudinal-lme-lmer
+
+###################################################
+#
+
+###### Library used
 
 ## ------------------------------------------------------------------------
 library(MASS)
@@ -12,11 +34,89 @@ library(rstanarm)
 library("bayesplot")
 library("ggplot2")
 library("loo")
+library("parallel")
 
-## ------------------------------------------------------------------------
-dataDR <- read.csv("/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/data/NRCS_FSAMergeDataset_w_PDSI2_7_28_18.csv", header = TRUE)
+##########
 
-## ------------------------------------------------------------------------
+###### Functions used in this script and sourced from other files
+
+create_dir_fun <- function(outDir,out_suffix=NULL){
+  #if out_suffix is not null then append out_suffix string
+  if(!is.null(out_suffix)){
+    out_name <- paste("output_",out_suffix,sep="")
+    outDir <- file.path(outDir,out_name)
+  }
+  #create if does not exists
+  if(!file.exists(outDir)){
+    dir.create(outDir)
+  }
+  return(outDir)
+}
+
+#Used to load RData object saved within the functions produced.
+load_obj <- function(f){
+  env <- new.env()
+  nm <- load(f, env)[1]
+  env[[nm]]
+}
+################### Start script ###################
+
+#Benoit setup
+script_path <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/scripts"
+#mosaicing_functions <- "weighted_mosaicing_functions_07252018.R"
+#source(file.path(script_path,mosaicing_functions))
+
+#########cd ###################################################################
+#####  Parameters and argument set up ########### 
+
+#ARGS 1
+in_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/data"
+#ARGS 2
+out_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/outputs"
+#ARGS 3:
+create_out_dir_param=TRUE #create a new ouput dir if TRUE
+#ARGS 7
+out_suffix <-"_10022018" #output suffix for the files and ouptut folder
+#ARGS 8
+num_cores <- 2 # number of cores
+
+in_filename <- "NRCS_FSAMergeDataset_w_PDSI2_7_28_18.csv"
+
+################# START SCRIPT ###############################
+
+######### PART 0: Set up the output dir ################
+
+options(scipen=999)
+
+#set up the working directory
+#Create output directory
+
+if(is.null(out_dir)){
+  out_dir <- in_dir #output will be created in the input dir
+  
+}
+#out_dir <- in_dir #output will be created in the input dir
+
+out_suffix_s <- out_suffix #can modify name of output suffix
+if(create_out_dir_param==TRUE){
+  out_dir <- create_dir_fun(out_dir,out_suffix)
+  setwd(out_dir)
+}else{
+  setwd(out_dir) #use previoulsy defined directory
+}
+
+#######################################
+### PART 1: Read in DATA #######
+
+#data_df <- read.table(file.path(in_dir,in_filename),
+#                      sep=",",
+#                      header=T)
+
+#rm(list=ls())            # clear
+
+dataDR <- read.csv(file.path(in_dir,in_filename), #"/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/data/NRCS_FSAMergeDataset_w_PDSI2_7_28_18.csv", 
+                   header = TRUE)
+
 y_var_name <- "Concern_DryDrought"
 
 dataDR$y_var <- dataDR[[y_var_name]]
@@ -35,7 +135,7 @@ dataDR$PDSI_STD_2012 <- factor(dataDR$PDSI_STD_2012)
 dataDR$PDSI_STD_2007 <- factor(dataDR$PDSI_STD_2007)
 dataDR$PDSI_STD_2002 <- factor(dataDR$PDSI_STD_2002)
 
-## ------------------------------------------------------------------------
+#### Setting up models var inputs
 x_var_clean <- c("PercLossDrought", 
                  "stdiv", 
                  "Agency", 
@@ -54,8 +154,8 @@ y_var_clean <- y_var_name
 
 variables_used <- c(y_var_clean, x_var_clean)
 
+##subset dataset for variables
 
-## ------------------------------------------------------------------------
 data_subset <- dataDR [,variables_used]
 data_subset$y_var <- factor(data_subset[[y_var_name]])
 
@@ -78,153 +178,64 @@ mod_STD2007 <- "y_var ~ PercLossDrought + PDSI_STD_2007"
 mod_STD2002 <-  "y_var ~ PercLossDrought + PDSI_STD_2002"
                
 
+list_model_formulas <- list(mod_noPDSI,mod_mean2016,mod_mean2014,mod_mean2012,mod_mean2007,mod_mean2002,
+                    mod_STD2016,mod_STD2014,mod_STD2012,mod_STD2007,mod_STD2002)
 ## ------------------------------------------------------------------------
 
 ### This should be a loop or a function:
 
+model_type <- "bayes_stan"
 
-run_model_ordinal_logistic <- function(i,list_param){
-  model_type <- "bayes_stan"
+run_model_ordinal_logistic <- function(model_formula,model_type="bayes_stan",data,prior = NULL, prior_counts = dirichlet(1),
+                                       shape = NULL,chains = 4, num_cores = NUL, seed_val = 1234, iter_val = 200){
   
+  if (model_type!="bayes_stan") {
+    stop("Model type not implemented")
+  }
   
+  if(model_type=="bayes_stan"){
+    mod <- try(stan_polr(formula=model_formula,
+                          data = data_subset, 
+                          prior = prior, 
+                          prior_counts = dirichlet(1),
+                          shape = shape,
+                          chains = chains, 
+                          cores = num_cores, 
+                          seed = seed_val, 
+                          iter = iter_val))
+  }
+  
+  return(mod)
 }
 
-model_type <- "bayes_stan"
-mod_noPDSI <- "y_var ~ PercLossDrought + stdiv"
+mod2 <- run_model_ordinal_logistic(list_model_formulas[[2]],
+                           data = data_subset, 
+                           prior = NULL,
+                           prior_counts = dirichlet(1),
+                           shape = NULL,
+                           chains = 4, 
+                           num_cores = 4, 
+                           seed_val = 1234, 
+                           iter_val = 200)
 
-mod1_noPDSI <- try(stan_polr(mod_noPDSI, 
-                         data = data_subset, 
-                         #prior = R2(0.25), 
-                         prior = NULL,
-                         prior_counts = dirichlet(1),
-                         shape = NULL,
-                         chains = 4, 
-                         #cores = CORES, 
-                         seed = 1234, 
-                         iter = 200))
+list_mod <- mclapply(list_model_formulas[1:2],
+         data = data_subset, 
+         prior = NULL,
+         prior_counts = dirichlet(1),
+         shape = NULL,
+         chains = 4, 
+         num_cores = 4, 
+         seed_val = 1234, 
+         iter_val = 200,
+         mc.preschedule = F,
+         mc.cores = 1)
+         
 
-#Got this error
-#Error in qr.solve(decomposition, Q) : singular matrix 'a' in solve
-
-mod2_mean2016 <- try(stan_polr(mod_mean2016, 
-                         data = data_subset, 
-                         #prior = R2(0.25), 
-                         prior = NULL,
-                         prior_counts = dirichlet(1),
-                         shape = NULL,
-                         chains = 4, 
-                         #cores = CORES, 
-                         seed = 1234, 
-                         iter = 200))
-#took about 10min for mod2_mean2016
-
-mod3_mean2014 <- try(stan_polr(mod_mean2014, 
-                         data = data_subset, 
-                         #prior = R2(0.25), 
-                         prior = NULL,
-                         prior_counts = dirichlet(1),
-                         shape = NULL,
-                         chains = 4, 
-                         #cores = CORES, 
-                         seed = 1234, 
-                         iter = 200))
-
-#took about 10min for mod3_mean2014
-
-mod4_mean2012 <- try(stan_polr(mod_mean2012, 
-                         data = data_subset, 
-                         #prior = R2(0.25), 
-                         prior = NULL,
-                         prior_counts = dirichlet(1),
-                         shape = NULL,
-                         chains = 4, 
-                         #cores = CORES, 
-                         seed = 1234, 
-                         iter = 200))
-
-mod5_mean2007 <- try(stan_polr(mod_mean2007, 
-                         data = data_subset, 
-                         #prior = R2(0.25), 
-                         prior = NULL,
-                         prior_counts = dirichlet(1),
-                         shape = NULL,
-                         chains = 4, 
-                         #cores = CORES, 
-                         seed = 1234, 
-                         iter = 200))
-
-mod6_mean2002 <- try(stan_polr(mod_mean2002, 
-                         data = data_subset, 
-                         #prior = R2(0.25), 
-                         prior = NULL,
-                         prior_counts = dirichlet(1),
-                         shape = NULL,
-                         chains = 4, 
-                         #cores = CORES, 
-                         seed = 1234, 
-                         iter = 200))
-
-mod7_STD2016 <- try(stan_polr(mod_STD2016, 
-                         data = data_subset, 
-                         #prior = R2(0.25), 
-                         prior = NULL,
-                         prior_counts = dirichlet(1),
-                         shape = NULL,
-                         chains = 4, 
-                         #cores = CORES, 
-                         seed = 1234, 
-                         iter = 200))
-
-mod8_STD2014 <- try(stan_polr(mod_STD2014, 
-                         data = data_subset, 
-                         #prior = R2(0.25), 
-                         prior = NULL,
-                         prior_counts = dirichlet(1),
-                         shape = NULL,
-                         chains = 4, 
-                         #cores = CORES, 
-                         seed = 1234, 
-                         iter = 200))
-
-mod9_STD2012 <- try(stan_polr(mod_STD2012, 
-                         data = data_subset, 
-                         #prior = R2(0.25), 
-                         prior = NULL,
-                         prior_counts = dirichlet(1),
-                         shape = NULL,
-                         chains = 4, 
-                         #cores = CORES, 
-                         seed = 1234, 
-                         iter = 200))
-
-mod10_STD2007 <- try(stan_polr(mod_STD2007, 
-                         data = data_subset, 
-                         #prior = R2(0.25), 
-                         prior = NULL,
-                         prior_counts = dirichlet(1),
-                         shape = NULL,
-                         chains = 4, 
-                         #cores = CORES, 
-                         seed = 1234, 
-                         iter = 200))
-
-mod11_STD2002 <- try(stan_polr(mod_STD2002, 
-                         data = data_subset, 
-                         #prior = R2(0.25), 
-                         prior = NULL,
-                         prior_counts = dirichlet(1),
-                         shape = NULL,
-                         chains = 4, 
-                         #cores = CORES, 
-                         seed = 1234, 
-                         iter = 200))
-
-  print(paste("i=",i))
-  list_mod[[i]] <- mod   
-  summary(list_mod[[1]]) 
-  #save(mod,file= paste("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\model",i,"output.rdata", sep ="")) # This save would be useful if you wanted to save each of the 11 models as their own file
+#save(mod,file= paste("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\model",i,"output.rdata", sep ="")) # This save would be useful if you wanted to save each of the 11 models as their own file
   
-save(data1, file = "data.RData")
+mod_outfilename <- paste0("list_mod_",out_suffix,".RData")
+save(list_mod, 
+     file = mod_outfilename)
 
 
 ## ------------------------------------------------------------------------
