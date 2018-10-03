@@ -40,6 +40,21 @@ library("parallel")
 
 ###### Functions used in this script and sourced from other files
 
+run_model_assessment <- function(mod,model_type="bayes_stan",k_threshold = 0.7){
+  
+  if (model_type!="bayes_stan") {
+    stop("Model type not implemented")
+  }
+  
+  if(model_type=="bayes_stan"){
+    debug(loo)
+    mod$formula
+    loo_obj <- try(loo(mod, k_threshold = k_threshold))
+  }
+  
+  return(loo_obj)
+}
+
 run_model_ordinal_logistic <- function(model_formula,model_type="bayes_stan",data,prior = NULL, prior_counts = dirichlet(1),
                                        shape = NULL,chains = 4, num_cores = NUL, seed_val = 1234, iter_val = 200){
   
@@ -147,16 +162,16 @@ dataDR$y_var <- dataDR[[y_var_name]]
 dataDR$stdiv <- factor(dataDR$stdiv)
 dataDR$Agency <- factor(dataDR$Agency)
 dataDR$y_var <- factor(dataDR$y_var)
-dataDR$PDSI_MEAN_2016 <- factor(dataDR$PDSI_MEAN_2016)
-dataDR$PDSI_MEAN_2014 <- factor(dataDR$PDSI_MEAN_2014)
-dataDR$PDSI_MEAN_2012 <- factor(dataDR$PDSI_MEAN_2012)
-dataDR$PDSI_MEAN_2007 <- factor(dataDR$PDSI_MEAN_2007)
-dataDR$PDSI_MEAN_2002 <- factor(dataDR$PDSI_MEAN_2002)
-dataDR$PDSI_STD_2016 <- factor(dataDR$PDSI_STD_2016)
-dataDR$PDSI_STD_2014 <- factor(dataDR$PDSI_STD_2014)
-dataDR$PDSI_STD_2012 <- factor(dataDR$PDSI_STD_2012)
-dataDR$PDSI_STD_2007 <- factor(dataDR$PDSI_STD_2007)
-dataDR$PDSI_STD_2002 <- factor(dataDR$PDSI_STD_2002)
+#dataDR$PDSI_MEAN_2016 <- factor(dataDR$PDSI_MEAN_2016)
+#dataDR$PDSI_MEAN_2014 <- factor(dataDR$PDSI_MEAN_2014)
+# #dataDR$PDSI_MEAN_2012 <- factor(dataDR$PDSI_MEAN_2012)
+# dataDR$PDSI_MEAN_2007 <- factor(dataDR$PDSI_MEAN_2007)
+# dataDR$PDSI_MEAN_2002 <- factor(dataDR$PDSI_MEAN_2002)
+# dataDR$PDSI_STD_2016 <- factor(dataDR$PDSI_STD_2016)
+# dataDR$PDSI_STD_2014 <- factor(dataDR$PDSI_STD_2014)
+# dataDR$PDSI_STD_2012 <- factor(dataDR$PDSI_STD_2012)
+# dataDR$PDSI_STD_2007 <- factor(dataDR$PDSI_STD_2007)
+# dataDR$PDSI_STD_2002 <- factor(dataDR$PDSI_STD_2002)
 
 #### Setting up models var inputs
 x_var_clean <- c("PercLossDrought", 
@@ -232,7 +247,7 @@ mod2 <- run_model_ordinal_logistic(list_model_formulas[[2]],
 #                    mc.preschedule = F,
 #                    mc.cores = 1)
          
-list_mod <- lapply(list_model_formulas,
+list_mod <- lapply(list_model_formulas[1:3],
                      FUN=run_model_ordinal_logistic,
                      data = data_subset, 
                      prior = NULL,
@@ -243,6 +258,7 @@ list_mod <- lapply(list_model_formulas,
                      seed_val = 1234, 
                      iter_val = 200)
 
+list_mod[[3]]
 #save(mod,file= paste("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\model",i,"output.rdata", sep ="")) # This save would be useful if you wanted to save each of the 11 models as their own file
   
 mod_outfilename <- paste0("list_mod_",out_suffix,".RData")
@@ -275,20 +291,7 @@ options(mc.cores = 1)                      # loo default is 1 core
 #loo_mod10 <- try(loo(mod10_STD2007, k_threshold = 0.7))
 #loo_mod11 <- try(loo(mod11_STD2002, k_threshold = 0.7))
 
-run_model_assessment <- function(mod,model_type="bayes_stan",k_threshold = 0.7){
-  
-  if (model_type!="bayes_stan") {
-    stop("Model type not implemented")
-  }
-  
-  if(model_type=="bayes_stan"){
-    debug(loo)
-    mod$formula
-    loo_obj <- try(loo(mod, k_threshold = k_threshold))
-  }
-  
-  return(loo_obj)
-}
+
 
 debug(run_model_assessment)
 
@@ -315,7 +318,7 @@ ls(mod2)
 
 plot(loo(mod2, k_threshold = 0.7))
 
-loo(mod2, k_threshold = 0.7)
+loo_obj <- loo(mod2, k_threshold = 0.7)
 
 loo.stanreg(mod2, k_threshold = 0.7)
 
@@ -331,6 +334,7 @@ debug(loo)
 mod$formula
 k_threshold <- 0.7
 loo_obj <- try(loo(mod2, k_threshold = k_threshold))
+loo_obj <- try(loo(list_mod[[3]], k_threshold = k_threshold))
 
 
 reloo(x, loo_x, obs = bad_obs)
