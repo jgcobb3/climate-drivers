@@ -241,9 +241,7 @@ list_mod <- lapply(list_model_formulas,
                      chains = 4, 
                      num_cores = 4, 
                      seed_val = 1234, 
-                     iter_val = 200,
-                     mc.preschedule = F,
-                     mc.cores = 1)
+                     iter_val = 200)
 
 #save(mod,file= paste("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\model",i,"output.rdata", sep ="")) # This save would be useful if you wanted to save each of the 11 models as their own file
   
@@ -302,7 +300,7 @@ loo_mod2 <- run_model_assessment(mod2)
 #Fitting model 1 out of 1 (leaving out observation 1432)
 #Error in stats::model.frame(formula = model_formula, data = structure(list( : 
 #                                                                              object 'model_formula' not found
-                                                                            
+## Debugged and found that that the probl                                                                            
 loo_mod <- mclapply(list_mod,
                     FUN=run_model_assessment,
                     k_threshold=0.7,
@@ -311,13 +309,29 @@ loo_mod <- mclapply(list_mod,
 
 
 ## ------------------------------------------------------------------------
-ls(mod2_mean2016)
 
-plot(loo(mod2_mean2016, k_threshold = 0.7))
 
-loo(mod2_mean2016, k_threshold = 0.7)
+ls(mod2)
 
-loo.stanreg(mod2_mean2016, k_threshold = 0.7)
+plot(loo(mod2, k_threshold = 0.7))
+
+loo(mod2, k_threshold = 0.7)
+
+loo.stanreg(mod2, k_threshold = 0.7)
+
+debug(loo_fun)
+
+loo_obj <- try(loo_fun(mod2, k_threshold = k_threshold))
+
+###
+debug(reloo)
+reloo(mod2, loo_x, obs = bad_obs)
+
+debug(loo)
+mod$formula
+k_threshold <- 0.7
+loo_obj <- try(loo(mod2, k_threshold = k_threshold))
+
 
 reloo(x, loo_x, obs = bad_obs)
 
@@ -333,6 +347,32 @@ print(loo2)
 
 ## ------------------------------------------------------------------------
 compare_models(mod)
+
+
+
+
+# ls(mod2_mean2016)
+# 
+# plot(loo(mod2_mean2016, k_threshold = 0.7))
+# 
+# loo(mod2_mean2016, k_threshold = 0.7)
+# 
+# loo.stanreg(mod2_mean2016, k_threshold = 0.7)
+# 
+# reloo(x, loo_x, obs = bad_obs)
+# 
+# log_lik.stanreg(fit_j, newdata = d[omitted, , drop = FALSE], offset = x$offset[omitted], newx = get_x(x)[omitted, , drop = FALSE], stanmat = as.character.stanreg(fit_j))
+# 
+# ll_args.stanreg(object, newdata = newdata, offset = offset, reloo_or_kfold = calling_fun %in% c("kfold", "reloo"), ...)
+# 
+# 
+# ## ------------------------------------------------------------------------
+# loo2 <- (loo(mod2_mean2016, 
+#              save_psis = TRUE))
+# print(loo2)
+# 
+# ## ------------------------------------------------------------------------
+# compare_models(mod)
 
 ## ------------------------------------------------------------------------
 shinystan::launch_shinystan(mod)
