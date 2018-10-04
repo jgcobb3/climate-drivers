@@ -311,20 +311,6 @@ loo_mod <- mclapply(list_mod,
                     mc.cores=1)
 
 
-## ------------------------------------------------------------------------
-
-
-ls(mod2)
-
-plot(loo(mod2, k_threshold = 0.7))
-
-loo_obj <- loo(mod2, k_threshold = 0.7)
-
-loo.stanreg(mod2, k_threshold = 0.7)
-
-debug(loo_fun)
-
-loo_obj <- try(loo_fun(mod2, k_threshold = k_threshold))
 
 ###
 debug(reloo)
@@ -343,6 +329,17 @@ log_lik.stanreg(fit_j, newdata = d[omitted, , drop = FALSE], offset = x$offset[o
 
 ll_args.stanreg(object, newdata = newdata, offset = offset, reloo_or_kfold = calling_fun %in% c("kfold", "reloo"), ...)
 
+
+### check issue
+
+#https://github.com/stan-dev/rstanarm/issues/135
+## This suggests:
+#Thanks Aki. I think I have a fix for this. The issue arises when computing
+#log lik (internally inside the reloo function) when nrow(newdata) is 1 and
+#any of the predictors are coded as factor variables in R (the Player
+#variable in this case). R is trying to validate the levels of the factor so
+#we just need to work around that. I'll merge the fix into the master branch
+#tonight or tomorrow once I test it more.
 
 ## ------------------------------------------------------------------------
 loo2 <- (loo(mod2_mean2016, 
