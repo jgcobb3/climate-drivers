@@ -9,7 +9,7 @@
 ## in the methods.
 ##
 ## DATE CREATED: 09/27/2018
-## DATE MODIFIED: 10/02/2018
+## DATE MODIFIED: 10/05/2018
 ## AUTHORS: Rachel Schattman, Benoit Parmentier  
 ## Version: 1
 ## PROJECT: Climate Percecption
@@ -349,9 +349,7 @@ print(loo2)
 ## ------------------------------------------------------------------------
 compare_models(mod)
 
-
-
-
+    
 # ls(mod2_mean2016)
 # 
 # plot(loo(mod2_mean2016, k_threshold = 0.7))
@@ -433,8 +431,8 @@ table1[i,] <- c(i,
 
 write.csv(table1, file = 'table1.csv')
 
-Fitting model 1 out of 1 (leaving out observation 1432)
-Error in stats::model.frame(formula = model_formula, data = list(Concern_DryDrought = c(4L,  : 
-                                                                                          object 'model_formula' not found
+#Fitting model 1 out of 1 (leaving out observation 1432)
+#Error in stats::model.frame(formula = model_formula, data = list(Concern_DryDrought = c(4L,  : 
+#                                                                                          object 'model_formula' not found
                                                                                         
 ################################# End of script ######################################
