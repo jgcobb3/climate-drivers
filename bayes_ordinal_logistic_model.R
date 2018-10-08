@@ -114,11 +114,14 @@ out_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/outputs"
 #ARGS 3:
 create_out_dir_param=TRUE #create a new ouput dir if TRUE
 #ARGS 7
-out_suffix <-"_10232018" #output suffix for the files and ouptut folder
+out_suffix <-"_10052018" #output suffix for the files and ouptut folder
 #ARGS 8
 num_cores <- 2 # number of cores
 
 in_filename <- "NRCS_FSAMergeDataset_w_PDSI2_7_28_18.csv"
+model_type <- "bayes_stan"
+y_var_name <- "Concern_DryDrought"
+
 
 ################# START SCRIPT ###############################
 
@@ -146,17 +149,21 @@ if(create_out_dir_param==TRUE){
 #######################################
 ### PART 1: Read in DATA #######
 
+#data_df <- read.table(file.path(in_dir,in_filename),
+#                      sep=",",
+#                      header=T)
+
+#rm(list=ls())            # clear
+
 dataDR <- read.csv(file.path(in_dir,in_filename), #"/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/data/NRCS_FSAMergeDataset_w_PDSI2_7_28_18.csv", 
                    header = TRUE)
 
-y_var_name <- "Concern_DryDrought"
 
 dataDR$y_var <- dataDR[[y_var_name]]
 
 dataDR$stdiv <- factor(dataDR$stdiv)
 dataDR$Agency <- factor(dataDR$Agency)
 dataDR$y_var <- factor(dataDR$y_var)
-
 
 #### Setting up models var inputs
 x_var_clean <- c("PercLossDrought", 
@@ -202,11 +209,8 @@ mod_STD2002 <-  "y_var ~ PercLossDrought + PDSI_STD_2002"
                
 list_model_formulas <- list(mod_noPDSI,mod_mean2016,mod_mean2014,mod_mean2012,mod_mean2007,mod_mean2002,
                     mod_STD2016,mod_STD2014,mod_STD2012,mod_STD2007,mod_STD2002)
-## ------------------------------------------------------------------------
 
-### This should be a loop or a function:
-
-model_type <- "bayes_stan"
+############ PART 2: Run model with option for bayesian ordinal logistic
 
 
 mod2 <- run_model_ordinal_logistic(list_model_formulas[[2]],
@@ -250,129 +254,21 @@ mod_outfilename <- paste0("list_mod_",out_suffix,".RData")
 save(list_mod, 
      file = mod_outfilename)
 
+############# PART 23: Model assessment 
 
-## ------------------------------------------------------------------------
-options(mc.cores = 1)                      # loo default is 1 core
-#plot(loo(mod2_mean2016, k_threshold = 0.7))
-#plot(loo(mod3_mean2014, k_threshold = 0.7))
-#plot(loo(mod4_mean2012, k_threshold = 0.7))
-#plot(loo(mod5_mean2007, k_threshold = 0.7))
-#plot(loo(mod6_mean2002, k_threshold = 0.7))
-#plot(loo(mod7_STD2016, k_threshold = 0.7))
-#plot(loo(mod8_STD2014))                    #no observations with pareto_k > 0.7
-#plot(loo(mod9_STD2012))                    #no observations with pareto_k > 0.7
-#plot(loo(mod10_STD2007, k_threshold = 0.7))
-#plot(loo(mod11_STD2002, k_threshold = 0.7))
-
-### store output of loo in object for further check and outputs
-#loo_mod2 <- try(loo(mod2_mean2016, k_threshold = 0.7))
-#loo_mod3 <- try(loo(mod3_mean2014,k_threshold = 0.7))
-#loo_mod4 <- try(loo(mod4_mean2012, k_threshold = 0.7))
-#loo_mod5 <- try(loo(mod5_mean2007, k_threshold = 0.7))
-#loo_mod6 <- try(loo(mod6_mean2002, k_threshold = 0.7))
-#loo_mod7 <- try(loo(mod7_STD2016, k_threshold = 0.7))
-#loo_mod8 <- try(loo(mod8_STD2014))                    #no observations with pareto_k > 0.7
-#loo_mod9 <- try(loo(mod9_STD2012))                    #no observations with pareto_k > 0.7
-#loo_mod10 <- try(loo(mod10_STD2007, k_threshold = 0.7))
-#loo_mod11 <- try(loo(mod11_STD2002, k_threshold = 0.7))
-
-
-
-debug(run_model_assessment)
+#debug(run_model_assessment)
 
 loo_mod2 <- run_model_assessment(mod2)
-#> loo_mod <- run_model_assessment(mod2)
-#1 problematic observation(s) found.
-#Model will be refit 1 times.
-
-#Fitting model 1 out of 1 (leaving out observation 1432)
-#Error in stats::model.frame(formula = model_formula, data = structure(list( : 
-#                                                                              object 'model_formula' not found
-## Debugged and found that that the probl                                                                            
 loo_mod <- mclapply(list_mod,
                     FUN=run_model_assessment,
                     k_threshold=0.7,
                     mc.preschedule = FALSE,
                     mc.cores=1)
 
+compare_models(list_mod)
 
 
-###
-debug(reloo)
-reloo(mod2, loo_x, obs = bad_obs)
-
-debug(loo)
-mod$formula
-k_threshold <- 0.7
-loo_obj <- try(loo(mod2, k_threshold = k_threshold))
-loo_obj <- try(loo(list_mod[[3]], k_threshold = k_threshold))
-
-
-reloo(x, loo_x, obs = bad_obs)
-
-log_lik.stanreg(fit_j, newdata = d[omitted, , drop = FALSE], offset = x$offset[omitted], newx = get_x(x)[omitted, , drop = FALSE], stanmat = as.character.stanreg(fit_j))
-
-ll_args.stanreg(object, newdata = newdata, offset = offset, reloo_or_kfold = calling_fun %in% c("kfold", "reloo"), ...)
-
-
-### check issue
-
-#https://github.com/stan-dev/rstanarm/issues/135
-## This suggests:
-#Thanks Aki. I think I have a fix for this. The issue arises when computing
-#log lik (internally inside the reloo function) when nrow(newdata) is 1 and
-#any of the predictors are coded as factor variables in R (the Player
-#variable in this case). R is trying to validate the levels of the factor so
-#we just need to work around that. I'll merge the fix into the master branch
-#tonight or tomorrow once I test it more.
-
-## ------------------------------------------------------------------------
-loo2 <- (loo(mod2_mean2016, 
-             save_psis = TRUE))
-print(loo2)
-
-## ------------------------------------------------------------------------
-compare_models(mod)
-
-    
-# ls(mod2_mean2016)
-# 
-# plot(loo(mod2_mean2016, k_threshold = 0.7))
-# 
-# loo(mod2_mean2016, k_threshold = 0.7)
-# 
-# loo.stanreg(mod2_mean2016, k_threshold = 0.7)
-# 
-# reloo(x, loo_x, obs = bad_obs)
-# 
-# log_lik.stanreg(fit_j, newdata = d[omitted, , drop = FALSE], offset = x$offset[omitted], newx = get_x(x)[omitted, , drop = FALSE], stanmat = as.character.stanreg(fit_j))
-# 
-# ll_args.stanreg(object, newdata = newdata, offset = offset, reloo_or_kfold = calling_fun %in% c("kfold", "reloo"), ...)
-# 
-# 
-# ## ------------------------------------------------------------------------
-# loo2 <- (loo(mod2_mean2016, 
-#              save_psis = TRUE))
-# print(loo2)
-# 
-# ## ------------------------------------------------------------------------
-# compare_models(mod)
-
-## ------------------------------------------------------------------------
-shinystan::launch_shinystan(mod)
-
-## ------------------------------------------------------------------------
-#save(list_mod,file="C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\modeloutput.rdata")
-
-## ------------------------------------------------------------------------
-# for(i in 1:n_model){           #use this if you've saved multiple rdata files
-# load(file= paste("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\model",i,"output.rdata", sep =""))
-# }
-
-#use the code below if you've saved one rdata file with all the models in it
-
-load(file=paste("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\modeloutput.rdata", sep = ""))
-
+#### Collect information in table
 
 ## ------------------------------------------------------------------------
 str(list_mod)
@@ -394,7 +290,6 @@ table1 <- data.frame (list_mod = 1,
                     r.squared = 1, 
                     p.value = 1)
 
-## ------------------------------------------------------------------------
 for(i in 1:11){
   x<-rnorm(11)
   y<-rnorm(11)
@@ -416,8 +311,5 @@ table1[i,] <- c(i,
 
 write.csv(table1, file = 'table1.csv')
 
-#Fitting model 1 out of 1 (leaving out observation 1432)
-#Error in stats::model.frame(formula = model_formula, data = list(Concern_DryDrought = c(4L,  : 
-#                                                                                          object 'model_formula' not found
-                                                                                        
+
 ################################# End of script ######################################
