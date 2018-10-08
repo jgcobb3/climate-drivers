@@ -162,16 +162,7 @@ dataDR$y_var <- dataDR[[y_var_name]]
 dataDR$stdiv <- factor(dataDR$stdiv)
 dataDR$Agency <- factor(dataDR$Agency)
 dataDR$y_var <- factor(dataDR$y_var)
-#dataDR$PDSI_MEAN_2016 <- factor(dataDR$PDSI_MEAN_2016)
-#dataDR$PDSI_MEAN_2014 <- factor(dataDR$PDSI_MEAN_2014)
-# #dataDR$PDSI_MEAN_2012 <- factor(dataDR$PDSI_MEAN_2012)
-# dataDR$PDSI_MEAN_2007 <- factor(dataDR$PDSI_MEAN_2007)
-# dataDR$PDSI_MEAN_2002 <- factor(dataDR$PDSI_MEAN_2002)
-# dataDR$PDSI_STD_2016 <- factor(dataDR$PDSI_STD_2016)
-# dataDR$PDSI_STD_2014 <- factor(dataDR$PDSI_STD_2014)
-# dataDR$PDSI_STD_2012 <- factor(dataDR$PDSI_STD_2012)
-# dataDR$PDSI_STD_2007 <- factor(dataDR$PDSI_STD_2007)
-# dataDR$PDSI_STD_2002 <- factor(dataDR$PDSI_STD_2002)
+
 
 #### Setting up models var inputs
 x_var_clean <- c("PercLossDrought", 
