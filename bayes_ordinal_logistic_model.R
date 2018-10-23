@@ -1,17 +1,14 @@
 ############### Climate perception project ########## 
 ##
 ##
-#Data used in this project comes from three sources: (1) A survey of NRCS and FSA employees conducted by the USDA Climate Hubs in 2016/2017, (2) Crop idemnity payments made by FSA to farmers for weather-related 
-#crop loss between 2013-2016, and (3) mean and standard deviations of drought data over 1, 3, 5, 10, and 15 year periods.
+##Data used in this project comes from three sources: (1) A survey of NRCS and FSA employees conducted by the USDA Climate Hubs in 2016/2017, (2) Crop idemnity payments made by FSA to farmers for weather-related 
+##crop loss between 2013-2016, and (3) mean and standard deviations of drought data over 1, 3, 5, 10, and 15 year periods.
 ##
-## This is an example script using mixed models to test differences in time series
-## for different locations/subjects. Autocorrelation structures is taken into account
-## in the methods.
 ##
 ## DATE CREATED: 09/27/2018
 ## DATE MODIFIED: 10/23/2018
 ## AUTHORS: Rachel Schattman, Benoit Parmentier  
-## Version: 1
+## Version: 2
 ## PROJECT: Climate Percecption
 ## ISSUE: 
 ## TO DO:
@@ -36,46 +33,7 @@ library("ggplot2")
 library("loo")
 library("parallel")
 
-##########
-
-###### Functions used in this script and sourced from other files
-
-run_model_assessment <- function(mod,model_type="bayes_stan",k_threshold = 0.7){
-  
-  if (model_type!="bayes_stan") {
-    stop("Model type not implemented")
-  }
-  
-  if(model_type=="bayes_stan"){
-    debug(loo)
-    mod$formula
-    loo_obj <- try(loo(mod, k_threshold = k_threshold))
-  }
-  
-  return(loo_obj)
-}
-
-run_model_ordinal_logistic <- function(model_formula,model_type="bayes_stan",data,prior = NULL, prior_counts = dirichlet(1),
-                                       shape = NULL,chains = 4, num_cores = NUL, seed_val = 1234, iter_val = 200){
-  
-  if (model_type!="bayes_stan") {
-    stop("Model type not implemented")
-  }
-  
-  if(model_type=="bayes_stan"){
-    mod <- try(stan_polr(formula=model_formula,
-                         data = data_subset, 
-                         prior = prior, 
-                         prior_counts = dirichlet(1),
-                         shape = shape,
-                         chains = chains, 
-                         cores = num_cores, 
-                         seed = seed_val, 
-                         iter = iter_val))
-  }
-  
-  return(mod)
-}
+####### Functions used in this script and sourced from other files
 
 create_dir_fun <- function(outDir,out_suffix=NULL){
   #if out_suffix is not null then append out_suffix string
@@ -101,8 +59,8 @@ load_obj <- function(f){
 
 #Benoit setup
 script_path <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/scripts"
-#mosaicing_functions <- "weighted_mosaicing_functions_07252018.R"
-#source(file.path(script_path,mosaicing_functions))
+modeling_functions <- "bayes_logistic_model_functions_10232018.R"
+source(file.path(script_path,modeling_functions))
 
 #########cd ###################################################################
 #####  Parameters and argument set up ########### 
@@ -114,7 +72,7 @@ out_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/outputs"
 #ARGS 3:
 create_out_dir_param=TRUE #create a new ouput dir if TRUE
 #ARGS 7
-out_suffix <-"_10052018" #output suffix for the files and ouptut folder
+out_suffix <-"_10232018" #output suffix for the files and ouptut folder
 #ARGS 8
 num_cores <- 2 # number of cores
 
@@ -148,12 +106,6 @@ if(create_out_dir_param==TRUE){
 
 #######################################
 ### PART 1: Read in DATA #######
-
-#data_df <- read.table(file.path(in_dir,in_filename),
-#                      sep=",",
-#                      header=T)
-
-#rm(list=ls())            # clear
 
 dataDR <- read.csv(file.path(in_dir,in_filename), #"/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/data/NRCS_FSAMergeDataset_w_PDSI2_7_28_18.csv", 
                    header = TRUE)
@@ -254,7 +206,7 @@ mod_outfilename <- paste0("list_mod_",out_suffix,".RData")
 save(list_mod, 
      file = mod_outfilename)
 
-############# PART 23: Model assessment 
+############# PART 23: Model assessment ################
 
 #debug(run_model_assessment)
 
