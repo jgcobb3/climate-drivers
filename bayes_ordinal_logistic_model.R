@@ -1,12 +1,12 @@
 ############### Climate perception project ########## 
-##
+## SESYNC Research Support
 ##
 ##Data used in this project comes from three sources: (1) A survey of NRCS and FSA employees conducted by the USDA Climate Hubs in 2016/2017, (2) Crop idemnity payments made by FSA to farmers for weather-related 
 ##crop loss between 2013-2016, and (3) mean and standard deviations of drought data over 1, 3, 5, 10, and 15 year periods.
 ##
 ##
 ## DATE CREATED: 09/27/2018
-## DATE MODIFIED: 10/23/2018
+## DATE MODIFIED: 10/24/2018
 ## AUTHORS: Rachel Schattman, Benoit Parmentier  
 ## Version: 2
 ## PROJECT: Climate Percecption
@@ -59,7 +59,7 @@ load_obj <- function(f){
 
 #Benoit setup
 script_path <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/scripts"
-modeling_functions <- "bayes_logistic_model_functions_10232018.R"
+modeling_functions <- "bayes_logistic_model_functions_10242018.R"
 source(file.path(script_path,modeling_functions))
 
 #########cd ###################################################################
@@ -79,7 +79,6 @@ num_cores <- 2 # number of cores
 in_filename <- "NRCS_FSAMergeDataset_w_PDSI2_7_28_18.csv"
 model_type <- "bayes_stan"
 y_var_name <- "Concern_DryDrought"
-
 
 ################# START SCRIPT ###############################
 
@@ -107,9 +106,8 @@ if(create_out_dir_param==TRUE){
 #######################################
 ### PART 1: Read in DATA #######
 
-dataDR <- read.csv(file.path(in_dir,in_filename), #"/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/data/NRCS_FSAMergeDataset_w_PDSI2_7_28_18.csv", 
+dataDR <- read.csv(file.path(in_dir,in_filename), 
                    header = TRUE)
-
 
 dataDR$y_var <- dataDR[[y_var_name]]
 
@@ -145,7 +143,7 @@ data_subset <- na.omit(data_subset)
 
 data_subset$y_var <- factor(data_subset[[y_var_name]])
 
-## ------------------------------------------------------------------------
+## Model formulas used in the analyses:
 
 mod_noPDSI <- "y_var ~ PercLossDrought + stdiv"
 mod_mean2016 <- "y_var ~ PercLossDrought + PDSI_MEAN_2016"
@@ -164,16 +162,16 @@ list_model_formulas <- list(mod_noPDSI,mod_mean2016,mod_mean2014,mod_mean2012,mo
 
 ############ PART 2: Run model with option for bayesian ordinal logistic
 
+#mod2 <- run_model_ordinal_logistic(list_model_formulas[[2]],
+#                           data = data_subset, 
+#                           prior = NULL,
+#                           prior_counts = dirichlet(1),
+#                           shape = NULL,
+#                           chains = 4, 
+#                           num_cores = 4, 
+#                           seed_val = 1234, 
+#                           iter_val = 200)
 
-mod2 <- run_model_ordinal_logistic(list_model_formulas[[2]],
-                           data = data_subset, 
-                           prior = NULL,
-                           prior_counts = dirichlet(1),
-                           shape = NULL,
-                           chains = 4, 
-                           num_cores = 4, 
-                           seed_val = 1234, 
-                           iter_val = 200)
 ## does not work
 #list_mod <- mclapply(list_model_formulas,
 #                     FUN=run_model_ordinal_logistic,
@@ -203,21 +201,23 @@ list_mod[[3]]
 #save(mod,file= paste("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\model",i,"output.rdata", sep ="")) # This save would be useful if you wanted to save each of the 11 models as their own file
   
 mod_outfilename <- paste0("list_mod_",out_suffix,".RData")
+
 save(list_mod, 
-     file = mod_outfilename)
+     file = file.path(out_dir,mod_outfilename))
 
 ############# PART 23: Model assessment ################
 
 #debug(run_model_assessment)
 
-loo_mod2 <- run_model_assessment(mod2)
+#loo_mod2 <- run_model_assessment(mod2)
+
 loo_mod <- mclapply(list_mod,
                     FUN=run_model_assessment,
                     k_threshold=0.7,
                     mc.preschedule = FALSE,
-                    mc.cores=1)
+                    mc.cores=3)
 
-compare_models(list_mod)
+compare_models(loo_mod[[2]],loo_mod[[3]])
 
 
 #### Collect information in table
@@ -229,39 +229,44 @@ str(summary(list_mod))
 ## ------------------------------------------------------------------------
 
 print(list_mod, digets = 3)
-round(apply(rstan:: extract(list_mod$stanfit, pars = "drought") [[1]], 2, median), digits = 3)
 
-loo(x, list_mod, cores = 1)
+rstan::extract(list_mod[[2]]$stanfit,pars="PercLossDrought")
+list_mod[[2]]$stanfit
+
+### Still need to fix this part to extract the coef
+#round(apply(rstan:: extract(list_mod$stanfit, pars = "drought") [[1]], 2, median), digits = 3)
+
+#loo(x, list_mod, cores = 1)
   #save_psis = FALSE, K_threshold = NULL)
 
-table1 <- data.frame (list_mod = 1, 
-                    intercept = 1, 
-                    intercept.se = 1, 
-                    slope = 1, 
-                    slope.se = 1, 
-                    r.squared = 1, 
-                    p.value = 1)
+#table1 <- data.frame (list_mod = 1, 
+#                    intercept = 1, 
+#                    intercept.se = 1, 
+#                    slope = 1, 
+#                    slope.se = 1, 
+#                    r.squared = 1, 
+#                    p.value = 1)
 
-for(i in 1:11){
-  x<-rnorm(11)
-  y<-rnorm(11)
-  list_mod <- list_mod
-  summary(list_mod)
-}
+#for(i in 1:11){
+#  x<-rnorm(11)
+#  y<-rnorm(11)
+#  list_mod <- list_mod
+#  summary(list_mod)
+#}
 
-for (i in 1:11){
-  print(i)
-}
+#for (i in 1:11){
+#  print(i)
+#}
 
-table1[i,] <- c(i,
-                summary(list_mod)[['coefficients']]['(Intercept)','Estimate'],
-                     summary(list_mod)[['coefficients']]['(Intercept)','Std. Error'],
-                summary(list_mod)[['coefficients']]['x','Estimate'],
-                     summary(list_mod)[['coefficients']]['x','Std. Error'],
-                summary(list_mod)[['r.squared']],
-                     summary(list_mod)[['coefficients']]['x','Pr(>|t|)'])
+#table1[i,] <- c(i,
+#                summary(list_mod)[['coefficients']]['(Intercept)','Estimate'],
+#                     summary(list_mod)[['coefficients']]['(Intercept)','Std. Error'],
+#                summary(list_mod)[['coefficients']]['x','Estimate'],
+#                     summary(list_mod)[['coefficients']]['x','Std. Error'],
+#                summary(list_mod)[['r.squared']],
+#                     summary(list_mod)[['coefficients']]['x','Pr(>|t|)'])
 
-write.csv(table1, file = 'table1.csv')
+#write.csv(table1, file = 'table1.csv')
 
 
 ################################# End of script ######################################
