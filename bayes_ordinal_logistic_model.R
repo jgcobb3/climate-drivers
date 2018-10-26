@@ -62,19 +62,33 @@ script_path <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/scripts
 modeling_functions <- "bayes_logistic_model_functions_10242018.R"
 source(file.path(script_path,modeling_functions))
 
+#Rachel setup
+script_path <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers"
+modeling_functions <- "bayes_logistic_model_functions.R"
+source(file.path(script_path,modeling_functions))
+
+
+
 #########cd ###################################################################
 #####  Parameters and argument set up ########### 
 
 #ARGS 1
-in_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/data"
+#in_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/data"
+in_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers"
+
 #ARGS 2
-out_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/outputs"
+#out_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/outputs"
+out_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers/output"
+
 #ARGS 3:
 create_out_dir_param=TRUE #create a new ouput dir if TRUE
+
 #ARGS 7
-out_suffix <-"_10232018" #output suffix for the files and ouptut folder
+out_suffix <-"_10262018" #output suffix for the files and ouptut folder
+
 #ARGS 8
 num_cores <- 2 # number of cores
+
 
 in_filename <- "NRCS_FSAMergeDataset_w_PDSI2_7_28_18.csv"
 model_type <- "bayes_stan"
@@ -186,7 +200,7 @@ list_model_formulas <- list(mod_noPDSI,mod_mean2016,mod_mean2014,mod_mean2012,mo
 #                    mc.preschedule = F,
 #                    mc.cores = 1)
          
-list_mod <- lapply(list_model_formulas[1:3],
+list_mod <- lapply(list_model_formulas[1:11],
                      FUN=run_model_ordinal_logistic,
                      data = data_subset, 
                      prior = NULL,
@@ -197,7 +211,7 @@ list_mod <- lapply(list_model_formulas[1:3],
                      seed_val = 1234, 
                      iter_val = 200)
 
-list_mod[[3]]
+list_mod[[11]]
 #save(mod,file= paste("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\model",i,"output.rdata", sep ="")) # This save would be useful if you wanted to save each of the 11 models as their own file
   
 mod_outfilename <- paste0("list_mod_",out_suffix,".RData")

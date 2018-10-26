@@ -156,6 +156,8 @@ I wanted to test several types of regression models, knowing that some form of o
 model_type <- "bayes_stan"                        
 ```
 
+A helpful guide to estimating Ordinal Regression Models with rstanarm can be found here: http://mc-stan.org/rstanarm/articles/polr.html
+
 Here is the loop
 ```{r}
 for(i in 1:n_model){                #n_model = 1
@@ -212,6 +214,8 @@ for(i in 1:n_model){                #n_model = 1
 list_mod
 ```
 ###Tools for critiquing the model
+
+A helpful guide: http://mc-stan.org/rstanarm/articles/rstanarm.html 
 
 ```{r}
 plot(loo(mod))
