@@ -31,7 +31,7 @@ library(rstanarm)
 library("bayesplot")
 library("ggplot2")
 library("loo")
-library("parallel")
+library(parallel)
 
 ####### Functions used in this script and sourced from other files
 
@@ -62,12 +62,10 @@ script_path <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/scripts
 modeling_functions <- "bayes_logistic_model_functions_10242018.R"
 source(file.path(script_path,modeling_functions))
 
-#Rachel setup
+#Rachel setup local
 script_path <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers"
 modeling_functions <- "bayes_logistic_model_functions.R"
 source(file.path(script_path,modeling_functions))
-
-
 
 #########cd ###################################################################
 #####  Parameters and argument set up ########### 
@@ -212,6 +210,7 @@ list_mod <- lapply(list_model_formulas[1:11],
                      iter_val = 200)
 
 list_mod[[11]]
+
 #save(mod,file= paste("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\model",i,"output.rdata", sep ="")) # This save would be useful if you wanted to save each of the 11 models as their own file
   
 mod_outfilename <- paste0("list_mod_",out_suffix,".RData")
@@ -219,19 +218,78 @@ mod_outfilename <- paste0("list_mod_",out_suffix,".RData")
 save(list_mod, 
      file = file.path(out_dir,mod_outfilename))
 
-############# PART 23: Model assessment ################
+############# PART 3: Model assessment ################
 
 #debug(run_model_assessment)
 
 #loo_mod2 <- run_model_assessment(mod2)
 
+##Benoit's elegant code
+
 loo_mod <- mclapply(list_mod,
-                    FUN=run_model_assessment,
-                    k_threshold=0.7,
+                    FUN = run_model_assessment,
+                    k_threshold = 0.7,
                     mc.preschedule = FALSE,
-                    mc.cores=3)
+                    mc.cores = 3)
+
+loo_mod <- lapply(list_mod,
+                  FUN=run_model_assessment,
+                  k_threshold=0.7)
 
 compare_models(loo_mod[[2]],loo_mod[[3]])
+
+#Rachel's not elegant code
+loo_mod2 <- loo(list_mod[[2]],
+                cores = 2)
+print(loo_mod2)
+
+loo_mod3 <- loo(list_mod[[3]],
+                cores = 2)
+print(loo_mod3)
+
+loo_mod4 <- loo(list_mod[[4]],
+                cores = 2)
+print(loo_mod4)
+
+loo_mod5 <- loo(list_mod[[5]],
+                cores = 2)
+print(loo_mod5)
+
+loo_mod6 <- loo(list_mod[[6]],
+                cores = 2)
+print(loo_mod6)
+
+loo_mod7 <- loo(list_mod[[7]],
+                cores = 2)
+print(loo_mod7)
+
+loo_mod8 <- loo(list_mod[[8]],
+                cores = 2)
+print(loo_mod8)
+
+loo_mod9 <- loo(list_mod[[9]],
+                cores = 2)
+print(loo_mod9)
+
+loo_mod10 <- loo(list_mod[[10]],
+                cores = 2)
+print(loo_mod10)
+
+loo_mod11 <- loo(list_mod[[11]],
+                cores = 2)
+print(loo_mod11)
+
+#compare models
+print(compare(x=list(loo_mod2,
+              loo_mod3,
+              loo_mod4,
+              loo_mod5,
+              loo_mod6,
+              loo_mod7,
+              loo_mod8,
+              loo_mod9,
+              loo_mod10,
+              loo_mod11)), digits = 3)
 
 
 #### Collect information in table
