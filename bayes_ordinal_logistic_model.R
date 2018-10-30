@@ -19,6 +19,9 @@
 ## Very good reference:
 #http://rpsychologist.com/r-guide-longitudinal-lme-lmer
 
+## Reference for model evaluation:
+#https://arxiv.org/pdf/1507.04544.pdf 
+
 ###################################################
 #
 
@@ -32,6 +35,7 @@ library("bayesplot")
 library("ggplot2")
 library("loo")
 library(parallel)
+library(shinystan)
 
 ####### Functions used in this script and sourced from other files
 
@@ -238,49 +242,41 @@ loo_mod <- lapply(list_mod,
 
 compare_models(loo_mod[[2]],loo_mod[[3]])
 
-#Rachel's not elegant code
+#Rachel's not elegant (but functional) code
 loo_mod2 <- loo(list_mod[[2]],
                 cores = 2)
-print(loo_mod2)
-
 loo_mod3 <- loo(list_mod[[3]],
                 cores = 2)
-print(loo_mod3)
-
 loo_mod4 <- loo(list_mod[[4]],
                 cores = 2)
-print(loo_mod4)
-
 loo_mod5 <- loo(list_mod[[5]],
                 cores = 2)
-print(loo_mod5)
-
 loo_mod6 <- loo(list_mod[[6]],
                 cores = 2)
-print(loo_mod6)
-
 loo_mod7 <- loo(list_mod[[7]],
                 cores = 2)
-print(loo_mod7)
-
 loo_mod8 <- loo(list_mod[[8]],
                 cores = 2)
-print(loo_mod8)
-
 loo_mod9 <- loo(list_mod[[9]],
                 cores = 2)
-print(loo_mod9)
-
 loo_mod10 <- loo(list_mod[[10]],
-                cores = 2)
-print(loo_mod10)
-
+                 cores = 2)
 loo_mod11 <- loo(list_mod[[11]],
-                cores = 2)
+                 cores = 2)
+
+print(loo_mod2)
+print(loo_mod3)
+print(loo_mod4)
+print(loo_mod5)
+print(loo_mod6)
+print(loo_mod7)
+print(loo_mod8)
+print(loo_mod9)
+print(loo_mod10)
 print(loo_mod11)
 
 #compare models
-print(compare(x=list(loo_mod2,
+compareloo <- compare(x=list(loo_mod2,
               loo_mod3,
               loo_mod4,
               loo_mod5,
@@ -289,10 +285,20 @@ print(compare(x=list(loo_mod2,
               loo_mod8,
               loo_mod9,
               loo_mod10,
-              loo_mod11)), digits = 3)
+              loo_mod11))
 
 
-#### Collect information in table
+############# PART 4: Create a Table ################
+
+
+#table1 <- data.frame (list_mod = 1, 
+ #                   intercept = 1, 
+ #                   intercept.se = 1, 
+ #                   slope = 1, 
+ #                   slope.se = 1, 
+ #                   r.squared = 1, 
+ #                   p.value = 1)
+ 
 
 ## ------------------------------------------------------------------------
 str(list_mod)
