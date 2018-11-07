@@ -211,7 +211,9 @@ list_mod <- lapply(list_model_formulas[1:11],
                      seed_val = 1234, 
                      iter_val = 200)
 
-list_mod[[11]]
+list_mod[[3]]
+
+
 #save(mod,file= paste("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\model",i,"output.rdata", sep ="")) # This save would be useful if you wanted to save each of the 11 models as their own file
   
 mod_outfilename <- paste0("list_mod_",out_suffix,".RData")
@@ -225,13 +227,43 @@ save(list_mod,
 
 #loo_mod2 <- run_model_assessment(mod2)
 
-loo_mod <- mclapply(list_mod,
-                    FUN=run_model_assessment,
-                    k_threshold=0.7,
-                    mc.preschedule = FALSE,
-                    mc.cores=3)
+#loo_mod <- mclapply(list_mod,
+                  FUN=run_model_assessment,
+                  k_threshold=0.7,
+                  mc.preschedule = FALSE,
+                  mc.cores=1)
 
-compare_models(loo_mod[[2]],loo_mod[[3]])
+
+#loo_mod <- lapply(list_mod,
+                    FUN=run_model_assessment,
+                    k_threshold=0.7)
+
+#compare_models(loo_mod[[2]],loo_mod[[3]])
+
+
+loo2 <- loo(list_mod[[2]])
+loo3 <- loo(list_mod[[3]])
+loo4 <- loo(list_mod[[4]])
+loo5 <- loo(list_mod[[5]])
+loo6 <- loo(list_mod[[6]])
+loo7 <- loo(list_mod[[7]])
+loo8 <- loo(list_mod[[8]])
+loo9 <- loo(list_mod[[9]])
+loo10 <- loo(list_mod[[10]])
+
+
+loomod_compare <- compare_models(loo2,
+                                  loo3,
+                                  loo4,
+                                  loo5,
+                                  loo6,
+                                  loo7,
+                                  loo8,
+                                  loo9,
+                                  loo10,
+                                  loo11)
+
+print(loomod_compare)
 
 
 #### Collect information in table
