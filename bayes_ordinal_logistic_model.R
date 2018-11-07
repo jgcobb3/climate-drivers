@@ -157,7 +157,7 @@ data_subset <- na.omit(data_subset)
 
 data_subset$y_var <- factor(data_subset[[y_var_name]])
 
-## Model formulas used in the analyses:
+## Model formulas used in the 1st analysis:
 
 mod_noPDSI <- "y_var ~ PercLossDrought + stdiv"
 mod_mean2016 <- "y_var ~ PercLossDrought + PDSI_MEAN_2016"
@@ -173,6 +173,19 @@ mod_STD2002 <-  "y_var ~ PercLossDrought + PDSI_STD_2002"
                
 list_model_formulas <- list(mod_noPDSI,mod_mean2016,mod_mean2014,mod_mean2012,mod_mean2007,mod_mean2002,
                     mod_STD2016,mod_STD2014,mod_STD2012,mod_STD2007,mod_STD2002)
+
+## Model formulas used in the 2nd analysis:
+
+mod_mean2016b <- "y_var ~ PDSI_MEAN_2016"
+mod_mean2014b <- "y_var ~ PDSI_MEAN_2014"
+mod_mean2012b <- "y_var ~ PDSI_MEAN_2012"
+mod_mean2007b <- "y_var ~ PDSI_MEAN_2007"
+mod_mean2002b <- "y_var ~ PDSI_MEAN_2002"
+mod_STD2016b <- "y_var ~ PDSI_STD_2016"
+mod_STD2014b <- "y_var ~ PDSI_STD_2014"
+mod_STD2012b <- "y_var ~ PDSI_STD_2012"
+mod_STD2007b <- "y_var ~ PDSI_STD_2007"
+mod_STD2002b <-  "y_var ~ PDSI_STD_2002"
 
 ############ PART 2: Run model with option for bayesian ordinal logistic
 
@@ -228,19 +241,19 @@ save(list_mod,
 #loo_mod2 <- run_model_assessment(mod2)
 
 #loo_mod <- mclapply(list_mod,
-                  FUN=run_model_assessment,
-                  k_threshold=0.7,
-                  mc.preschedule = FALSE,
-                  mc.cores=1)
+                  #FUN=run_model_assessment,
+                  #k_threshold=0.7,
+                  #mc.preschedule = FALSE,
+                  #mc.cores=1)
 
 
 #loo_mod <- lapply(list_mod,
-                    FUN=run_model_assessment,
-                    k_threshold=0.7)
+                    #FUN=run_model_assessment,
+                    #k_threshold=0.7)
 
 #compare_models(loo_mod[[2]],loo_mod[[3]])
 
-
+#loo1 <- loo(list_mod[[1]]) #data structure doesn't work?
 loo2 <- loo(list_mod[[2]])
 loo3 <- loo(list_mod[[3]])
 loo4 <- loo(list_mod[[4]])
@@ -253,15 +266,15 @@ loo10 <- loo(list_mod[[10]])
 
 
 loomod_compare <- compare_models(loo2,
-                                  loo3,
-                                  loo4,
-                                  loo5,
-                                  loo6,
-                                  loo7,
-                                  loo8,
-                                  loo9,
-                                  loo10,
-                                  loo11)
+                                 loo3,
+                                 loo4,
+                                 loo5,
+                                 loo6,
+                                 loo7,
+                                 loo8,
+                                 loo9,
+                                 loo10,
+                                 loo11)
 
 print(loomod_compare)
 
@@ -269,7 +282,10 @@ print(loomod_compare)
 #### Collect information in table
 
 ## ------------------------------------------------------------------------
-str(list_mod)
+str(list_mod[[2]])
+names(list_mod[[2]])
+list_mod[[2]]$stan_summary
+
 str(summary(list_mod))
 
 ## ------------------------------------------------------------------------
