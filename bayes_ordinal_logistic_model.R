@@ -32,6 +32,8 @@ library("bayesplot")
 library("ggplot2")
 library("loo")
 library("parallel")
+library("coda")
+library("rstan")      
 
 ####### Functions used in this script and sourced from other files
 
@@ -84,7 +86,7 @@ out_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climat
 create_out_dir_param=TRUE #create a new ouput dir if TRUE
 
 #ARGS 7
-out_suffix <-"_10262018" #output suffix for the files and ouptut folder
+out_suffix <-"_11072018" #output suffix for the files and ouptut folder
 
 #ARGS 8
 num_cores <- 2 # number of cores
@@ -187,6 +189,9 @@ mod_STD2012b <- "y_var ~ PDSI_STD_2012"
 mod_STD2007b <- "y_var ~ PDSI_STD_2007"
 mod_STD2002b <-  "y_var ~ PDSI_STD_2002"
 
+list_model_formulasb <- list(mod_mean2016b,mod_mean2014b,mod_mean2012b,mod_mean2007b,mod_mean2002b,
+                            mod_STD2016b,mod_STD2014b,mod_STD2012b,mod_STD2007b,mod_STD2002b)
+
 ############ PART 2: Run model with option for bayesian ordinal logistic
 
 #mod2 <- run_model_ordinal_logistic(list_model_formulas[[2]],
@@ -212,7 +217,8 @@ mod_STD2002b <-  "y_var ~ PDSI_STD_2002"
 #                     iter_val = 200,
 #                    mc.preschedule = F,
 #                    mc.cores = 1)
-         
+
+#First set of models         
 list_mod <- lapply(list_model_formulas[1:11],
                      FUN=run_model_ordinal_logistic,
                      data = data_subset, 
@@ -224,6 +230,18 @@ list_mod <- lapply(list_model_formulas[1:11],
                      seed_val = 1234, 
                      iter_val = 200)
 
+#Second set of models
+list_modb <- lapply(list_model_formulasb[1:10],
+                   FUN=run_model_ordinal_logistic,
+                   data = data_subset, 
+                   prior = NULL,
+                   prior_counts = dirichlet(1),
+                   shape = NULL,
+                   chains = 4, 
+                   num_cores = 4, 
+                   seed_val = 1234, 
+                   iter_val = 200)
+
 list_mod[[3]]
 
 
@@ -234,7 +252,7 @@ mod_outfilename <- paste0("list_mod_",out_suffix,".RData")
 save(list_mod, 
      file = file.path(out_dir,mod_outfilename))
 
-############# PART 23: Model assessment ################
+############# PART 3: Model assessment (Model A) ################
 
 #debug(run_model_assessment)
 
@@ -278,15 +296,67 @@ loomod_compare <- compare_models(loo2,
 
 print(loomod_compare)
 
+############# PART 3: Model assessment (Model B) ################
+loo1b <- loo(list_modb[[1]])
+loo2b <- loo(list_modb[[2]])
+loo3b <- loo(list_modb[[3]])
+loo4b <- loo(list_modb[[4]])
+loo5b <- loo(list_modb[[5]])
+loo6b <- loo(list_modb[[6]])
+loo7b <- loo(list_modb[[7]])
+loo8b <- loo(list_modb[[8]])
+loo9b <- loo(list_modb[[9]])
+loo10b <- loo(list_modb[[10]])
 
-#### Collect information in table
+print(loo1b)
+print(loo2b)
+print(loo3b)
+print(loo4b)
+print(loo5b)
+print(loo6b)
+print(loo7b)
+print(loo8b)
+print(loo9b)
+print(loo10b)
 
-## ------------------------------------------------------------------------
-str(list_mod[[2]])
-names(list_mod[[2]])
-list_mod[[2]]$stan_summary
+loomodb_compare <- compare_models(loo1b,
+                                 loo2b,
+                                 loo3b,
+                                 loo4b,
+                                 loo5b,
+                                 loo6b,
+                                 loo7b,
+                                 loo8b,
+                                 loo9b,
+                                 loo10b)
 
-str(summary(list_mod))
+print(loomodb_compare)
+
+
+# str(list_modb[[2]])  ### prints out a list
+names(list_modb[[1]])
+list_modb[[1]]$stan_summary
+??covmat
+# Median Absolute Deviation = (MAD) 
+# “Bayesian point estimates” — the posterior medians — are similar to 
+# maximum likelihood estimates
+
+# diagnose posteriors - Bayesian uncertainty intervals
+PI1 <- posterior_interval(list_modb[[1]], prob = 0.95)
+summary(residuals(list_modb[[1]])) # not deviance residuals
+
+#check for covariances
+cov2cor(vcov(list_modb[[1]])) # covariance of chains... maybe not helful
+
+
+
+# Visually check for convergence of MCMC chains
+# requires coda package
+# x must be an mcmc list
+gelman.diag(x, confidence = 0.95, transform=FALSE, autoburnin=TRUE,
+            multivariate=TRUE)
+
+str(summary(list_modb))
 
 ## ------------------------------------------------------------------------
 
