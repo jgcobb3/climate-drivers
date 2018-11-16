@@ -33,7 +33,8 @@ library("ggplot2")
 library("loo")
 library("parallel")
 library("coda")
-library("rstan")      
+library("rstan")  
+library("ggpubr")
 
 ####### Functions used in this script and sourced from other files
 
@@ -336,7 +337,7 @@ print(loomodb_compare)
 # str(list_modb[[2]])  ### prints out a list
 names(list_modb[[1]])
 list_modb[[1]]$stan_summary
-??covmat
+
 # Median Absolute Deviation = (MAD) 
 # “Bayesian point estimates” — the posterior medians — are similar to 
 # maximum likelihood estimates
@@ -357,6 +358,66 @@ gelman.diag(x, confidence = 0.95, transform=FALSE, autoburnin=TRUE,
             multivariate=TRUE)
 
 str(summary(list_modb))
+
+######################################## Plots #####################################################
+# Means
+data_years <- data_subset
+colnames(data_years)[colnames(data_years)=="PDSI_MEAN_2016"] <- "Mean 1-year"
+colnames(data_years)[colnames(data_years)=="PDSI_MEAN_2014"] <- "Mean 3-years"
+colnames(data_years)[colnames(data_years)=="PDSI_MEAN_2012"] <- "Mean 5-years"
+colnames(data_years)[colnames(data_years)=="PDSI_MEAN_2007"] <- "Mean 10-years"
+colnames(data_years)[colnames(data_years)=="PDSI_MEAN_2002"] <- "Mean 15-years"
+colnames(data_years)[colnames(data_years)=="PDSI_STD_2016"] <- "Standard deviation 1-year"
+colnames(data_years)[colnames(data_years)=="PDSI_STD_2014"] <- "Standard deviation 3-years"
+colnames(data_years)[colnames(data_years)=="PDSI_STD_2012"] <- "Standard deviation 5-years"
+colnames(data_years)[colnames(data_years)=="PDSI_STD_2007"] <- "Standard deviation 10-years"
+colnames(data_years)[colnames(data_years)=="PDSI_STD_2002"] <- "Standard deviation 15-years"
+
+# These plots may be backwards. Dependent variable is on the X axis
+# it is grouped by the # of years over which the PDSI data was averaged/variance of data
+ggerrorplot(data_years, x = "Concern_DryDrought", 
+            y = c("Mean 1-year", "Mean 3-years", "Mean 5-years", "Mean 10-years", "Mean 15-years"),
+            combine = TRUE, merge = FALSE,
+            desc_stat = "mean_sd", 
+            color = "black",
+            palette = "npg",
+            title = "Level of concern and mean PDSI over 5-time scales",
+            add = "violin", add.params = list(color = "darkgray", fill="lightgray"),
+            legend = "bottom",
+            legend.title = "Concern", 
+            xlab = "level of concern",
+            ylab = "PDSI",
+            caption = "Level of concern about drought: Not concerned = 1, Slightly concerned = 2, Concerned = 3, Very concerned = 4")
+# SDs
+ggerrorplot(data_years, x = "Concern_DryDrought", 
+            y = c("Standard deviation 1-year", "Standard deviation 3-years", "Standard deviation 5-years", "Standard deviation 10-years", "Standard deviation 15-years"),
+            combine = TRUE, merge = FALSE,
+            desc_stat = "mean_sd", 
+            color = "black",
+            palette = "npg",
+            title = "Level of concern and standard deviation of PDSI over 5-time scales",
+            add = "violin", add.params = list(color = "darkgray", fill="lightgray"),
+            legend = "bottom",
+            legend.title = "Concern", 
+            xlab = "level of concern",
+            ylab = "PDSI",
+            caption = "Level of concern about drought: Not concerned = 1, Slightly concerned = 2, Concerned = 3, Very concerned = 4")
+
+## These plots are switched... they are grouped by level of concern (dependent on Y axis) - this has been unsuccessful so far
+ggerrorplot(data_years, x = c("Mean 1-year", "Mean 3-years", "Mean 5-years", "Mean 10-years", "Mean 15-years"),
+            y = data_years$Concern_DryDrought,
+            combine = TRUE, merge = FALSE,
+            desc_stat = "mean_sd",
+            color = "black",
+            palette = "npg",
+            title = "Level of concern and mean PDSI",
+            add = "violin", add.params = list(color = "darkgray", fill="lightgray"),
+            legend = "bottom",
+            legend.title = "Concern",
+            xlab = "PDSI",
+            ylab = "level of concern",
+            caption = "Level of concern about drought: Not concerned = 1, Slightly concerned = 2, Concerned = 3, Very concerned = 4")
+
 
 ## ------------------------------------------------------------------------
 
