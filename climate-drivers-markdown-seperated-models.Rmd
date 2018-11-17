@@ -282,9 +282,11 @@ Diagnostics to figure out why refit of model using acceptable K threshold
 ```{r}
 ls(mod2_mean2016)
 
-plot(loo(mod2_mean2016, k_threshold = 0.7))
+#plot(loo(mod2_mean2016, k_threshold = 0.7))
+plot(loo(mod2_mean2016))
 
-loo(mod2_mean2016, k_threshold = 0.7)
+debug(loo)
+loomod2 <- loo(mod2_mean2016, k_threshold = 0.7)
 
 loo.stanreg(mod2_mean2016, k_threshold = 0.7)
 
