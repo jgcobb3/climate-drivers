@@ -29,7 +29,7 @@ colnames(data_years)[colnames(data_years)=="PDSI_STD_2012"] <- "Standard deviati
 colnames(data_years)[colnames(data_years)=="PDSI_STD_2007"] <- "Standard deviation 10-years"
 colnames(data_years)[colnames(data_years)=="PDSI_STD_2002"] <- "Standard deviation 15-years"
 
-my_comparisons <- list(c("1", "2"), c("2", "3"), c("3", "4"), c("1","3"), c("1","4"))
+my_comparisons <- list(c("1", "2"), c("1", "3"), c("1", "4"), c("2","3"), c("2","4"), c("3","4"))
 
 
 # reminder about PDSI values: 
@@ -52,7 +52,7 @@ ggerrorplot(data_years, x = "Concern_DryDrought",
             palette = "npg",
             title = "Level of concern and mean PDSI over 5-time scales",
             add = "violin", add.params = list(color = "darkgray", fill="lightgray"),
-            ylim = c(-10, 10.5),
+            ylim = c(-10, 12),
             legend = "bottom",
             legend.title = "Concern", 
             xlab = "level of concern",
