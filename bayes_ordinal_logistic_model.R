@@ -27,7 +27,7 @@
 ## ------------------------------------------------------------------------
 library(MASS)
 library(lme4)
-library(rstanarm)
+library("rstanarm")
 library("bayesplot")
 library("ggplot2")
 library("loo")
@@ -35,6 +35,7 @@ library("parallel")
 library("coda")
 library("rstan")  
 library("Hmisc")
+update.packages(ask = FALSE, checkBuilt = TRUE)
 
 ####### Functions used in this script and sourced from other files
 
@@ -409,7 +410,19 @@ print(loomodb_compare)
 names(list_modb[[1]])
 list_modb[[1]]$stan_summary
 
-# Median Absolute Deviation = (MAD) 
+
+
+################################### Identify priors ###########################################
+# documentation at https://cran.r-project.org/web/packages/rstanarm/vignettes/priors.html 
+# this documentation was updated on 11/8/18. Thought I have updated rstanarm, many of the arguments 
+# are not recognized.
+default_prior_test <- list_modb[[2]]
+prior_summary(default_prior_test) #generates NULL
+
+prior_counts(list_mod) #I get an error message "could not find function"
+
+
+############################### Median Absolute Deviation = (MAD)################################ 
 # “Bayesian point estimates” — the posterior medians — are similar to 
 # maximum likelihood estimates
 
