@@ -35,7 +35,10 @@ library("parallel")
 library("coda")
 library("rstan")  
 library("Hmisc")
-update.packages(ask = FALSE, checkBuilt = TRUE)
+library("dplyr")
+
+citation("rstanarm")
+#update.packages(ask = FALSE, checkBuilt = TRUE)
 
 ####### Functions used in this script and sourced from other files
 
@@ -88,7 +91,7 @@ out_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climat
 create_out_dir_param=TRUE #create a new ouput dir if TRUE
 
 #ARGS 7
-out_suffix <-"_11072018" #output suffix for the files and ouptut folder
+out_suffix <-"_11202018" #output suffix for the files and ouptut folder
 
 #ARGS 8
 num_cores <- 2 # number of cores
@@ -295,7 +298,7 @@ list_model_formulasb <- list(mod_mean2016b,mod_mean2014b,mod_mean2012b,mod_mean2
 list_mod <- lapply(list_model_formulas[1:11],
                      FUN=run_model_ordinal_logistic,
                      data = data_subset, 
-                     prior = NULL,
+                     prior = normal(location = 0, scale = NULL, autoscale = TRUE),
                      prior_counts = dirichlet(1),
                      shape = NULL,
                      chains = 4, 
@@ -304,10 +307,10 @@ list_mod <- lapply(list_model_formulas[1:11],
                      iter_val = 200)
 
 #Second set of models
-list_modb <- lapply(list_model_formulasb[1:10],
-                   FUN=run_model_ordinal_logistic,
+list_modb <- lapply(list_model_formulasb[[1:10]],
+                   FUN = run_model_ordinal_logistic,
                    data = data_subset, 
-                   prior = NULL,
+                   prior = normal(location = 0, scale = NULL, autoscale = TRUE),
                    prior_counts = dirichlet(1),
                    shape = NULL,
                    chains = 4, 
