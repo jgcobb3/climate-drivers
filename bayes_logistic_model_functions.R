@@ -6,7 +6,7 @@
 ##
 ##
 ## DATE CREATED: 09/27/2018
-## DATE MODIFIED: 10/24/2018
+## DATE MODIFIED: 11/20/2018
 ## AUTHORS: Rachel Schattman, Benoit Parmentier  
 ## Version: 1
 ## PROJECT: Climate Percecption
@@ -60,8 +60,8 @@ run_model_assessment <- function(mod,model_type="bayes_stan",k_threshold = 0.7){
   return(loo_obj)
 }
 
-run_model_ordinal_logistic <- function(model_formula,model_type="bayes_stan",data,prior = NULL, prior_counts = dirichlet(1),
-                                       shape = NULL,chains = 4, num_cores = NULL, seed_val = 1234, iter_val = 200){
+run_model_ordinal_logistic <- function(model_formula,model_type="bayes_stan",data,prior = normal(location = 0, scale = NULL, autoscale = TRUE), prior_counts = dirichlet(1),
+                                       shape = NULL,chains = 4, num_cores = NULL, seed_val = 1234, iter_val = 200){ #11/20 changed prior from NULL to normal
 
   ## This function provides different options to run ordinal logistic models. Option includes:
   # - polr from the MASS package
@@ -74,7 +74,7 @@ run_model_ordinal_logistic <- function(model_formula,model_type="bayes_stan",dat
   #1)model_formula: string defining the formula to run
   #2)model_type: "plor" or "bayes_stan"
   #3)data: input data as data.frame
-  #4prior = NULL
+  #4prior = NULL # This should be NORMAL
   #5)prior_counts = dirichlet(1)
   #6)shape = NULL
   #7)chains = 4
