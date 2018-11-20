@@ -28,25 +28,19 @@
 ###### Library used
 
 ## ------------------------------------------------------------------------
-library(MASS)
-library(lme4)
+library("MASS")
+library("lme4")
 library("rstanarm")
 library("bayesplot")
 library("ggplot2")
 library("loo")
-<<<<<<< HEAD
-library(parallel)
-library(shinystan)
-=======
 library("parallel")
 library("coda")
 library("rstan")  
-library("Hmisc")
 library("dplyr")
 
-citation("rstanarm")
+# citation("rstanarm")
 #update.packages(ask = FALSE, checkBuilt = TRUE)
->>>>>>> a1bb27d0a9e214ef73bccd39d0bcad497498923c
 
 ####### Functions used in this script and sourced from other files
 
@@ -81,6 +75,9 @@ source(file.path(script_path,modeling_functions))
 script_path <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers"
 modeling_functions <- "bayes_logistic_model_functions.R"
 source(file.path(script_path,modeling_functions))
+
+#Rachel setup SESYNC server
+##HELP
 
 #########cd ###################################################################
 #####  Parameters and argument set up ########### 
