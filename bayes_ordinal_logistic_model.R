@@ -309,9 +309,8 @@ list_mod <- lapply(list_model_formulas[1:11],
                      seed_val = 1234, 
                      iter_val = 200)
 
-<<<<<<< HEAD
 list_mod[[11]]
-=======
+
 #Second set of models
 list_modb <- lapply(list_model_formulasb[[1:10]],
                    FUN = run_model_ordinal_logistic,
@@ -324,9 +323,9 @@ list_modb <- lapply(list_model_formulasb[[1:10]],
                    seed_val = 1234, 
                    iter_val = 200)
 
+
 list_mod[[3]]
 
->>>>>>> a1bb27d0a9e214ef73bccd39d0bcad497498923c
 
 #save(mod,file= paste("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\model",i,"output.rdata", sep ="")) # This save would be useful if you wanted to save each of the 11 models as their own file
   
