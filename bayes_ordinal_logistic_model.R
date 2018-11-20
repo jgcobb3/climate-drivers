@@ -334,17 +334,16 @@ mod_outfilename <- paste0("list_mod_",out_suffix,".RData")
 save(list_mod, 
      file = file.path(out_dir,mod_outfilename))
 
-<<<<<<< HEAD
 ############# PART 3: Model assessment ################
-=======
+
 ############# PART 3: Model assessment (Model A) ################
->>>>>>> a1bb27d0a9e214ef73bccd39d0bcad497498923c
+
 
 #debug(run_model_assessment)
 
 #loo_mod2 <- run_model_assessment(mod2)
 
-<<<<<<< HEAD
+
 ##Benoit's elegant code
 
 loo_mod <- mclapply(list_mod,
@@ -358,7 +357,7 @@ loo_mod <- lapply(list_mod,
                   k_threshold=0.7)
 
 compare_models(loo_mod[[2]],loo_mod[[3]])
-=======
+
 #loo_mod <- mclapply(list_mod,
                   #FUN=run_model_assessment,
                   #k_threshold=0.7,
@@ -470,7 +469,6 @@ gelman.diag(x, confidence = 0.95, transform=FALSE, autoburnin=TRUE,
             multivariate=TRUE)
 
 str(summary(list_modb))
->>>>>>> a1bb27d0a9e214ef73bccd39d0bcad497498923c
 
 #Rachel's not elegant (but functional) code
 loo_mod2 <- loo(list_mod[[2]],
@@ -520,7 +518,6 @@ compareloo <- compare(x=list(loo_mod2,
 
 ############# PART 4: Create a Table ################
 
-<<<<<<< HEAD
 
 #table1 <- data.frame (list_mod = 1, 
  #                   intercept = 1, 
@@ -535,8 +532,6 @@ compareloo <- compare(x=list(loo_mod2,
 str(list_mod)
 str(summary(list_mod))
 
-=======
->>>>>>> a1bb27d0a9e214ef73bccd39d0bcad497498923c
 ## ------------------------------------------------------------------------
 
 print(list_mod, digets = 3)
