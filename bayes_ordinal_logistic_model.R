@@ -318,18 +318,24 @@ list_model_formulasb <- list(mod_mean2016b,mod_mean2014b,mod_mean2012b,mod_mean2
 #Second set of models
 #suggestions for setting priors: https://github.com/stan-dev/stan/wiki/Prior-Choice-Recommendations
 # assign prior
-Norm_prior <- normal(0,5)
+library(rstanarm)
+Norm_prior <- normal(location = .5, scale = c(1,4), autoscale = TRUE) 
+
 list_modb <- lapply(list_model_formulasb[[1]],
                    FUN = run_model_ordinal_logistic,
                    data = data_subset, 
                    prior = Norm_prior,
+                   #prior = R2(0.2, "mean"),
+                   #shape = NULL, 
+                   #algorithm = "sampling",
+                   #adapt_delta = NULL, 
+                   #do_residuals = TRUE),
                    prior_counts = dirichlet(1),
-                   shape = NULL,
                    chains = 4, 
                    num_cores = 4, 
                    seed_val = 1234, 
                    iter_val = 200)
-
+??prior
 
 list_mod[[3]]
 
