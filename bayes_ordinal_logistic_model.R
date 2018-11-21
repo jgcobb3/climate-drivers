@@ -71,24 +71,28 @@ script_path <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/scripts
 modeling_functions <- "bayes_logistic_model_functions_10242018.R"
 source(file.path(script_path,modeling_functions))
 
-#Rachel setup local
+#Rachel setup local - Fed computer
 script_path <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers"
 modeling_functions <- "bayes_logistic_model_functions.R"
 source(file.path(script_path,modeling_functions))
 
-#Rachel setup SESYNC server
-##HELP
+#Rachel setup - home computer
+script_path <- "C:/Users/rache/Documents/GitHub/climate-drivers"
+modeling_functions <- "bayes_logistic_model_functions.R"
+source(file.path(script_path,modeling_functions))
 
 #########cd ###################################################################
 #####  Parameters and argument set up ########### 
 
 #ARGS 1
 #in_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/data"
-in_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers"
+#in_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers"
+in_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers"
 
 #ARGS 2
 #out_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/outputs"
-out_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers/output"
+#out_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers/output"
+out_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers/output"
 
 #ARGS 3:
 create_out_dir_param=TRUE #create a new ouput dir if TRUE
@@ -298,24 +302,27 @@ list_model_formulasb <- list(mod_mean2016b,mod_mean2014b,mod_mean2012b,mod_mean2
 #                    mc.cores = 1)
 
 #First set of models         
-list_mod <- lapply(list_model_formulas[1:11],
-                     FUN=run_model_ordinal_logistic,
-                     data = data_subset, 
-                     prior = normal(location = 0, scale = NULL, autoscale = TRUE),
-                     prior_counts = dirichlet(1),
-                     shape = NULL,
-                     chains = 4, 
-                     num_cores = 4, 
-                     seed_val = 1234, 
-                     iter_val = 200)
+#list_mod <- lapply(list_model_formulas[1:11],
+#                     FUN=run_model_ordinal_logistic,
+#                     data = data_subset,
+#                     prior = normal(location = 0, scale = NULL, autoscale = TRUE),
+#                     prior_counts = dirichlet(1),
+#                     shape = NULL,
+#                    chains = 4, 
+#                     num_cores = 4, 
+#                     seed_val = 1234, 
+#                     iter_val = 200)
 
-list_mod[[11]]
+#list_mod[[11]]
 
 #Second set of models
-list_modb <- lapply(list_model_formulasb[[1:10]],
+#suggestions for setting priors: https://github.com/stan-dev/stan/wiki/Prior-Choice-Recommendations
+# assign prior
+Norm_prior <- normal(0,5)
+list_modb <- lapply(list_model_formulasb[[1]],
                    FUN = run_model_ordinal_logistic,
                    data = data_subset, 
-                   prior = normal(location = 0, scale = NULL, autoscale = TRUE),
+                   prior = Norm_prior,
                    prior_counts = dirichlet(1),
                    shape = NULL,
                    chains = 4, 
