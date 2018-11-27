@@ -6,7 +6,7 @@
 ##
 ##
 ## DATE CREATED: 09/27/2018
-## DATE MODIFIED: 11/19/2018
+## DATE MODIFIED: 11/27/2018
 ## AUTHORS: Rachel Schattman, Benoit Parmentier  
 ## Version: 2
 ## PROJECT: Climate Percecption
@@ -68,37 +68,38 @@ load_obj <- function(f){
 
 #Benoit setup
 script_path <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/scripts"
-modeling_functions <- "bayes_logistic_model_functions_10242018.R"
+modeling_functions <- "bayes_logistic_model_functions_11272018.R"
 source(file.path(script_path,modeling_functions))
 
 #Rachel setup local - Fed computer
-script_path <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers"
-modeling_functions <- "bayes_logistic_model_functions.R"
-source(file.path(script_path,modeling_functions))
+#script_path <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers"
+#modeling_functions <- "bayes_logistic_model_functions.R"
+#source(file.path(script_path,modeling_functions))
 
 #Rachel setup - home computer
-script_path <- "C:/Users/rache/Documents/GitHub/climate-drivers"
-modeling_functions <- "bayes_logistic_model_functions.R"
-source(file.path(script_path,modeling_functions))
+#script_path <- "C:/Users/rache/Documents/GitHub/climate-drivers"
+#modeling_functions <- "bayes_logistic_model_functions.R"
+#source(file.path(script_path,modeling_functions))
+
 
 #########cd ###################################################################
 #####  Parameters and argument set up ########### 
 
 #ARGS 1
-#in_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/data"
+in_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/data"
 #in_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers"
-in_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers"
+#in_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers"
 
 #ARGS 2
-#out_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/outputs"
+out_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/outputs"
 #out_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers/output"
-out_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers/output"
+#out_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers/output"
 
 #ARGS 3:
 create_out_dir_param=TRUE #create a new ouput dir if TRUE
 
 #ARGS 7
-out_suffix <-"_11202018" #output suffix for the files and ouptut folder
+out_suffix <-"_11272018" #output suffix for the files and ouptut folder
 
 #ARGS 8
 num_cores <- 2 # number of cores
@@ -109,74 +110,6 @@ model_type <- "bayes_stan"
 y_var_name <- "Concern_DryDrought"
 
 ################# START SCRIPT ######################################
-
-##### Testing the Parellel Regression Assumption of POLR ############
-# https://stats.idre.ucla.edu/r/dae/ordinal-logistic-regression/
-
-sf <- function(y) {
-  c('Y>=1' = qlogis(mean(y >= 1)),
-    'Y>=2' = qlogis(mean(y >= 2)),
-    'Y>=3' = qlogis(mean(y >= 3)),
-    'Y>=4' = qlogis(mean(y >= 4)))
-}
-
-(s_mean2016 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_MEAN_2016, fun=sf)))
-(s_mean2014 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_MEAN_2014, fun=sf)))
-(s_mean2012 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_MEAN_2012, fun=sf)))
-(s_mean2007 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_MEAN_2007, fun=sf)))
-(s_mean2002 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_MEAN_2002, fun=sf)))
-(s_std2016 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_STD_2016, fun=sf)))
-(s_std2014 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_STD_2014, fun=sf)))
-(s_std2012 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_STD_2012, fun=sf)))
-(s_std2007 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_STD_2007, fun=sf)))
-(s_std2002 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_STD_2002, fun=sf)))
-
-# The above functions display the linear predicted variables we would get if we regressed Concern (the predicted variable)
-# on our predictor variables without the parallel slopes assumption. To evaluate the parallel slops assumption, we now will
-# run a series of binary logistic regressesions with varying cutpoints on the dependent variable and checking the equality
-# of coefficients across cutpoints.
-
-#PDSI_MEAN_2016 - parallel slopes assumption holds.
-glm(I(as.numeric(Concern_DryDrought) >= 2) ~ PDSI_MEAN_2016, family="binomial", data = data_subset)
-glm(I(as.numeric(Concern_DryDrought) >= 3) ~ PDSI_MEAN_2016, family="binomial", data = data_subset) # dif between intercept 2/3 = 1.648
-glm(I(as.numeric(Concern_DryDrought) >= 4) ~ PDSI_MEAN_2016, family="binomial", data = data_subset)# dif between intercept 3/4 = 1.648
-
-plot(s_mean2016, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_mean2016[,3:4]))
-
-#PDSI_MEAN_2014 - parallel slopes assumption holds.
-glm(I(as.numeric(Concern_DryDrought) >= 2) ~ PDSI_MEAN_2014, family="binomial", data = data_subset)
-glm(I(as.numeric(Concern_DryDrought) >= 3) ~ PDSI_MEAN_2014, family="binomial", data = data_subset) # dif between intercept 2/3 = 1.658
-glm(I(as.numeric(Concern_DryDrought) >= 4) ~ PDSI_MEAN_2014, family="binomial", data = data_subset)# dif between intercept 3/4 = 1.655
-
-plot(s_mean2014, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_mean2014[,3:4]))
-
-#PDSI_MEAN_2012 - does the parallel slopes assumption hold? The plot looks similar to the 2014 and 2016 plots, so I would say yes...ish?
-glm(I(as.numeric(Concern_DryDrought) >= 2) ~ PDSI_MEAN_2012, family="binomial", data = data_subset)
-glm(I(as.numeric(Concern_DryDrought) >= 3) ~ PDSI_MEAN_2012, family="binomial", data = data_subset) # dif between intercept 2/3 = 1.623
-glm(I(as.numeric(Concern_DryDrought) >= 4) ~ PDSI_MEAN_2012, family="binomial", data = data_subset)# dif between intercept 3/4 = 1.700
-
-plot(s_mean2012, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_mean2012[,3:4]))
-
-#PDSI_MEAN_2007 - does the parallel slopes assumption hold? Same as above
-glm(I(as.numeric(Concern_DryDrought) >= 2) ~ PDSI_MEAN_2007, family="binomial", data = data_subset)
-glm(I(as.numeric(Concern_DryDrought) >= 3) ~ PDSI_MEAN_2007, family="binomial", data = data_subset) # dif between intercept 2/3 = 1.618
-glm(I(as.numeric(Concern_DryDrought) >= 4) ~ PDSI_MEAN_2007, family="binomial", data = data_subset)# dif between intercept 3/4 = 1.693
-
-plot(s_mean2007, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_mean2007[,3:4]))
-
-#PDSI_MEAN_2002 - does the parallel slopes assumption hold? Same as above
-glm(I(as.numeric(Concern_DryDrought) >= 2) ~ PDSI_MEAN_2002, family="binomial", data = data_subset)
-glm(I(as.numeric(Concern_DryDrought) >= 3) ~ PDSI_MEAN_2002, family="binomial", data = data_subset) # dif between intercept 2/3 = 1.618
-glm(I(as.numeric(Concern_DryDrought) >= 4) ~ PDSI_MEAN_2002, family="binomial", data = data_subset)# dif between intercept 3/4 = 1.70
-
-plot(s_mean2002, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_mean2002[,3:4]))
-
-# All STD model plots are reasonable - I think the parrallet slopes assumptions holds on all of our models.
-plot(s_std2016, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_std2016[,3:4]))
-plot(s_std2014, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_std2014[,3:4]))
-plot(s_std2012, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_std2012[,3:4]))
-plot(s_std2007, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_std2007[,3:4]))
-plot(s_std2002, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_std2002[,3:4]))
 
 
 ########################################################
@@ -318,14 +251,13 @@ list_model_formulasb <- list(mod_mean2016b,mod_mean2014b,mod_mean2012b,mod_mean2
 #Second set of models
 #suggestions for setting priors: https://github.com/stan-dev/stan/wiki/Prior-Choice-Recommendations
 # assign prior
-library(rstanarm)
 Norm_prior <- normal(location = .5, scale = c(1,4), autoscale = TRUE) 
 
 list_modb <- lapply(list_model_formulasb[[1]],
                    FUN = run_model_ordinal_logistic,
                    data = data_subset, 
-                   prior = Norm_prior,
-                   #prior = R2(0.2, "mean"),
+                   #prior = Norm_prior,
+                   prior = R2(0.2, "mean"),
                    #shape = NULL, 
                    #algorithm = "sampling",
                    #adapt_delta = NULL, 
@@ -336,15 +268,29 @@ list_modb <- lapply(list_model_formulasb[[1]],
                    seed_val = 1234, 
                    iter_val = 200)
 ??prior
+list_modb <- lapply(list_model_formulasb,
+                    FUN = run_model_ordinal_logistic,
+                    data = data_subset, 
+                    #prior = Norm_prior,
+                    prior = R2(0.2, "mean"),
+                    #shape = NULL, 
+                    #algorithm = "sampling",
+                    #adapt_delta = NULL, 
+                    #do_residuals = TRUE),
+                    prior_counts = dirichlet(1),
+                    chains = 4, 
+                    num_cores = 4, 
+                    seed_val = 1234, 
+                    iter_val = 200)
 
-list_mod[[3]]
+#list_mod[[3]]
 
 
 #save(mod,file= paste("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\model",i,"output.rdata", sep ="")) # This save would be useful if you wanted to save each of the 11 models as their own file
   
-mod_outfilename <- paste0("list_mod_",out_suffix,".RData")
+mod_outfilename <- paste0("list_modb_",out_suffix,".RData")
 
-save(list_mod, 
+save(list_modb, 
      file = file.path(out_dir,mod_outfilename))
 
 ############# PART 3: Model assessment ################
@@ -359,7 +305,7 @@ save(list_mod,
 
 ##Benoit's elegant code
 
-loo_mod <- mclapply(list_mod,
+loo_mod <- mclapply(list_modb,
                     FUN = run_model_assessment,
                     k_threshold = 0.7,
                     mc.preschedule = FALSE,
@@ -586,6 +532,75 @@ list_mod[[2]]$stanfit
 #                     summary(list_mod)[['coefficients']]['x','Pr(>|t|)'])
 
 #write.csv(table1, file = 'table1.csv')
+
+##### Testing the Parellel Regression Assumption of POLR ############
+# https://stats.idre.ucla.edu/r/dae/ordinal-logistic-regression/
+
+sf <- function(y) {
+  c('Y>=1' = qlogis(mean(y >= 1)),
+    'Y>=2' = qlogis(mean(y >= 2)),
+    'Y>=3' = qlogis(mean(y >= 3)),
+    'Y>=4' = qlogis(mean(y >= 4)))
+}
+
+(s_mean2016 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_MEAN_2016, fun=sf)))
+(s_mean2014 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_MEAN_2014, fun=sf)))
+(s_mean2012 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_MEAN_2012, fun=sf)))
+(s_mean2007 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_MEAN_2007, fun=sf)))
+(s_mean2002 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_MEAN_2002, fun=sf)))
+(s_std2016 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_STD_2016, fun=sf)))
+(s_std2014 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_STD_2014, fun=sf)))
+(s_std2012 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_STD_2012, fun=sf)))
+(s_std2007 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_STD_2007, fun=sf)))
+(s_std2002 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_STD_2002, fun=sf)))
+
+# The above functions display the linear predicted variables we would get if we regressed Concern (the predicted variable)
+# on our predictor variables without the parallel slopes assumption. To evaluate the parallel slops assumption, we now will
+# run a series of binary logistic regressesions with varying cutpoints on the dependent variable and checking the equality
+# of coefficients across cutpoints.
+
+#PDSI_MEAN_2016 - parallel slopes assumption holds.
+glm(I(as.numeric(Concern_DryDrought) >= 2) ~ PDSI_MEAN_2016, family="binomial", data = data_subset)
+glm(I(as.numeric(Concern_DryDrought) >= 3) ~ PDSI_MEAN_2016, family="binomial", data = data_subset) # dif between intercept 2/3 = 1.648
+glm(I(as.numeric(Concern_DryDrought) >= 4) ~ PDSI_MEAN_2016, family="binomial", data = data_subset)# dif between intercept 3/4 = 1.648
+
+plot(s_mean2016, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_mean2016[,3:4]))
+
+#PDSI_MEAN_2014 - parallel slopes assumption holds.
+glm(I(as.numeric(Concern_DryDrought) >= 2) ~ PDSI_MEAN_2014, family="binomial", data = data_subset)
+glm(I(as.numeric(Concern_DryDrought) >= 3) ~ PDSI_MEAN_2014, family="binomial", data = data_subset) # dif between intercept 2/3 = 1.658
+glm(I(as.numeric(Concern_DryDrought) >= 4) ~ PDSI_MEAN_2014, family="binomial", data = data_subset)# dif between intercept 3/4 = 1.655
+
+plot(s_mean2014, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_mean2014[,3:4]))
+
+#PDSI_MEAN_2012 - does the parallel slopes assumption hold? The plot looks similar to the 2014 and 2016 plots, so I would say yes...ish?
+glm(I(as.numeric(Concern_DryDrought) >= 2) ~ PDSI_MEAN_2012, family="binomial", data = data_subset)
+glm(I(as.numeric(Concern_DryDrought) >= 3) ~ PDSI_MEAN_2012, family="binomial", data = data_subset) # dif between intercept 2/3 = 1.623
+glm(I(as.numeric(Concern_DryDrought) >= 4) ~ PDSI_MEAN_2012, family="binomial", data = data_subset)# dif between intercept 3/4 = 1.700
+
+plot(s_mean2012, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_mean2012[,3:4]))
+
+#PDSI_MEAN_2007 - does the parallel slopes assumption hold? Same as above
+glm(I(as.numeric(Concern_DryDrought) >= 2) ~ PDSI_MEAN_2007, family="binomial", data = data_subset)
+glm(I(as.numeric(Concern_DryDrought) >= 3) ~ PDSI_MEAN_2007, family="binomial", data = data_subset) # dif between intercept 2/3 = 1.618
+glm(I(as.numeric(Concern_DryDrought) >= 4) ~ PDSI_MEAN_2007, family="binomial", data = data_subset)# dif between intercept 3/4 = 1.693
+
+plot(s_mean2007, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_mean2007[,3:4]))
+
+#PDSI_MEAN_2002 - does the parallel slopes assumption hold? Same as above
+glm(I(as.numeric(Concern_DryDrought) >= 2) ~ PDSI_MEAN_2002, family="binomial", data = data_subset)
+glm(I(as.numeric(Concern_DryDrought) >= 3) ~ PDSI_MEAN_2002, family="binomial", data = data_subset) # dif between intercept 2/3 = 1.618
+glm(I(as.numeric(Concern_DryDrought) >= 4) ~ PDSI_MEAN_2002, family="binomial", data = data_subset)# dif between intercept 3/4 = 1.70
+
+plot(s_mean2002, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_mean2002[,3:4]))
+
+# All STD model plots are reasonable - I think the parrallet slopes assumptions holds on all of our models.
+plot(s_std2016, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_std2016[,3:4]))
+plot(s_std2014, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_std2014[,3:4]))
+plot(s_std2012, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_std2012[,3:4]))
+plot(s_std2007, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_std2007[,3:4]))
+plot(s_std2002, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_std2002[,3:4]))
+
 
 
 ################################# End of script ######################################
