@@ -244,20 +244,20 @@ data_subset$y_var <- factor(data_subset[[y_var_name]])
 
 ## Model formulas used in the 1st analysis:
 
-mod_noPDSI <- "y_var ~ PercLossDrought + stdiv"
-mod_mean2016 <- "y_var ~ PercLossDrought + PDSI_MEAN_2016"
-mod_mean2014 <- "y_var ~ PercLossDrought + PDSI_MEAN_2014"
-mod_mean2012 <- "y_var ~ PercLossDrought + PDSI_MEAN_2012"
-mod_mean2007 <- "y_var ~ PercLossDrought + PDSI_MEAN_2007"
-mod_mean2002 <- "y_var ~ PercLossDrought + PDSI_MEAN_2002"
-mod_STD2016 <- "y_var ~ PercLossDrought + PDSI_STD_2016"
-mod_STD2014 <- "y_var ~ PercLossDrought + PDSI_STD_2014"
-mod_STD2012 <- "y_var ~ PercLossDrought + PDSI_STD_2012"
-mod_STD2007 <- "y_var ~ PercLossDrought + PDSI_STD_2007"
-mod_STD2002 <-  "y_var ~ PercLossDrought + PDSI_STD_2002"
+#mod_noPDSI <- "y_var ~ PercLossDrought + stdiv"
+#mod_mean2016 <- "y_var ~ PercLossDrought + PDSI_MEAN_2016"
+#mod_mean2014 <- "y_var ~ PercLossDrought + PDSI_MEAN_2014"
+#mod_mean2012 <- "y_var ~ PercLossDrought + PDSI_MEAN_2012"
+#mod_mean2007 <- "y_var ~ PercLossDrought + PDSI_MEAN_2007"
+#mod_mean2002 <- "y_var ~ PercLossDrought + PDSI_MEAN_2002"
+#mod_STD2016 <- "y_var ~ PercLossDrought + PDSI_STD_2016"
+#mod_STD2014 <- "y_var ~ PercLossDrought + PDSI_STD_2014"
+#mod_STD2012 <- "y_var ~ PercLossDrought + PDSI_STD_2012"
+#mod_STD2007 <- "y_var ~ PercLossDrought + PDSI_STD_2007"
+#mod_STD2002 <-  "y_var ~ PercLossDrought + PDSI_STD_2002"
                
-list_model_formulas <- list(mod_noPDSI,mod_mean2016,mod_mean2014,mod_mean2012,mod_mean2007,mod_mean2002,
-                    mod_STD2016,mod_STD2014,mod_STD2012,mod_STD2007,mod_STD2002)
+#list_model_formulas <- list(mod_noPDSI,mod_mean2016,mod_mean2014,mod_mean2012,mod_mean2007,mod_mean2002,
+#                   mod_STD2016,mod_STD2014,mod_STD2012,mod_STD2007,mod_STD2002)
 
 ## Model formulas used in the 2nd analysis:
 
@@ -318,15 +318,14 @@ list_model_formulasb <- list(mod_mean2016b,mod_mean2014b,mod_mean2012b,mod_mean2
 
 #Second set of models
 #suggestions for setting priors: https://github.com/stan-dev/stan/wiki/Prior-Choice-Recommendations
+#another helpful source: https://rdrr.io/cran/rstanarm/man/priors.html 
+
 #assign prior
-
-Norm_prior <- normal(location = .5, scale = c(1,4), autoscale = TRUE) 
-
-list_modb <- lapply(list_model_formulasb[[1]],
+list_modb <- lapply(list_model_formulasb[[1]], #give an error when written as list_model_formulasb[[1:10]], "recursive indexing failed at level 2"
                    FUN = run_model_ordinal_logistic,
                    data = data_subset, 
-                   prior = Norm_prior,
-                   #prior = R2(0.2, "mean"),
+                   #prior = Norm_prior,
+                   prior = R2(0.5, "mean"), #assumes that mode, mean and median of the Beta distribution are equal. Indicated for polr
                    #shape = NULL, 
                    #algorithm = "sampling",
                    #adapt_delta = NULL, 
@@ -336,9 +335,9 @@ list_modb <- lapply(list_model_formulasb[[1]],
                    num_cores = 4, 
                    seed_val = 1234, 
                    iter_val = 200)
-?prior
 
-list_mod[[3]]
+
+list_modb
 
 
 #save(mod,file= paste("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\model",i,"output.rdata", sep ="")) # This save would be useful if you wanted to save each of the 11 models as their own file
@@ -360,11 +359,11 @@ save(list_mod,
 
 ##Benoit's elegant code
 
-loo_mod <- mclapply(list_mod,
+loo_mod <- mclapply(list_modb,
                     FUN = run_model_assessment,
                     k_threshold = 0.7,
                     mc.preschedule = FALSE,
-                    mc.cores = 3)
+                    mc.cores = 1)
 
 loo_mod <- lapply(list_mod,
                   FUN=run_model_assessment,
