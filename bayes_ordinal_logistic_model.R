@@ -86,19 +86,19 @@ source(file.path(script_path,modeling_functions))
 
 #ARGS 1
 #in_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/data"
-#in_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers"
-in_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers"
+in_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers"
+#in_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers"
 
 #ARGS 2
 #out_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/outputs"
-#out_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers/output"
-out_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers/output"
+out_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers/output"
+#out_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers/output"
 
 #ARGS 3:
 create_out_dir_param=TRUE #create a new ouput dir if TRUE
 
 #ARGS 7
-out_suffix <-"_11202018" #output suffix for the files and ouptut folder
+out_suffix <-"_11282018" #output suffix for the files and ouptut folder
 
 #ARGS 8
 num_cores <- 2 # number of cores
@@ -261,6 +261,7 @@ list_model_formulas <- list(mod_noPDSI,mod_mean2016,mod_mean2014,mod_mean2012,mo
 
 ## Model formulas used in the 2nd analysis:
 
+
 mod_mean2016b <- "y_var ~ PDSI_MEAN_2016"
 mod_mean2014b <- "y_var ~ PDSI_MEAN_2014"
 mod_mean2012b <- "y_var ~ PDSI_MEAN_2012"
@@ -317,8 +318,8 @@ list_model_formulasb <- list(mod_mean2016b,mod_mean2014b,mod_mean2012b,mod_mean2
 
 #Second set of models
 #suggestions for setting priors: https://github.com/stan-dev/stan/wiki/Prior-Choice-Recommendations
-# assign prior
-library(rstanarm)
+#assign prior
+
 Norm_prior <- normal(location = .5, scale = c(1,4), autoscale = TRUE) 
 
 list_modb <- lapply(list_model_formulasb[[1]],
@@ -335,7 +336,7 @@ list_modb <- lapply(list_model_formulasb[[1]],
                    num_cores = 4, 
                    seed_val = 1234, 
                    iter_val = 200)
-??prior
+?prior
 
 list_mod[[3]]
 
