@@ -321,7 +321,7 @@ list_model_formulasb <- list(mod_mean2016b,mod_mean2014b,mod_mean2012b,mod_mean2
 #another helpful source: https://rdrr.io/cran/rstanarm/man/priors.html 
 
 #assign prior
-list_modb <- lapply(list_model_formulasb[[1]], #give an error when written as list_model_formulasb[[1:10]], "recursive indexing failed at level 2"
+list_modb <- lapply(list_model_formulasb[1:10], 
                    FUN = run_model_ordinal_logistic,
                    data = data_subset, 
                    #prior = Norm_prior,
@@ -344,7 +344,7 @@ list_modb
   
 mod_outfilename <- paste0("list_mod_",out_suffix,".RData")
 
-save(list_mod, 
+save(list_modb, 
      file = file.path(out_dir,mod_outfilename))
 
 ############# PART 3: Model assessment ################
