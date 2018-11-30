@@ -350,7 +350,8 @@ save(list_modb,
 ############# PART 3: Model assessment ################
 
 ############# PART 3: Model assessment (Model A) ################
-
+#check priors
+prior_summary(list_modb[[1]]) # will not run all of list mod? Ran mods one at a time.
 
 #debug(run_model_assessment)
 
@@ -365,11 +366,11 @@ loo_mod <- mclapply(list_modb,
                     mc.preschedule = FALSE,
                     mc.cores = 1)
 
-loo_mod <- lapply(list_mod,
-                  FUN=run_model_assessment,
-                  k_threshold=0.7)
+#loo_mod <- lapply(list_mod,
+#                  FUN=run_model_assessment,
+#                  k_threshold=0.7)
 
-compare_models(loo_mod[[2]],loo_mod[[3]])
+#compare_models(loo_mod[[2]],loo_mod[[3]])
 
 #loo_mod <- mclapply(list_mod,
                   #FUN=run_model_assessment,
@@ -385,72 +386,83 @@ compare_models(loo_mod[[2]],loo_mod[[3]])
 #compare_models(loo_mod[[2]],loo_mod[[3]])
 
 #loo1 <- loo(list_mod[[1]]) #data structure doesn't work?
-loo2 <- loo(list_mod[[2]])
-loo3 <- loo(list_mod[[3]])
-loo4 <- loo(list_mod[[4]])
-loo5 <- loo(list_mod[[5]])
-loo6 <- loo(list_mod[[6]])
-loo7 <- loo(list_mod[[7]])
-loo8 <- loo(list_mod[[8]])
-loo9 <- loo(list_mod[[9]])
-loo10 <- loo(list_mod[[10]])
+#loo2 <- loo(list_mod[[2]])
+#loo3 <- loo(list_mod[[3]])
+#loo4 <- loo(list_mod[[4]])
+#loo5 <- loo(list_mod[[5]])
+#loo6 <- loo(list_mod[[6]])
+#loo7 <- loo(list_mod[[7]])
+#loo8 <- loo(list_mod[[8]])
+#loo9 <- loo(list_mod[[9]])
+#loo10 <- loo(list_mod[[10]])
 
+loomod_compare <- compare_models(loo_mod[1:10])
 
-loomod_compare <- compare_models(loo2,
-                                 loo3,
-                                 loo4,
-                                 loo5,
-                                 loo6,
-                                 loo7,
-                                 loo8,
-                                 loo9,
-                                 loo10,
-                                 loo11)
+loomod_compare <- compare_models(loos = c(loo_mod[1],
+                                 loo_mod[2],
+                                 loo_mod[3],
+                                 loo_mod[4],
+                                 loo_mod[5],
+                                 loo_mod[6],
+                                 loo_mod[7],
+                                 loo_mod[8],
+                                 loo_mod[9],
+                                 loo_mod[10]))
 
-print(loomod_compare)
+print(loomod_compare) # this is great, except all rows are labled "mod" and you can't tell which is which!
 
 ############# PART 3: Model assessment (Model B) ################
-loo1b <- loo(list_modb[[1]])
-loo2b <- loo(list_modb[[2]])
-loo3b <- loo(list_modb[[3]])
-loo4b <- loo(list_modb[[4]])
-loo5b <- loo(list_modb[[5]])
-loo6b <- loo(list_modb[[6]])
-loo7b <- loo(list_modb[[7]])
-loo8b <- loo(list_modb[[8]])
-loo9b <- loo(list_modb[[9]])
-loo10b <- loo(list_modb[[10]])
+#loo1b <- loo(list_modb[[1]])
+#loo2b <- loo(list_modb[[2]])
+#loo3b <- loo(list_modb[[3]])
+#loo4b <- loo(list_modb[[4]])
+#loo5b <- loo(list_modb[[5]])
+#loo6b <- loo(list_modb[[6]])
+#loo7b <- loo(list_modb[[7]])
+#loo8b <- loo(list_modb[[8]])
+#loo9b <- loo(list_modb[[9]])
+#loo10b <- loo(list_modb[[10]])
 
-print(loo1b)
-print(loo2b)
-print(loo3b)
-print(loo4b)
-print(loo5b)
-print(loo6b)
-print(loo7b)
-print(loo8b)
-print(loo9b)
-print(loo10b)
+#loomodb_compare <- compare_models(loo1b,
+#                                 loo2b,
+#                                 loo3b,
+#                                 loo4b,
+#                                 loo5b,
+#                                 loo6b,
+#                                 loo7b,
+#                                 loo8b,
+#                                 loo9b,
+#                                 loo10b)
 
-loomodb_compare <- compare_models(loo1b,
-                                 loo2b,
-                                 loo3b,
-                                 loo4b,
-                                 loo5b,
-                                 loo6b,
-                                 loo7b,
-                                 loo8b,
-                                 loo9b,
-                                 loo10b)
-
-print(loomodb_compare)
+#print(loomodb_compare)
 
 
 # str(list_modb[[2]])  ### prints out a list
 names(list_modb[[1]])
-list_modb[[1]]$stan_summary
+list_modb[[1]]$stanfit
 
+#check chain convergence
+# good resource: http://mc-stan.org/bayesplot/articles/plotting-mcmc-draws.html 
+# another: http://mc-stan.org/bayesplot/articles/visual-mcmc-diagnostics.html 
+posterior <- as.array(list_modb[[1]])
+dim(posterior)
+dimnames(posterior)
+log_posterior(list_modb[[1]])
 
+rhats <- rhat(list_modb[1])
+color_scheme_set("brightblue")
+mcmc_rhat(rhats) #rhat values close to 1, so we assume chains have converged.
+
+#visualizing chains
+color_scheme_set("red")
+mcmc_intervals(posterior, pars = c("PDSI_MEAN_2016", "1|2", "2|3", "3|4"))
+mcmc_areas(
+  posterior,
+  pars = c("PDSI_MEAN_2016", "1|2", "2|3", "3|4"),
+  prob = 0.8, # 80% intervals
+  prob_outer = 0.99, #99%
+  point_est = "mean")
+mcmc_dens_overlay(posterior, pars = c("PDSI_MEAN_2016", "1|2", "2|3", "3|4"))
 
 ################################### Identify priors ###########################################
 # documentation at https://cran.r-project.org/web/packages/rstanarm/vignettes/priors.html 
