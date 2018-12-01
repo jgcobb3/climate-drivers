@@ -342,7 +342,6 @@ list_mod <- lapply(list_model_formulasb[[1:10]],
                seed_val = 1234, 
                iter_val = 200)
 
-
 Mod1 <- lapply(mod_mean2016b,
                    FUN = run_model_ordinal_logistic,
                    data = data_subset, 
