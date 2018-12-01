@@ -26,7 +26,15 @@
 #
 
 ###### Libraries used
-
+library(dplyr)
+library(ggpubr)
+library(ggplot2)
+library(car)
+library(gvlma)
+require(foreign)
+require(MASS)
+require(Hmisc)
+require(reshape2)
 
 ##################
 
@@ -171,7 +179,80 @@ mod_STD2002b <-  "y_var ~ PDSI_STD_2002"
 list_model_formulasb <- list(mod_mean2016b,mod_mean2014b,mod_mean2012b,mod_mean2007b,mod_mean2002b,
                              mod_STD2016b,mod_STD2014b,mod_STD2012b,mod_STD2007b,mod_STD2002b)
 
-####################
-M4 <- lm(tomatofun_yield_P_NONA$"Total.Yield.per.sq.ft" ~ tomatofun_yield_P_NONA$"Phosphorus..ppm..SME" + tomatofun_yield_P_NONA$"Sample.Period", data = tomatofun_yield_P_NONA, method = "qr")
-gvlma::gvlma(M4)
-summary(M2)
+#################### run polr ##########################################
+M1b <- polr(y_var ~ PDSI_MEAN_2016, data = data_subset, Hess = TRUE)
+summary(M1b)
+(ctable <- coef(summary(M1b))) #store table
+p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2 ## calculate and store p values
+(ctable <- cbind(ctable, "p value" = p)) ## combined table
+(ci <- confint(M1b)) # default method gives profiled CIs. If the 95% CI does not cross 0, the parameter estimate is statistically significant. 
+
+M2b <- polr(y_var ~ PDSI_MEAN_2014, data = data_subset, Hess = TRUE)
+summary(M2b)
+(ctable <- coef(summary(M2b))) #store table
+p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2 ## calculate and store p values
+(ctable <- cbind(ctable, "p value" = p)) ## combined table
+(ci <- confint(M2b)) # default method gives profiled CIs. If the 95% CI does not cross 0, the parameter estimate is statistically significant. 
+
+M3b <- polr(y_var ~ PDSI_MEAN_2012, data = data_subset, Hess = TRUE)
+summary(M3b)
+(ctable <- coef(summary(M3b))) #store table
+p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2 ## calculate and store p values
+(ctable <- cbind(ctable, "p value" = p)) ## combined table
+(ci <- confint(M3b)) # default method gives profiled CIs. If the 95% CI does not cross 0, the parameter estimate is statistically significant. 
+
+M4b <- polr(y_var ~ PDSI_MEAN_2007, data = data_subset, Hess = TRUE)
+summary(M4b)
+(ctable <- coef(summary(M4b))) #store table
+p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2 ## calculate and store p values
+(ctable <- cbind(ctable, "p value" = p)) ## combined table
+(ci <- confint(M4b)) # default method gives profiled CIs. If the 95% CI does not cross 0, the parameter estimate is statistically significant. 
+
+M5b <- polr(y_var ~ PDSI_MEAN_2002, data = data_subset, Hess = TRUE)
+summary(M5b)
+(ctable <- coef(summary(M5b))) #store table
+p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2 ## calculate and store p values
+(ctable <- cbind(ctable, "p value" = p)) ## combined table
+(ci <- confint(M5b)) # default method gives profiled CIs. If the 95% CI does not cross 0, the parameter estimate is statistically significant. 
+
+M6b <- polr(y_var ~ PDSI_STD_2016, data = data_subset, Hess = TRUE)
+summary(M6b)
+(ctable <- coef(summary(M6b))) #store table
+p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2 ## calculate and store p values
+(ctable <- cbind(ctable, "p value" = p)) ## combined table
+(ci <- confint(M6b)) # default method gives profiled CIs. If the 95% CI does not cross 0, the parameter estimate is statistically significant. 
+
+M7b <- polr(y_var ~ PDSI_STD_2014, data = data_subset, Hess = TRUE)
+summary(M7b)
+(ctable <- coef(summary(M7b))) #store table
+p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2 ## calculate and store p values
+(ctable <- cbind(ctable, "p value" = p)) ## combined table
+(ci <- confint(M7b)) # default method gives profiled CIs. If the 95% CI does not cross 0, the parameter estimate is statistically significant. 
+
+M8b <- polr(y_var ~ PDSI_STD_2012, data = data_subset, Hess = TRUE)
+summary(M8b)
+(ctable <- coef(summary(M8b))) #store table
+p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2 ## calculate and store p values
+(ctable <- cbind(ctable, "p value" = p)) ## combined table
+(ci <- confint(M8b)) # default method gives profiled CIs. If the 95% CI does not cross 0, the parameter estimate is statistically significant. 
+
+M9b <- polr(y_var ~ PDSI_STD_2007, data = data_subset, Hess = TRUE)
+summary(M9b)
+(ctable <- coef(summary(M9b))) #store table
+p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2 ## calculate and store p values
+(ctable <- cbind(ctable, "p value" = p)) ## combined table
+(ci <- confint(M9b)) # default method gives profiled CIs. If the 95% CI does not cross 0, the parameter estimate is statistically significant. 
+
+M10b <- polr(y_var ~ PDSI_STD_2002, data = data_subset, Hess = TRUE)
+summary(M10b)
+(ctable <- coef(summary(M10b))) #store table
+p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2 ## calculate and store p values
+(ctable <- cbind(ctable, "p value" = p)) ## combined table
+(ci <- confint(M10b)) # default method gives profiled CIs. If the 95% CI does not cross 0, the parameter estimate is statistically significant. 
+
+#save(mod,file= paste("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\model",i,"output.rdata", sep ="")) # This save would be useful if you wanted to save each of the 11 models as their own file
+
+mod_outfilename <- paste0("M1b",out_suffix,".RData")
+
+save(Mod1b, 
+     file = file.path(out_dir,mod_outfilename))
