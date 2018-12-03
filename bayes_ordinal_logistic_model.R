@@ -6,7 +6,7 @@
 ##
 ##
 ## DATE CREATED: 09/27/2018
-## DATE MODIFIED: 11/27/2018
+## DATE MODIFIED: 12/03/2018
 ## AUTHORS: Rachel Schattman, Benoit Parmentier  
 ## Version: 2
 ## PROJECT: Climate Percecption
@@ -99,7 +99,7 @@ out_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/outputs"
 create_out_dir_param=TRUE #create a new ouput dir if TRUE
 
 #ARGS 7
-out_suffix <-"_11272018" #output suffix for the files and ouptut folder
+out_suffix <-"12032018" #output suffix for the files and ouptut folder
 
 #ARGS 8
 num_cores <- 2 # number of cores
@@ -311,9 +311,9 @@ loo_mod <- mclapply(list_modb,
                     mc.preschedule = FALSE,
                     mc.cores = 3)
 
-loo_mod <- lapply(list_mod,
-                  FUN=run_model_assessment,
-                  k_threshold=0.7)
+#loo_mod <- lapply(list_mod,
+#                  FUN=run_model_assessment,
+#                  k_threshold=0.7)
 
 compare_models(loo_mod[[2]],loo_mod[[3]])
 
