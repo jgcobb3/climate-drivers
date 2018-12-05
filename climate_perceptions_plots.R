@@ -139,7 +139,7 @@ ggerrorplot(data_years, x = "Concern_DryDrought",
   geom_hline(yintercept=-0.5, linetype="dashed", color = "red")
 
 #years broken out into different plots
-ggerrorplot(data_years, x = "Concern_DryDrought", 
+gplot1 <- ggerrorplot(data_years, x = "Concern_DryDrought", 
             y = c("Mean 1-year", "Mean 3-years", "Mean 5-years", "Mean 10-years", "Mean 15-years"),
             combine = TRUE, merge = FALSE,
             desc_stat = "mean_sd",  
@@ -148,7 +148,8 @@ ggerrorplot(data_years, x = "Concern_DryDrought",
             title = "Level of concern and mean PDSI over 5-time scales",
             add = "violin", add.params = list(color = "darkgray", fill="lightgray"),
             ylim = c(-10, 12),
-            legend = "bottom",
+            common.legend = TRUE,
+            legend = "right",
             legend.title = "Concern", 
             xlab = "level of concern",
             ylab = "PDSI",
@@ -157,8 +158,14 @@ ggerrorplot(data_years, x = "Concern_DryDrought",
             Slightly concerned = 2, Concerned = 3, Very concerned = 4") +
   stat_compare_means(comparisons = my_comparisons) +
   stat_compare_means(label.y = -10, label.x = 1.5) +
-  geom_hline(yintercept=-0.5, linetype="dashed", color = "red")
+  geom_hline(yintercept= -0.5, linetype="dashed", color = "red", show.legend = TRUE)+
+  geom_hline(yintercept= -1, linetype="dotdash", color = "blue", show.legend = TRUE)+
+  geom_hline(yintercept= -2, linetype="dotted", color = "red", show.legend = TRUE)+
+  geom_hline(yintercept= -3, linetype="longdash", color = "blue", show.legend = TRUE)+
+  geom_hline(yintercept= -4, linetype="twodash", color = "red", show.legend = TRUE)
 
+leg <- get_legend(gplot1)
+as_ggplot(leg)
 
 # SDs - concern on x axis
 ggerrorplot(data_years, x = "Concern_DryDrought", 
@@ -214,8 +221,8 @@ ggerrorplot(data_years_cat, x = data_years_cat$`Mean 1-year`,
             caption = "Level of concern about drought: Not concerned = 1, 
             Slightly concerned = 2, Concerned = 3, Very concerned = 4") #+
   #stat_compare_means(comparisons = my_comparisons) +
-  #stat_compare_means(label.y = -10, label.x = 1.5) +
-  #geom_hline(yintercept=-0.5, linetype="dashed", color = "red")
+  #stat_compare_means(label.= -10, label.x = 1.5) +
+  y #geom_hline(yintercept=-0.5, linetype="dashed", color = "red")
 
 "Mean 3-years", "Mean 5-years", "Mean 10-years", "Mean 15-years")
 
