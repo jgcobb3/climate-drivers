@@ -147,25 +147,56 @@ gplot1 <- ggerrorplot(data_years, x = "Concern_DryDrought",
             palette = "npg",
             title = "Level of concern and mean PDSI over 5-time scales",
             add = "violin", add.params = list(color = "darkgray", fill="lightgray"),
-            ylim = c(-10, 12),
+            ylim = c(-6, 12),
             common.legend = TRUE,
-            legend = "right",
-            legend.title = "Concern", 
+            legend = "top", top = 12,
+            legend.title = "drought severity", 
             xlab = "level of concern",
             ylab = "PDSI",
-            orientation = "vertical", 
+            orientation = "vertical",
             caption = "Level of concern about drought: Not concerned = 1, 
-            Slightly concerned = 2, Concerned = 3, Very concerned = 4") +
+            Slightly concerned = 2, Concerned = 3, Very concerned = 4")+
   stat_compare_means(comparisons = my_comparisons) +
-  stat_compare_means(label.y = -10, label.x = 1.5) +
+  stat_compare_means(label.y = -5, label.x = 1.5) +
   geom_hline(yintercept= -0.5, linetype="dashed", color = "red", show.legend = TRUE)+
   geom_hline(yintercept= -1, linetype="dotdash", color = "blue", show.legend = TRUE)+
-  geom_hline(yintercept= -2, linetype="dotted", color = "red", show.legend = TRUE)+
-  geom_hline(yintercept= -3, linetype="longdash", color = "blue", show.legend = TRUE)+
-  geom_hline(yintercept= -4, linetype="twodash", color = "red", show.legend = TRUE)
+  geom_hline(yintercept= -2, linetype="dotted", color = "black", show.legend = TRUE)+
+  geom_hline(yintercept= -3, linetype="longdash", color = "red", show.legend = TRUE)+
+  geom_hline(yintercept= -4, linetype="twodash", color = "blue", show.legend = TRUE)
+  
+  
+gplot1 <- ggerrorplot(data_years, x = "Concern_DryDrought", 
+                      y = c("Mean 1-year", "Mean 3-years", "Mean 5-years", "Mean 10-years", "Mean 15-years"),
+                      combine = TRUE, merge = FALSE,
+                      desc_stat = "mean_sd",  
+                      color = "black",
+                      palette = "npg",
+                      title = "Level of concern and mean PDSI over 5-time scales",
+                      add = "violin", add.params = list(color = "darkgray", fill="lightgray"),
+                      ylim = c(-6, 12),
+                      common.legend = TRUE,
+                      legend = "top", top = 12,
+                      legend.title = "drought severity", 
+                      xlab = "level of concern",
+                      ylab = "PDSI",
+                      orientation = "vertical",
+                      caption = "Level of concern about drought: Not concerned = 1, 
+                      Slightly concerned = 2, Concerned = 3, Very concerned = 4")+
+  stat_compare_means(comparisons = my_comparisons) +
+  stat_compare_means(label.y = -5, label.x = 1.5) +
+  geom_hline(yintercept= -0.5, linetype="dashed", color = "red", show.legend = TRUE)+
+  geom_hline(yintercept= -1, linetype="dotdash", color = "blue", show.legend = TRUE)+
+  geom_hline(yintercept= -2, linetype="dotted", color = "black", show.legend = TRUE)+
+  geom_hline(yintercept= -3, linetype="longdash", color = "red", show.legend = TRUE)+
+  geom_hline(yintercept= -4, linetype="twodash", color = "blue", show.legend = TRUE)
 
-leg <- get_legend(gplot1)
-as_ggplot(leg)
+#annotate_figure(gplot1, bottom = text_grob("Level of concern about drought: Not concerned = 1, 
+#            Slightly concerned = 2, Concerned = 3, Very concerned = 4", color = "black",
+#           hjust = 1, x = 1, face = "italic", size = 10))
+
+#leg <- get_legend(gplot1)
+
+#as_ggplot(leg)
 
 # SDs - concern on x axis
 ggerrorplot(data_years, x = "Concern_DryDrought", 
