@@ -146,23 +146,23 @@ gplot1 <- ggerrorplot(data_years, x = "Concern_DryDrought",
             color = "black",
             palette = "npg",
             title = "Level of concern and mean PDSI over 5-time scales",
-            add = "violin", add.params = list(color = "darkgray", fill="lightgray"),
+            add = "violin", add.params = list(color = "darkgray", fill="Concern_DryDrought"),
             ylim = c(-6, 12),
             common.legend = TRUE,
             legend = "top", top = 12,
-            legend.title = "drought severity", 
+            legend.title = "Level of Concern", 
             xlab = "level of concern",
             ylab = "PDSI",
-            orientation = "vertical",
-            caption = "Level of concern about drought: Not concerned = 1, 
-            Slightly concerned = 2, Concerned = 3, Very concerned = 4")+
+            orientation = "vertical")+
+            #caption = "Level of concern about drought: Not concerned = 1, 
+            #Slightly concerned = 2, Concerned = 3, Very concerned = 4")+
   stat_compare_means(comparisons = my_comparisons) +
   stat_compare_means(label.y = -5, label.x = 1.5) +
-  geom_hline(yintercept= -0.5, linetype="dashed", color = "red", show.legend = TRUE)+
-  geom_hline(yintercept= -1, linetype="dotdash", color = "blue", show.legend = TRUE)+
-  geom_hline(yintercept= -2, linetype="dotted", color = "black", show.legend = TRUE)+
-  geom_hline(yintercept= -3, linetype="longdash", color = "red", show.legend = TRUE)+
-  geom_hline(yintercept= -4, linetype="twodash", color = "blue", show.legend = TRUE)
+  geom_hline(yintercept= -0.5, linetype="dashed", color = "red", show.legend = TRUE, label_value(labels, multi_line = TRUE))
+  #geom_hline(yintercept= -1, linetype="dotdash", color = "blue", show.legend = TRUE)+
+  #geom_hline(yintercept= -2, linetype="dotted", color = "black", show.legend = TRUE)+
+  #geom_hline(yintercept= -3, linetype="longdash", color = "red", show.legend = TRUE)+
+  #geom_hline(yintercept= -4, linetype="twodash", color = "blue", show.legend = TRUE)
   
   
 gplot1 <- ggerrorplot(data_years, x = "Concern_DryDrought", 
