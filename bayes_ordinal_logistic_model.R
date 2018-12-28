@@ -38,6 +38,9 @@ library("parallel")
 library("coda")
 library("rstan")  
 library("dplyr")
+library("tidyr")
+library("rstantools")
+library("shinystan")
 
 # citation("rstanarm")
 #update.packages(ask = FALSE, checkBuilt = TRUE)
@@ -258,47 +261,7 @@ list_model_formulasb <- list(mod_mean2016b,mod_mean2014b,mod_mean2012b,mod_mean2
 
 #Second set of models
 #suggestions for setting priors: https://github.com/stan-dev/stan/wiki/Prior-Choice-Recommendations
-# assign prior
-Norm_prior <- normal(location = .5, scale = c(1,4), autoscale = TRUE) 
 #another helpful source: https://rdrr.io/cran/rstanarm/man/priors.html 
-
-#assign prior
-
-### Benoit, there seems to be a problem with the model compiling as a list. I know it is clunky, but I am going to run them all
-# seperatly. Yuck.
-
-myprior <- R2(0.5, "mean") #assumes that mode, mean and median of the Beta distribution are equal. Indicated for polr
-
-
-#list_mod <- lapply(list_model_formulasb[[1:10]],
-#              FUN = run_model_ordinal_logistic,
-#              data = data_subset, 
-#              prior = myprior,
-               #shape = NULL, 
-               #algorithm = "sampling",
-               #adapt_delta = NULL, 
-               #do_residuals = TRUE),
-#              prior_counts = dirichlet(1),
-#              chains = 4, 
-#              num_cores = 4, 
-#              seed_val = 1234, 
-#              iter_val = 200)
-
-##### I couldn't get this mod to recognize anything but NULL priors.
-#Mod1 <- lapply(mod_mean2016b,
-#                   FUN = run_model_ordinal_logistic,
-#                   data = data_subset, 
-#                   prior = R2(0.5, "mean"), 
-#                   #shape = NULL, 
-#                   #algorithm = "sampling",
-#                   #adapt_delta = NULL, 
-#                   #do_residuals = TRUE),
-#                   prior_counts = dirichlet(1),
-#                   #prior_PD = FALSE,
-#                   chains = 4, 
-#                   num_cores = 4, 
-#                   seed_val = 1234, 
-#                   iter_val = 200)
 
 Mod1 <- stan_polr(mod_mean2016b,
                data = data_subset, 
@@ -309,10 +272,6 @@ Mod1 <- stan_polr(mod_mean2016b,
                do_residuals = TRUE,
                prior_counts = dirichlet(1),
                prior_PD = FALSE)
-               #chains = 4, 
-               #num_cores = 2, 
-               #seed_val = 1234) 
-               #iter_val = 200)
 
 Mod2 <- stan_polr(mod_mean2014b,
                   data = data_subset, 
@@ -353,12 +312,6 @@ Mod5 <- stan_polr(mod_mean2002b,
                   do_residuals = TRUE,
                   prior_counts = dirichlet(1),
                   prior_PD = FALSE)
-#chains = 4, 
-#num_cores = 2, 
-#seed_val = 1234) 
-#iter_val = 200)
-
-#save(mod,file= paste("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\model",i,"output.rdata", sep ="")) # This save would be useful if you wanted to save each of the 11 models as their own file
 
 mod_outfilename <- paste0("Mod1_",out_suffix,".RData")
 save(Mod1, file = file.path(out_dir,mod_outfilename))
@@ -375,8 +328,7 @@ save(Mod4, file = file.path(out_dir,mod_outfilename))
 mod_outfilename <- paste0("Mod5_",out_suffix,".RData")
 save(Mod5, file = file.path(out_dir,mod_outfilename))
 
-############# PART 3: Model assessment ################
-
+############# PART 3: MODEL ASSESSMENT ################
 # Reference for posterior checks: 
 # http://mc-stan.org/rstanarm/reference/pp_check.stanreg.html
 
@@ -406,40 +358,107 @@ pp_check(Mod4, plotfun = "bars", nreps = 500, prob = 0.5)
 pp_check(Mod4) #density overlay plot
 pp_check(Mod4, "stat")
 pp_check(Mod4, "stat_2d")
-# Mod3: posterior draws accuratly refelect the actual distrubtion of the data
+# Mod4: posterior draws accuratly refelect the actual distrubtion of the data
 
 prior_summary(Mod5)
 pp_check(Mod5, plotfun = "bars", nreps = 500, prob = 0.5)
 pp_check(Mod5) #density overlay plot
 pp_check(Mod5, "stat")
 pp_check(Mod5, "stat_2d")
-# Mod3: posterior draws accuratly refelect the actual distrubtion of the data
+# Mod5: posterior draws accuratly refelect the actual distrubtion of the data
 
 ## Check for chain convergence
 # good resource: http://mc-stan.org/bayesplot/articles/plotting-mcmc-draws.html 
 # another: http://mc-stan.org/bayesplot/articles/visual-mcmc-diagnostics.html 
-posterior_Mod1 <- as.array(Mod1)
-dim(posterior_Mod1)
-dimnames(posterior_Mod1)
-log_posterior(Mod1)
 
-
-rhats <- rhat(list_modb[2])
+stan_trace(Mod1, inc_warmup=TRUE) 
+rhats1 <- rhat(Mod1)
 color_scheme_set("brightblue")
-mcmc_rhat(rhats) #rhat values close to 1, so we assume chains have converged.
+mcmc_rhat(rhats1) #rhat values close to 1, so we assume chains have converged.
 
-#visualizing chains
-color_scheme_set("red")
-mcmc_intervals(posterior, pars = c("PDSI_MEAN_2016", "1|2", "2|3", "3|4"))
-mcmc_areas(
-  posterior,
-  pars = c("PDSI_MEAN_2016", "1|2", "2|3", "3|4"),
-  prob = 0.8, # 80% intervals
-  prob_outer = 0.99, #99%
-  point_est = "mean")
-mcmc_dens_overlay(posterior, pars = c("PDSI_MEAN_2016", "1|2", "2|3", "3|4"))
+stan_trace(Mod2, inc_warmup=TRUE) 
+rhats2 <- rhat(Mod2)
+color_scheme_set("brightblue")
+mcmc_rhat(rhats2) #rhat values close to 1, so we assume chains have converged.
+
+stan_trace(Mod3, inc_warmup=TRUE) 
+rhats3 <- rhat(Mod3)
+color_scheme_set("brightblue")
+mcmc_rhat(rhats3) #rhat values close to 1, so we assume chains have converged.
+
+stan_trace(Mod4, inc_warmup=TRUE) 
+rhats4 <- rhat(Mod4)
+color_scheme_set("brightblue")
+mcmc_rhat(rhats4) #rhat values close to 1, so we assume chains have converged.
+
+stan_trace(Mod5, inc_warmup=TRUE) 
+rhats5 <- rhat(Mod5)
+color_scheme_set("brightblue")
+mcmc_rhat(rhats5) #rhat values close to 1, so we assume chains have converged.
 
 
+########### Section 4: CREDIBILITY INTERVALS ######################
+posterior_interval(Mod1, prob = 0.95)
+posterior_interval(Mod2, prob = 0.95)
+posterior_interval(Mod3, prob = 0.95)
+posterior_interval(Mod4, prob = 0.95)
+posterior_interval(Mod5, prob = 0.95)
+
+######## Section 6: Shiny Stan Diagnostics #############################
+# much of the code above could be accomplished just by running shiny stan
+# but it was good practice to do it
+launch_shinystan(Mod1)
+launch_shinystan(Mod2)
+launch_shinystan(Mod3)
+launch_shinystan(Mod4)
+launch_shinystan(Mod5)
+
+######### Section 7: COEFFICIENTs #########################################
+summary.stanreg(Mod1)
+Mod1$coefficients
+Mod2$coefficients
+Mod3$coefficients
+Mod4$coefficients
+Mod5$coefficients
+
+########### Section 8: LOOIC ######################
+# Compare models
+loo1 <- loo(Mod1) 
+loo2 <- loo(Mod2) 
+loo3 <- loo(Mod3) 
+loo4 <- loo(Mod4) 
+loo5 <- loo(Mod5) 
+                                          
+
+########### Section 9: PLOTS ######################
+## Step one: create new data frame using posterior draws
+
+y_rep <- posterior_predict(Mod1)
+
+#colnames(y_rep) <- c("1", "2", "3", "4") 
+#plot_posterior <- gather(posterior_predict, key = "1", value = "not concerned") 
+#head(plot_posterior) 
+
+gplot1 <- ggerrorplot(y_rep, x = x_var_clean, 
+                      y = c("Mean 1-year", "Mean 3-years", "Mean 5-years", "Mean 10-years", "Mean 15-years"),
+                      combine = TRUE, merge = FALSE,
+                      desc_stat = "mean_sd",  
+                      color = "black",
+                      palette = "npg",
+                      title = "Level of concern and mean PDSI over 5-time scales",
+                      add = "violin", add.params = list(color = "darkgray", fill="Concern_DryDrought"),
+                      ylim = c(-6, 12),
+                      common.legend = TRUE,
+                      legend = "top", top = 12,
+                      legend.title = "Level of Concern", 
+                      xlab = "level of concern",
+                      ylab = "PDSI",
+                      orientation = "vertical")+
+  #caption = "Level of concern about drought: Not concerned = 1, 
+  #Slightly concerned = 2, Concerned = 3, Very concerned = 4")+
+  #stat_compare_means(comparisons = my_comparisons) +
+  #stat_compare_means(label.y = -5, label.x = 1.5) +
+  geom_hline(yintercept= -0.5, linetype="dashed", color = "red", show.legend = TRUE, label_value(labels, multi_line = TRUE))
 
 #list_modb <- lapply(list_model_formulasb,
 #                    FUN = run_model_ordinal_logistic,
@@ -464,7 +483,6 @@ mcmc_dens_overlay(posterior, pars = c("PDSI_MEAN_2016", "1|2", "2|3", "3|4"))
 ############# PART 4: Compare Models ################
 
 
-#loo_mod2 <- run_model_assessment(mod2)
 
 
 ##Benoit's elegant code
