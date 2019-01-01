@@ -41,6 +41,7 @@ library("dplyr")
 library("tidyr")
 library("rstantools")
 library("shinystan")
+library("StanHeaders")
 
 # citation("rstanarm")
 #update.packages(ask = FALSE, checkBuilt = TRUE)
@@ -109,7 +110,7 @@ out_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers/output"
 create_out_dir_param=TRUE #create a new ouput dir if TRUE
 
 #ARGS 7
-out_suffix <-"12272018" #output suffix for the files and ouptut folder
+out_suffix <-"01012019" #output suffix for the files and ouptut folder
 
 #ARGS 8
 num_cores <- 2 # number of cores
@@ -429,11 +430,24 @@ loo3 <- loo(Mod3)
 loo4 <- loo(Mod4) 
 loo5 <- loo(Mod5) 
                                           
-
 ########### Section 9: PLOTS ######################
+## Source: http://mc-stan.org/bayesplot/ 
 ## Step one: create new data frame using posterior draws
+install.packages("bayesplot")
+library("bayesplot")
+install.packages("ggplot2")
+library(ggplot2)
+library(tidyselect)
+library(rstan)
+library(StanHeaders)
 
-y_rep <- posterior_predict(Mod1)
+posterior_M1 <- as.matrix(Mod1)
+
+plot_title <- ggtitle("Posterior distributions",
+                      "with medians and 80% intervals")
+mcmc_areas(posterior,
+           pars = c("1", "2", "3", "4"),
+           prob = 0.8) 
 
 #colnames(y_rep) <- c("1", "2", "3", "4") 
 #plot_posterior <- gather(posterior_predict, key = "1", value = "not concerned") 
@@ -492,85 +506,6 @@ loo_mod <- mclapply(list_modb,
                     k_threshold = 0.7,
                     mc.preschedule = FALSE,
                     mc.cores = 1)
-
-#loo_mod <- lapply(list_mod,
-#                  FUN=run_model_assessment,
-#                  k_threshold=0.7)
-
-#compare_models(loo_mod[[2]],loo_mod[[3]])
-
-#loo_mod <- mclapply(list_mod,
-                  #FUN=run_model_assessment,
-                  #k_threshold=0.7,
-                  #mc.preschedule = FALSE,
-                  #mc.cores=1)
-
-
-#loo_mod <- lapply(list_mod,
-                    #FUN=run_model_assessment,
-                    #k_threshold=0.7)
-
-#compare_models(loo_mod[[2]],loo_mod[[3]])
-
-loo1 <- loo(list_modb[[1]]) #data structure doesn't work?
-loo2 <- loo(list_modb[[2]])
-loo3 <- loo(list_modb[[3]])
-loo4 <- loo(list_modb[[4]])
-loo5 <- loo(list_modb[[5]])
-loo6 <- loo(list_modb[[6]])
-loo7 <- loo(list_modb[[7]])
-loo8 <- loo(list_modb[[8]])
-loo9 <- loo(list_modb[[9]])
-loo10 <- loo(list_modb[[10]])
-
-loomod_compare <- compare_models(loo_mod[1:10])
-
-loomod_compare <- compare_models(loos = c(loo_mod[1],
-                                 loo_mod[2],
-                                 loo_mod[3],
-                                 loo_mod[4],
-                                 loo_mod[5],
-                                 loo_mod[6],
-                                 loo_mod[7],
-                                 loo_mod[8],
-                                 loo_mod[9],
-                                 loo_mod[10]))
-
-
-
-print(loomod_compare) # this is great, except all rows are labled "mod" and you can't tell which is which!
-
-############# PART 3: Model assessment (Model B) ################
-#loo1b <- loo(list_modb[[1]])
-#loo2b <- loo(list_modb[[2]])
-#loo3b <- loo(list_modb[[3]])
-#loo4b <- loo(list_modb[[4]])
-#loo5b <- loo(list_modb[[5]])
-#loo6b <- loo(list_modb[[6]])
-#loo7b <- loo(list_modb[[7]])
-#loo8b <- loo(list_modb[[8]])
-#loo9b <- loo(list_modb[[9]])
-#loo10b <- loo(list_modb[[10]])
-
-#loomodb_compare <- compare_models(loo1b,
-#                                 loo2b,
-#                                 loo3b,
-#                                 loo4b,
-#                                 loo5b,
-#                                 loo6b,
-#                                 loo7b,
-#                                 loo8b,
-#                                 loo9b,
-#                                 loo10b)
-
-#print(loomodb_compare)
-
-
-# str(list_modb[[2]])  ### prints out a list
-names(list_modb[[1]])
-list_modb[[1]]$stanfit
-
-
 
 
 ############################### Median Absolute Deviation = (MAD)################################ 
