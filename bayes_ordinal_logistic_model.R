@@ -453,7 +453,7 @@ mcmc_areas(posterior,
 #plot_posterior <- gather(posterior_predict, key = "1", value = "not concerned") 
 #head(plot_posterior) 
 
-gplot1 <- ggerrorplot(y_rep, x = x_var_clean, 
+gplot1 <- ggerrorplot(posterior_M1, x = x_var_clean, 
                       y = c("Mean 1-year", "Mean 3-years", "Mean 5-years", "Mean 10-years", "Mean 15-years"),
                       combine = TRUE, merge = FALSE,
                       desc_stat = "mean_sd",  
