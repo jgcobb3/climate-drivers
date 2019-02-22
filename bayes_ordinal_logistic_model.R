@@ -605,49 +605,6 @@ loo3 <- loo(Mod3)
 loo4 <- loo(Mod4) 
 loo5 <- loo(Mod5) 
                                           
-########### Section 9: PLOTS ######################
-## Source: http://mc-stan.org/bayesplot/ 
-## Step one: create new data frame using posterior draws
-install.packages("bayesplot")
-library("bayesplot")
-install.packages("ggplot2")
-library(ggplot2)
-library(tidyselect)
-library(rstan)
-library(StanHeaders)
-
-posterior_M1 <- as.matrix(Mod1)
-
-plot_title <- ggtitle("Posterior distributions",
-                      "with medians and 80% intervals")
-mcmc_areas(posterior,
-           pars = c("1", "2", "3", "4"),
-           prob = 0.8) 
-
-#colnames(y_rep) <- c("1", "2", "3", "4") 
-#plot_posterior <- gather(posterior_predict, key = "1", value = "not concerned") 
-#head(plot_posterior) 
-
-gplot1 <- ggerrorplot(posterior_M1, x = x_var_clean, 
-                      y = c("Mean 1-year", "Mean 3-years", "Mean 5-years", "Mean 10-years", "Mean 15-years"),
-                      combine = TRUE, merge = FALSE,
-                      desc_stat = "mean_sd",  
-                      color = "black",
-                      palette = "npg",
-                      title = "Level of concern and mean PDSI over 5-time scales",
-                      add = "violin", add.params = list(color = "darkgray", fill="Concern_DryDrought"),
-                      ylim = c(-6, 12),
-                      common.legend = TRUE,
-                      legend = "top", top = 12,
-                      legend.title = "Level of Concern", 
-                      xlab = "level of concern",
-                      ylab = "PDSI",
-                      orientation = "vertical")+
-  #caption = "Level of concern about drought: Not concerned = 1, 
-  #Slightly concerned = 2, Concerned = 3, Very concerned = 4")+
-  #stat_compare_means(comparisons = my_comparisons) +
-  #stat_compare_means(label.y = -5, label.x = 1.5) +
-  geom_hline(yintercept= -0.5, linetype="dashed", color = "red", show.legend = TRUE, label_value(labels, multi_line = TRUE))
 
 #list_modb <- lapply(list_model_formulasb,
 #                    FUN = run_model_ordinal_logistic,
@@ -667,14 +624,6 @@ gplot1 <- ggerrorplot(posterior_M1, x = x_var_clean,
 
 
 
-
-
-############# PART 4: Compare Models ################
-
-
->>>>>>> 285c8f0f67c63b54be688f7f69350b24865fcbae
-
-
 ############# PART 3: Model assessment ################
 
 loo_mod <- mclapply(list_mod,
@@ -683,7 +632,7 @@ loo_mod <- mclapply(list_mod,
                     mc.preschedule = FALSE,
                     mc.cores = 1)
 
-<<<<<<< HEAD
+
 mod_outfilename <- paste0("loo_mod_",out_suffix,".RData")
 save(loo_mod, 
      file = file.path(out_dir,mod_outfilename))
@@ -825,8 +774,6 @@ mcmc_areas(
   point_est = "mean")
 mcmc_dens_overlay(posterior, pars = c("PDSI_MEAN_2016", "1|2", "2|3", "3|4"))
 
-=======
->>>>>>> 285c8f0f67c63b54be688f7f69350b24865fcbae
 
 ############################### Median Absolute Deviation = (MAD)################################ 
 # “Bayesian point estimates” — the posterior medians — are similar to 
@@ -853,8 +800,8 @@ str(summary(list_modb))
 #################################### For the paper #######################################
 list_mod[[10]]$stanfit # gives n_eff, Rhat, mean, SD, and posterior 95% CI
 list_mod[[1]]$summary
-loo_mod[[1]]
-
+loo_mod[[10]]$estimates
+list_mod[[10]]$coefficients
 ############# PART 4: Create a Table ################
 
 
@@ -905,15 +852,61 @@ rstan::extract(list_mod[[2]]$stanfit,pars="PercLossDrought")
 
 #write.csv(table1, file = 'table1.csv')
 
-<<<<<<< HEAD
+
+
+########### Section 9: PLOTS ######################
+## Source: http://mc-stan.org/bayesplot/ 
+## Step one: create new data frame using posterior draws
+install.packages("bayesplot")
+library("bayesplot")
+install.packages("ggplot2")
+library(ggplot2)
+library(tidyselect)
+library(rstan)
+library(StanHeaders)
+
+posterior_M1 <- as.matrix(Mod1)
+
+plot_title <- ggtitle("Posterior distributions",
+                      "with medians and 80% intervals")
+mcmc_areas(posterior,
+           pars = c("1", "2", "3", "4"),
+           prob = 0.8) 
+
+#colnames(y_rep) <- c("1", "2", "3", "4") 
+#plot_posterior <- gather(posterior_predict, key = "1", value = "not concerned") 
+#head(plot_posterior) 
+
+gplot1 <- ggerrorplot(posterior_M1, x = x_var_clean, 
+                      y = c("Mean 1-year", "Mean 3-years", "Mean 5-years", "Mean 10-years", "Mean 15-years"),
+                      combine = TRUE, merge = FALSE,
+                      desc_stat = "mean_sd",  
+                      color = "black",
+                      palette = "npg",
+                      title = "Level of concern and mean PDSI over 5-time scales",
+                      add = "violin", add.params = list(color = "darkgray", fill="Concern_DryDrought"),
+                      ylim = c(-6, 12),
+                      common.legend = TRUE,
+                      legend = "top", top = 12,
+                      legend.title = "Level of Concern", 
+                      xlab = "level of concern",
+                      ylab = "PDSI",
+                      orientation = "vertical")+
+  #caption = "Level of concern about drought: Not concerned = 1, 
+  #Slightly concerned = 2, Concerned = 3, Very concerned = 4")+
+  #stat_compare_means(comparisons = my_comparisons) +
+  #stat_compare_means(label.y = -5, label.x = 1.5) +
+  geom_hline(yintercept= -0.5, linetype="dashed", color = "red", show.legend = TRUE, label_value(labels, multi_line = TRUE))
+
+
 ############################## Testing the Parellel Regression Assumption of POLR ###################
 # References:
-=======
+
 ## Plotting:
 ##https://mjskay.github.io/tidybayes/articles/tidy-rstanarm.html 
 
 ##### Testing the Parellel Regression Assumption of POLR ############
->>>>>>> 285c8f0f67c63b54be688f7f69350b24865fcbae
+
 # https://stats.idre.ucla.edu/r/dae/ordinal-logistic-regression/
 
 sf <- function(y) {
