@@ -60,8 +60,16 @@ run_model_assessment <- function(mod,model_type="bayes_stan",k_threshold = 0.7){
   return(loo_obj)
 }
 
-run_model_ordinal_logistic <- function(model_formula,model_type="bayes_stan",data,prior = normal(location = 0, scale = NULL, autoscale = TRUE), prior_counts = dirichlet(1),
-                                       shape = NULL,chains = 4, num_cores = NULL, seed_val = 1234, iter_val = 200){ #11/20 changed prior from NULL to normal
+run_model_ordinal_logistic <- function(model_formula,
+                                       model_type="bayes_stan", 
+                                       data = data_subset,
+                                       prior = R2(0.5, "mean", autoscale = TRUE), 
+                                       prior_counts = dirichlet(1),
+                                       shape = NULL,
+                                       chains = 2, 
+                                       num_cores = NULL, 
+                                       seed_val = 1234, 
+                                       iter_val = 200){ #12/27 changed prior from normal to R2
 
   ## This function provides different options to run ordinal logistic models. Option includes:
   # - polr from the MASS package
@@ -74,7 +82,7 @@ run_model_ordinal_logistic <- function(model_formula,model_type="bayes_stan",dat
   #1)model_formula: string defining the formula to run
   #2)model_type: "plor" or "bayes_stan"
   #3)data: input data as data.frame
-  #4prior = NULL # This should be NORMAL
+  #4)prior = NULL # This should be NORMAL
   #5)prior_counts = dirichlet(1)
   #6)shape = NULL
   #7)chains = 4

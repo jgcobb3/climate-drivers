@@ -38,6 +38,10 @@ library("parallel")
 library("coda")
 library("rstan")  
 library("dplyr")
+library("tidyr")
+library("rstantools")
+library("shinystan")
+library("StanHeaders")
 
 # citation("rstanarm")
 #update.packages(ask = FALSE, checkBuilt = TRUE)
@@ -77,39 +81,56 @@ load_obj <- function(f){
 #source(file.path(script_path,modeling_functions))
 
 #Rachel setup - home computer
-#script_path <- "C:/Users/rache/Documents/GitHub/climate-drivers"
-#modeling_functions <- "bayes_logistic_model_functions.R"
-#source(file.path(script_path,modeling_functions))
+script_path <- "C:/Users/rache/Documents/GitHub/climate-drivers"
+modeling_functions <- "bayes_logistic_model_functions.R"
+source(file.path(script_path,modeling_functions))
 
 
 #########cd ###################################################################
 #####  Parameters and argument set up ########### 
 
 #ARGS 1
+<<<<<<< HEAD
 
+=======
+>>>>>>> 285c8f0f67c63b54be688f7f69350b24865fcbae
 #in_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/data"
 #in_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers"
-#in_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers"
+in_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers"
 
 #ARGS 2
 #out_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/outputs"
 #out_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers/output"
+<<<<<<< HEAD
 
 #in_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/data"
 #in_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers"
 #in_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers"
+=======
+#in_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/data"
+#in_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers"
+in_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers"
+>>>>>>> 285c8f0f67c63b54be688f7f69350b24865fcbae
 
 #ARGS 2
 #out_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/outputs"
 #out_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers/output"
+<<<<<<< HEAD
 #out_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers/output"
+=======
+out_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers/output"
+>>>>>>> 285c8f0f67c63b54be688f7f69350b24865fcbae
 
 #ARGS 3:
 create_out_dir_param=TRUE #create a new ouput dir if TRUE
 
 #ARGS 7
+<<<<<<< HEAD
 
 out_suffix <-"02222019" #output suffix for the files and ouptut folder
+=======
+out_suffix <-"01012019" #output suffix for the files and ouptut folder
+>>>>>>> 285c8f0f67c63b54be688f7f69350b24865fcbae
 
 #ARGS 8
 num_cores <- 2 # number of cores
@@ -272,6 +293,7 @@ myprior <- R2(0.5, "mean") #assumes that mode, mean and median of the Beta distr
 #                    mc.preschedule = F,
 #                    mc.cores = 1)
 
+<<<<<<< HEAD
 list_mod <- lapply(list_model_formulasb[1:10],
                      FUN=run_model_ordinal_logistic,
                      data = data_subset,
@@ -315,49 +337,145 @@ Mod2 <- lapply(mod_mean2014b,
                num_cores = 4, 
                seed_val = 1234, 
                iter_val = 200)
+=======
+#First set of models         
+#list_mod <- lapply(list_model_formulas[1:11],
+#                     FUN=run_model_ordinal_logistic,
+#                     data = data_subset,
+#                     prior = normal(location = 0, scale = NULL, autoscale = TRUE),
+#                     prior_counts = dirichlet(1),
+#                     shape = NULL,
+#                    chains = 4, 
+#                     num_cores = 4, 
+#                     seed_val = 1234, 
+#                     iter_val = 200)
 
-Mod3 <- lapply(mod_mean2012b,
-               FUN = run_model_ordinal_logistic,
+#list_mod[[11]]
+
+#Second set of models
+#suggestions for setting priors: https://github.com/stan-dev/stan/wiki/Prior-Choice-Recommendations
+#another helpful source: https://rdrr.io/cran/rstanarm/man/priors.html 
+
+Mod1 <- stan_polr(mod_mean2016b,
                data = data_subset, 
-               prior = myprior,
-               #shape = NULL, 
-               #algorithm = "sampling",
-               #adapt_delta = NULL, 
-               #do_residuals = TRUE),
+               prior = R2(0.5, "mean"), 
+               shape = NULL, 
+               algorithm = "sampling",
+               adapt_delta = NULL, 
+               do_residuals = TRUE,
                prior_counts = dirichlet(1),
-               chains = 4, 
-               num_cores = 4, 
-               seed_val = 1234, 
-               iter_val = 200)
+               prior_PD = FALSE)
 
-Mod4 <- lapply(mod_mean2007b,
-               FUN = run_model_ordinal_logistic,
-               data = data_subset, 
-               prior = myprior,
-               #shape = NULL, 
-               #algorithm = "sampling",
-               #adapt_delta = NULL, 
-               #do_residuals = TRUE),
-               prior_counts = dirichlet(1),
-               chains = 4, 
-               num_cores = 4, 
-               seed_val = 1234, 
-               iter_val = 200)
+Mod2 <- stan_polr(mod_mean2014b,
+                  data = data_subset, 
+                  prior = R2(0.5, "mean"), 
+                  shape = NULL, 
+                  algorithm = "sampling",
+                  adapt_delta = NULL, 
+                  do_residuals = TRUE,
+                  prior_counts = dirichlet(1),
+                  prior_PD = FALSE)
 
-Mod5 <- lapply(mod_mean2002b,
-               FUN = run_model_ordinal_logistic,
-               data = data_subset, 
-               prior = myprior,
-               #shape = NULL, 
-               #algorithm = "sampling",
-               #adapt_delta = NULL, 
-               #do_residuals = TRUE),
-               prior_counts = dirichlet(1),
-               chains = 4, 
-               num_cores = 4, 
-               seed_val = 1234, 
-               iter_val = 200)
+Mod3 <- stan_polr(mod_mean2012b,
+                  data = data_subset, 
+                  prior = R2(0.5, "mean"), 
+                  shape = NULL, 
+                  algorithm = "sampling",
+                  adapt_delta = NULL, 
+                  do_residuals = TRUE,
+                  prior_counts = dirichlet(1),
+                  prior_PD = FALSE)
 
+Mod4 <- stan_polr(mod_mean2007b,
+                  data = data_subset, 
+                  prior = R2(0.5, "mean"), 
+                  shape = NULL, 
+                  algorithm = "sampling",
+                  adapt_delta = NULL, 
+                  do_residuals = TRUE,
+                  prior_counts = dirichlet(1),
+                  prior_PD = FALSE)
+
+Mod5 <- stan_polr(mod_mean2002b,
+                  data = data_subset, 
+                  prior = R2(0.5, "mean"), 
+                  shape = NULL, 
+                  algorithm = "sampling",
+                  adapt_delta = NULL, 
+                  do_residuals = TRUE,
+                  prior_counts = dirichlet(1),
+                  prior_PD = FALSE)
+
+mod_outfilename <- paste0("Mod1_",out_suffix,".RData")
+save(Mod1, file = file.path(out_dir,mod_outfilename))
+
+mod_outfilename <- paste0("Mod2_",out_suffix,".RData")
+save(Mod2, file = file.path(out_dir,mod_outfilename))
+
+mod_outfilename <- paste0("Mod3_",out_suffix,".RData")
+save(Mod3, file = file.path(out_dir,mod_outfilename))
+
+mod_outfilename <- paste0("Mod4_",out_suffix,".RData")
+save(Mod4, file = file.path(out_dir,mod_outfilename))
+
+mod_outfilename <- paste0("Mod5_",out_suffix,".RData")
+save(Mod5, file = file.path(out_dir,mod_outfilename))
+
+############# PART 3: MODEL ASSESSMENT ################
+# Reference for posterior checks: 
+# http://mc-stan.org/rstanarm/reference/pp_check.stanreg.html
+>>>>>>> 285c8f0f67c63b54be688f7f69350b24865fcbae
+
+prior_summary(Mod1)
+pp_check(Mod1, plotfun = "bars", nreps = 500, prob = 0.5)
+pp_check(Mod1) #density overlay plot
+pp_check(Mod1, "stat")
+pp_check(Mod1, "stat_2d")
+# Mod1: posterior draws accuratly refelect the actual distrubtion of the data
+
+prior_summary(Mod2)
+pp_check(Mod2, plotfun = "bars", nreps = 500, prob = 0.5)
+pp_check(Mod2) #density overlay plot
+pp_check(Mod2, "stat")
+pp_check(Mod2, "stat_2d")
+# Mod2: posterior draws accuratly refelect the actual distrubtion of the data
+
+prior_summary(Mod3)
+pp_check(Mod3, plotfun = "bars", nreps = 500, prob = 0.5)
+pp_check(Mod3) #density overlay plot
+pp_check(Mod3, "stat")
+pp_check(Mod3, "stat_2d")
+# Mod3: posterior draws accuratly refelect the actual distrubtion of the data
+
+prior_summary(Mod4)
+pp_check(Mod4, plotfun = "bars", nreps = 500, prob = 0.5)
+pp_check(Mod4) #density overlay plot
+pp_check(Mod4, "stat")
+pp_check(Mod4, "stat_2d")
+# Mod4: posterior draws accuratly refelect the actual distrubtion of the data
+
+prior_summary(Mod5)
+pp_check(Mod5, plotfun = "bars", nreps = 500, prob = 0.5)
+pp_check(Mod5) #density overlay plot
+pp_check(Mod5, "stat")
+pp_check(Mod5, "stat_2d")
+# Mod5: posterior draws accuratly refelect the actual distrubtion of the data
+
+## Check for chain convergence
+# good resource: http://mc-stan.org/bayesplot/articles/plotting-mcmc-draws.html 
+# another: http://mc-stan.org/bayesplot/articles/visual-mcmc-diagnostics.html 
+
+stan_trace(Mod1, inc_warmup=TRUE) 
+rhats1 <- rhat(Mod1)
+color_scheme_set("brightblue")
+mcmc_rhat(rhats1) #rhat values close to 1, so we assume chains have converged.
+
+stan_trace(Mod2, inc_warmup=TRUE) 
+rhats2 <- rhat(Mod2)
+color_scheme_set("brightblue")
+mcmc_rhat(rhats2) #rhat values close to 1, so we assume chains have converged.
+
+<<<<<<< HEAD
 Mod6 <- lapply(mod_DEV_2016b,
                FUN = run_model_ordinal_logistic,
                data = data_subset, 
@@ -438,6 +556,123 @@ save(list_mod,
 mod_outfilename <- paste0("Mod10",out_suffix,".RData")
 save(Mod10, 
      file = file.path(out_dir,mod_outfilename))
+=======
+stan_trace(Mod3, inc_warmup=TRUE) 
+rhats3 <- rhat(Mod3)
+color_scheme_set("brightblue")
+mcmc_rhat(rhats3) #rhat values close to 1, so we assume chains have converged.
+
+stan_trace(Mod4, inc_warmup=TRUE) 
+rhats4 <- rhat(Mod4)
+color_scheme_set("brightblue")
+mcmc_rhat(rhats4) #rhat values close to 1, so we assume chains have converged.
+
+stan_trace(Mod5, inc_warmup=TRUE) 
+rhats5 <- rhat(Mod5)
+color_scheme_set("brightblue")
+mcmc_rhat(rhats5) #rhat values close to 1, so we assume chains have converged.
+
+
+########### Section 4: CREDIBILITY INTERVALS ######################
+posterior_interval(Mod1, prob = 0.95)
+posterior_interval(Mod2, prob = 0.95)
+posterior_interval(Mod3, prob = 0.95)
+posterior_interval(Mod4, prob = 0.95)
+posterior_interval(Mod5, prob = 0.95)
+
+######## Section 6: Shiny Stan Diagnostics #############################
+# much of the code above could be accomplished just by running shiny stan
+# but it was good practice to do it
+launch_shinystan(Mod1)
+launch_shinystan(Mod2)
+launch_shinystan(Mod3)
+launch_shinystan(Mod4)
+launch_shinystan(Mod5)
+
+######### Section 7: COEFFICIENTs #########################################
+summary.stanreg(Mod1)
+Mod1$coefficients
+Mod2$coefficients
+Mod3$coefficients
+Mod4$coefficients
+Mod5$coefficients
+
+########### Section 8: LOOIC ######################
+# Compare models
+loo1 <- loo(Mod1) 
+loo2 <- loo(Mod2) 
+loo3 <- loo(Mod3) 
+loo4 <- loo(Mod4) 
+loo5 <- loo(Mod5) 
+                                          
+########### Section 9: PLOTS ######################
+## Source: http://mc-stan.org/bayesplot/ 
+## Step one: create new data frame using posterior draws
+install.packages("bayesplot")
+library("bayesplot")
+install.packages("ggplot2")
+library(ggplot2)
+library(tidyselect)
+library(rstan)
+library(StanHeaders)
+
+posterior_M1 <- as.matrix(Mod1)
+
+plot_title <- ggtitle("Posterior distributions",
+                      "with medians and 80% intervals")
+mcmc_areas(posterior,
+           pars = c("1", "2", "3", "4"),
+           prob = 0.8) 
+
+#colnames(y_rep) <- c("1", "2", "3", "4") 
+#plot_posterior <- gather(posterior_predict, key = "1", value = "not concerned") 
+#head(plot_posterior) 
+
+gplot1 <- ggerrorplot(posterior_M1, x = x_var_clean, 
+                      y = c("Mean 1-year", "Mean 3-years", "Mean 5-years", "Mean 10-years", "Mean 15-years"),
+                      combine = TRUE, merge = FALSE,
+                      desc_stat = "mean_sd",  
+                      color = "black",
+                      palette = "npg",
+                      title = "Level of concern and mean PDSI over 5-time scales",
+                      add = "violin", add.params = list(color = "darkgray", fill="Concern_DryDrought"),
+                      ylim = c(-6, 12),
+                      common.legend = TRUE,
+                      legend = "top", top = 12,
+                      legend.title = "Level of Concern", 
+                      xlab = "level of concern",
+                      ylab = "PDSI",
+                      orientation = "vertical")+
+  #caption = "Level of concern about drought: Not concerned = 1, 
+  #Slightly concerned = 2, Concerned = 3, Very concerned = 4")+
+  #stat_compare_means(comparisons = my_comparisons) +
+  #stat_compare_means(label.y = -5, label.x = 1.5) +
+  geom_hline(yintercept= -0.5, linetype="dashed", color = "red", show.legend = TRUE, label_value(labels, multi_line = TRUE))
+
+#list_modb <- lapply(list_model_formulasb,
+#                    FUN = run_model_ordinal_logistic,
+#                    data = data_subset, 
+#                    #prior = Norm_prior,
+#                    prior = R2(0.2, "mean"),
+#                    #shape = NULL, 
+#                    #algorithm = "sampling",
+#                    #adapt_delta = NULL, 
+#                    #do_residuals = TRUE),
+#                    prior_counts = dirichlet(1),
+#                    chains = 4, 
+#                    num_cores = 4, 
+#                    seed_val = 1234, 
+#                    iter_val = 200)
+
+
+
+
+
+
+############# PART 4: Compare Models ################
+
+
+>>>>>>> 285c8f0f67c63b54be688f7f69350b24865fcbae
 
 
 ############# PART 3: Model assessment ################
@@ -448,6 +683,7 @@ loo_mod <- mclapply(list_mod,
                     mc.preschedule = FALSE,
                     mc.cores = 1)
 
+<<<<<<< HEAD
 mod_outfilename <- paste0("loo_mod_",out_suffix,".RData")
 save(loo_mod, 
      file = file.path(out_dir,mod_outfilename))
@@ -589,6 +825,8 @@ mcmc_areas(
   point_est = "mean")
 mcmc_dens_overlay(posterior, pars = c("PDSI_MEAN_2016", "1|2", "2|3", "3|4"))
 
+=======
+>>>>>>> 285c8f0f67c63b54be688f7f69350b24865fcbae
 
 ############################### Median Absolute Deviation = (MAD)################################ 
 # “Bayesian point estimates” — the posterior medians — are similar to 
@@ -667,8 +905,15 @@ rstan::extract(list_mod[[2]]$stanfit,pars="PercLossDrought")
 
 #write.csv(table1, file = 'table1.csv')
 
+<<<<<<< HEAD
 ############################## Testing the Parellel Regression Assumption of POLR ###################
 # References:
+=======
+## Plotting:
+##https://mjskay.github.io/tidybayes/articles/tidy-rstanarm.html 
+
+##### Testing the Parellel Regression Assumption of POLR ############
+>>>>>>> 285c8f0f67c63b54be688f7f69350b24865fcbae
 # https://stats.idre.ucla.edu/r/dae/ordinal-logistic-regression/
 
 sf <- function(y) {

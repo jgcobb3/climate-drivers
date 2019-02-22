@@ -30,7 +30,7 @@ colnames(data_years)[colnames(data_years)=="PDSI_STD_2012"] <- "Standard deviati
 colnames(data_years)[colnames(data_years)=="PDSI_STD_2007"] <- "Standard deviation 10-years"
 colnames(data_years)[colnames(data_years)=="PDSI_STD_2002"] <- "Standard deviation 15-years"
 
-# add colume with PDSI categories
+# add column with PDSI categories
 data_years_cat <- data_years
 #data_years["Mean 1-year"] <- NA
 data_years_cat$"Mean 1-year" <- ifelse(data_years_cat$"Mean 1-year" < 0 & data_years_cat$"Mean 1-year" > -0.5,"normal",
