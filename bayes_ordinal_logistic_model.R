@@ -6,7 +6,7 @@
 ##
 ##
 ## DATE CREATED: 09/27/2018
-## DATE MODIFIED: 12/03/2018
+## DATE MODIFIED: 2/22/2019
 ## AUTHORS: Rachel Schattman, Benoit Parmentier  
 ## Version: 2
 ## PROJECT: Climate Percecption
@@ -67,9 +67,9 @@ load_obj <- function(f){
 ################### Start script ###################
 
 #Benoit setup
-script_path <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/scripts"
-modeling_functions <- "bayes_logistic_model_functions_11272018.R"
-source(file.path(script_path,modeling_functions))
+#script_path <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/scripts"
+#modeling_functions <- "bayes_logistic_model_functions_11272018.R"
+#source(file.path(script_path,modeling_functions))
 
 #Rachel setup local - Fed computer
 #script_path <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers"
@@ -86,40 +86,37 @@ source(file.path(script_path,modeling_functions))
 #####  Parameters and argument set up ########### 
 
 #ARGS 1
-<<<<<<< HEAD
-in_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/data"
+
+#in_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/data"
 #in_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers"
 #in_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers"
 
 #ARGS 2
-out_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/outputs"
+#out_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/outputs"
 #out_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers/output"
-=======
+
 #in_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/data"
-in_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers"
+#in_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers"
 #in_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers"
 
 #ARGS 2
 #out_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/outputs"
-out_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers/output"
->>>>>>> 9683c2be5a597126e82d414f7979cd3d00ff41fd
+#out_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers/output"
 #out_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers/output"
 
 #ARGS 3:
 create_out_dir_param=TRUE #create a new ouput dir if TRUE
 
 #ARGS 7
-<<<<<<< HEAD
-out_suffix <-"12032018" #output suffix for the files and ouptut folder
-=======
-out_suffix <-"_11302018" #output suffix for the files and ouptut folder
->>>>>>> 9683c2be5a597126e82d414f7979cd3d00ff41fd
+
+out_suffix <-"02222019" #output suffix for the files and ouptut folder
 
 #ARGS 8
 num_cores <- 2 # number of cores
 
-
+Survey <- 
 in_filename <- "NRCS_FSAMergeDataset_w_PDSI2_7_28_18.csv"
+in_filename2 <- "Deviation_from_norm_01312019.csv"
 model_type <- "bayes_stan"
 y_var_name <- "Concern_DryDrought"
 
@@ -152,29 +149,39 @@ if(create_out_dir_param==TRUE){
 #######################################
 ### PART 1: Read in DATA #######
 
-dataDR <- read.csv(file.path(in_dir,in_filename), 
+dataSurvey <- read.csv(file.path(in_dir,in_filename), 
                    header = TRUE)
+dataDEV <- read.csv(file.path(in_dir, in_filename2),
+                    header = TRUE)
+dataDR <- merge(dataSurvey, dataDEV, 
+                by = "STDIV")
+head(dataDR)
 
 dataDR$y_var <- dataDR[[y_var_name]]
 
-dataDR$stdiv <- factor(dataDR$stdiv)
+dataDR$stdiv <- factor(dataDR$STDIV)
 dataDR$Agency <- factor(dataDR$Agency)
 dataDR$y_var <- factor(dataDR$y_var)
 
 #### Setting up models var inputs
 x_var_clean <- c("PercLossDrought", 
-                 "stdiv", 
+                 "STDIV", 
                  "Agency", 
                  "PDSI_MEAN_2016",
                  "PDSI_MEAN_2014",
                  "PDSI_MEAN_2012",
                  "PDSI_MEAN_2007",
                  "PDSI_MEAN_2002",
-                 "PDSI_STD_2016",
-                 "PDSI_STD_2014",
-                 "PDSI_STD_2012",
-                 "PDSI_STD_2007",
-                 "PDSI_STD_2002")
+                 #"PDSI_STD_2016",
+                 #"PDSI_STD_2014",
+                 #"PDSI_STD_2012",
+                 #"PDSI_STD_2007",
+                 #"PDSI_STD_2002",
+                 "PDSI_DEV_2016",
+                 "PDSI_DEV_2014",
+                 "PDSI_DEV_2012",
+                 "PDSI_DEV_2007",
+                 "PDSI_DEV_2002")
 
 y_var_clean <- y_var_name
 
@@ -214,17 +221,33 @@ mod_mean2014b <- "y_var ~ PDSI_MEAN_2014"
 mod_mean2012b <- "y_var ~ PDSI_MEAN_2012"
 mod_mean2007b <- "y_var ~ PDSI_MEAN_2007"
 mod_mean2002b <- "y_var ~ PDSI_MEAN_2002"
-mod_STD2016b <- "y_var ~ PDSI_STD_2016"
-mod_STD2014b <- "y_var ~ PDSI_STD_2014"
-mod_STD2012b <- "y_var ~ PDSI_STD_2012"
-mod_STD2007b <- "y_var ~ PDSI_STD_2007"
-mod_STD2002b <-  "y_var ~ PDSI_STD_2002"
+mod_DEV_2016b <- "y_var ~ PDSI_DEV_2016"
+mod_DEV_2014b <- "y_var ~ PDSI_DEV_2014"
+mod_DEV_2012b <- "y_var ~ PDSI_DEV_2012"
+mod_DEV_2007b <- "y_var ~ PDSI_DEV_2007"
+mod_DEV_2002b <-  "y_var ~ PDSI_DEV_2002"
 
-list_model_formulasb <- list(mod_mean2016b,mod_mean2014b,mod_mean2012b,mod_mean2007b,mod_mean2002b,
-                            mod_STD2016b,mod_STD2014b,mod_STD2012b,mod_STD2007b,mod_STD2002b)
+list_model_formulasb <- list(mod_mean2016b,
+                             mod_mean2014b,
+                             mod_mean2012b,
+                             mod_mean2007b,
+                             mod_mean2002b,
+                             mod_DEV_2016b,
+                             mod_DEV_2014b,
+                             mod_DEV_2012b,
+                             mod_DEV_2007b,
+                             mod_DEV_2002b)
 
 ############ PART 2: Run model with option for bayesian ordinal logistic
 
+# Resources on Priors 
+# https://github.com/stan-dev/stan/wiki/Prior-Choice-Recommendations
+# https://rdrr.io/cran/rstanarm/man/priors.html 
+
+# set priors
+myprior <- R2(0.5, "mean") #assumes that mode, mean and median of the Beta distribution are equal. Indicated for polr
+
+# set up list mods
 #mod2 <- run_model_ordinal_logistic(list_model_formulas[[2]],
 #                           data = data_subset, 
 #                           prior = NULL,
@@ -249,60 +272,26 @@ list_model_formulasb <- list(mod_mean2016b,mod_mean2014b,mod_mean2012b,mod_mean2
 #                    mc.preschedule = F,
 #                    mc.cores = 1)
 
-#First set of models         
-#list_mod <- lapply(list_model_formulas[1:11],
-#                     FUN=run_model_ordinal_logistic,
-#                     data = data_subset,
-#                     prior = normal(location = 0, scale = NULL, autoscale = TRUE),
-#                     prior_counts = dirichlet(1),
-#                     shape = NULL,
-#                    chains = 4, 
-#                     num_cores = 4, 
-#                     seed_val = 1234, 
-#                     iter_val = 200)
+list_mod <- lapply(list_model_formulasb[1:10],
+                     FUN=run_model_ordinal_logistic,
+                     data = data_subset,
+                     prior = myprior,
+                     prior_counts = dirichlet(1),
+                     #shape = NULL,
+                     chains = 4, 
+                     num_cores = 4, 
+                     seed_val = 1234, 
+                     iter_val = 200)
 
-#list_mod[[11]]
+list_mod[[10]]
 
-#Second set of models
-#suggestions for setting priors: https://github.com/stan-dev/stan/wiki/Prior-Choice-Recommendations
-<<<<<<< HEAD
-# assign prior
-Norm_prior <- normal(location = .5, scale = c(1,4), autoscale = TRUE) 
-=======
-#another helpful source: https://rdrr.io/cran/rstanarm/man/priors.html 
-
-#assign prior
-
-### Benoit, there seems to be a problem with the model compiling as a list. I know it is clunky, but I am going to run them all
-# seperatly. Yuck.
-
-myprior <- R2(0.5, "mean") #assumes that mode, mean and median of the Beta distribution are equal. Indicated for polr
-
->>>>>>> 9683c2be5a597126e82d414f7979cd3d00ff41fd
-
-list_mod <- lapply(list_model_formulasb[[1:10]],
-               FUN = run_model_ordinal_logistic,
-               data = data_subset, 
-               prior = myprior,
-               #shape = NULL, 
-               #algorithm = "sampling",
-               #adapt_delta = NULL, 
-               #do_residuals = TRUE),
-               prior_counts = dirichlet(1),
-               chains = 4, 
-               num_cores = 4, 
-               seed_val = 1234, 
-               iter_val = 200)
-
+# If you want to run them all seperatly, you could use the Mods below
 Mod1 <- lapply(mod_mean2016b,
                    FUN = run_model_ordinal_logistic,
                    data = data_subset, 
-<<<<<<< HEAD
                    #prior = Norm_prior,
                    prior = R2(0.2, "mean"),
-=======
-                   prior = myprior, 
->>>>>>> 9683c2be5a597126e82d414f7979cd3d00ff41fd
+                   #prior = myprior, 
                    #shape = NULL, 
                    #algorithm = "sampling",
                    #adapt_delta = NULL, 
@@ -312,26 +301,6 @@ Mod1 <- lapply(mod_mean2016b,
                    num_cores = 4, 
                    seed_val = 1234, 
                    iter_val = 200)
-<<<<<<< HEAD
-??prior
-list_modb <- lapply(list_model_formulasb,
-                    FUN = run_model_ordinal_logistic,
-                    data = data_subset, 
-                    #prior = Norm_prior,
-                    prior = R2(0.2, "mean"),
-                    #shape = NULL, 
-                    #algorithm = "sampling",
-                    #adapt_delta = NULL, 
-                    #do_residuals = TRUE),
-                    prior_counts = dirichlet(1),
-                    chains = 4, 
-                    num_cores = 4, 
-                    seed_val = 1234, 
-                    iter_val = 200)
-
-#list_mod[[3]]
-=======
->>>>>>> 9683c2be5a597126e82d414f7979cd3d00ff41fd
 
 Mod2 <- lapply(mod_mean2014b,
                FUN = run_model_ordinal_logistic,
@@ -389,7 +358,7 @@ Mod5 <- lapply(mod_mean2002b,
                seed_val = 1234, 
                iter_val = 200)
 
-Mod6 <- lapply(mod_STD2016b,
+Mod6 <- lapply(mod_DEV_2016b,
                FUN = run_model_ordinal_logistic,
                data = data_subset, 
                prior = myprior,
@@ -403,11 +372,11 @@ Mod6 <- lapply(mod_STD2016b,
                seed_val = 1234, 
                iter_val = 200)
 
-Mod7 <- lapply(mod_STD2014b,
+Mod7 <- lapply(mod_DEV_2014b,
                FUN = run_model_ordinal_logistic,
                data = data_subset, 
                prior = myprior, 
-               prior = R2(0.5, "mean"), #assumes that mode, mean and median of the Beta distribution are equal. Indicated for polr
+               #prior = R2(0.5, "mean"), #assumes that mode, mean and median of the Beta distribution are equal. Indicated for polr
                #shape = NULL, 
                #algorithm = "sampling",
                #adapt_delta = NULL, 
@@ -418,22 +387,7 @@ Mod7 <- lapply(mod_STD2014b,
                seed_val = 1234, 
                iter_val = 200)
 
-Mod8 <- lapply(mod_STD2012b,
-               FUN = run_model_ordinal_logistic,
-               data = data_subset, 
-               data = data_subset, 
-               prior = myprior,
-               #shape = NULL, 
-               #algorithm = "sampling",
-               #adapt_delta = NULL, 
-               #do_residuals = TRUE),
-               prior_counts = dirichlet(1),
-               chains = 4, 
-               num_cores = 4, 
-               seed_val = 1234, 
-               iter_val = 200)
-
-Mod9 <- lapply(mod_STD2007b,
+Mod8 <- lapply(mod_DEV_2012b,
                FUN = run_model_ordinal_logistic,
                data = data_subset, 
                prior = myprior,
@@ -447,11 +401,10 @@ Mod9 <- lapply(mod_STD2007b,
                seed_val = 1234, 
                iter_val = 200)
 
-Mod10 <- lapply(mod_STD2002b,
+Mod9 <- lapply(mod_DEV_2007b,
                FUN = run_model_ordinal_logistic,
                data = data_subset, 
                prior = myprior,
-               prior = R2(0.5, "mean"), #assumes that mode, mean and median of the Beta distribution are equal. Indicated for polr
                #shape = NULL, 
                #algorithm = "sampling",
                #adapt_delta = NULL, 
@@ -462,43 +415,56 @@ Mod10 <- lapply(mod_STD2002b,
                seed_val = 1234, 
                iter_val = 200)
 
-#save(mod,file= paste("C:\\Users\\rschattman\\Documents\\Research\\climate-drivers\\model",i,"output.rdata", sep ="")) # This save would be useful if you wanted to save each of the 11 models as their own file
-  
-<<<<<<< HEAD
-mod_outfilename <- paste0("list_modb_",out_suffix,".RData")
+Mod10 <- lapply(mod_DEV_2002b,
+               FUN = run_model_ordinal_logistic,
+               data = data_subset, 
+               prior = myprior,
+               #prior = R2(0.5, "mean"), #assumes that mode, mean and median of the Beta distribution are equal. Indicated for polr
+               #shape = NULL, 
+               #algorithm = "sampling",
+               #adapt_delta = NULL, 
+               #do_residuals = TRUE),
+               prior_counts = dirichlet(1),
+               chains = 4, 
+               num_cores = 4, 
+               seed_val = 1234, 
+               iter_val = 200)
 
-save(list_modb, 
-=======
-mod_outfilename <- paste0("Mod1",out_suffix,".RData")
-
-save(Mod1, 
->>>>>>> 9683c2be5a597126e82d414f7979cd3d00ff41fd
+# Save mods
+mod_outfilename <- paste0("list_mod_",out_suffix,".RData")
+save(list_mod, 
      file = file.path(out_dir,mod_outfilename))
+
+mod_outfilename <- paste0("Mod10",out_suffix,".RData")
+save(Mod10, 
+     file = file.path(out_dir,mod_outfilename))
+
 
 ############# PART 3: Model assessment ################
 
-############# PART 3: Model assessment (Model A) ################
-#check priors
-#prior_summary(list_modb[[1]]) # will not run all of list mod? Ran mods one at a time.
-prior_summary(Mod1)
-#debug(run_model_assessment)
-
-#loo_mod2 <- run_model_assessment(mod2)
-
-
-##Benoit's elegant code
-
-loo_mod <- mclapply(list_modb,
+loo_mod <- mclapply(list_mod,
                     FUN = run_model_assessment,
                     k_threshold = 0.7,
                     mc.preschedule = FALSE,
                     mc.cores = 1)
 
-#loo_mod <- lapply(list_mod,
-#                  FUN=run_model_assessment,
-#                  k_threshold=0.7)
+mod_outfilename <- paste0("loo_mod_",out_suffix,".RData")
+save(loo_mod, 
+     file = file.path(out_dir,mod_outfilename))
 
-#compare_models(loo_mod[[2]],loo_mod[[3]])
+
+loomod_compare <- compare_models(loos = c(loo_mod[1],
+                                          loo_mod[2],
+                                          loo_mod[3],
+                                          loo_mod[4],
+                                          loo_mod[5],
+                                          loo_mod[6],
+                                          loo_mod[7],
+                                          loo_mod[8],
+                                          loo_mod[9],
+                                          loo_mod[10]))
+
+print(loomod_compare) # this is great, except all rows are labled "mod" and you can't tell which is which!
 
 #loo_mod <- mclapply(list_mod,
                   #FUN=run_model_assessment,
@@ -506,82 +472,111 @@ loo_mod <- mclapply(list_modb,
                   #mc.preschedule = FALSE,
                   #mc.cores=1)
 
-
-#loo_mod <- lapply(list_mod,
-                    #FUN=run_model_assessment,
-                    #k_threshold=0.7)
-
-#compare_models(loo_mod[[2]],loo_mod[[3]])
-
-loo1 <- loo(list_modb[[1]]) #data structure doesn't work?
-loo2 <- loo(list_modb[[2]])
-loo3 <- loo(list_modb[[3]])
-loo4 <- loo(list_modb[[4]])
-loo5 <- loo(list_modb[[5]])
-loo6 <- loo(list_modb[[6]])
-loo7 <- loo(list_modb[[7]])
-loo8 <- loo(list_modb[[8]])
-loo9 <- loo(list_modb[[9]])
-loo10 <- loo(list_modb[[10]])
-
-loomod_compare <- compare_models(loo_mod[1:10])
-
-loomod_compare <- compare_models(loos = c(loo_mod[1],
-                                 loo_mod[2],
-                                 loo_mod[3],
-                                 loo_mod[4],
-                                 loo_mod[5],
-                                 loo_mod[6],
-                                 loo_mod[7],
-                                 loo_mod[8],
-                                 loo_mod[9],
-                                 loo_mod[10]))
+# check your priors
+prior_summary(list_mod[[1]])
 
 
+# check the structure of the mod 
+#str(list_mod[[2]])  
+#names(list_mod[[1]])
+list_mod[[1]]$stanfit
 
-print(loomod_compare) # this is great, except all rows are labled "mod" and you can't tell which is which!
+################################### Check for chain covergence ###########################################
+# Resources:
+# http://mc-stan.org/bayesplot/articles/plotting-mcmc-draws.html 
+# http://mc-stan.org/bayesplot/articles/visual-mcmc-diagnostics.html 
 
-############# PART 3: Model assessment (Model B) ################
-#loo1b <- loo(list_modb[[1]])
-#loo2b <- loo(list_modb[[2]])
-#loo3b <- loo(list_modb[[3]])
-#loo4b <- loo(list_modb[[4]])
-#loo5b <- loo(list_modb[[5]])
-#loo6b <- loo(list_modb[[6]])
-#loo7b <- loo(list_modb[[7]])
-#loo8b <- loo(list_modb[[8]])
-#loo9b <- loo(list_modb[[9]])
-#loo10b <- loo(list_modb[[10]])
-
-#loomodb_compare <- compare_models(loo1b,
-#                                 loo2b,
-#                                 loo3b,
-#                                 loo4b,
-#                                 loo5b,
-#                                 loo6b,
-#                                 loo7b,
-#                                 loo8b,
-#                                 loo9b,
-#                                 loo10b)
-
-#print(loomodb_compare)
-
-
-# str(list_modb[[2]])  ### prints out a list
-names(list_modb[[1]])
-list_modb[[1]]$stanfit
-
-#check chain convergence
-# good resource: http://mc-stan.org/bayesplot/articles/plotting-mcmc-draws.html 
-# another: http://mc-stan.org/bayesplot/articles/visual-mcmc-diagnostics.html 
-posterior <- as.array(list_modb[2]) #for anything other than list_modb[1], the error is "no applicable method for rhat applied to object class "list"
+# Can we lapply this so we can check all mods at once?
+# Mod 1
+posterior <- as.array(list_mod[1]) 
 dim(posterior)
 dimnames(posterior)
-log_posterior(list_modb[[2]])
-
-rhats <- rhat(list_modb[2])
+log_posterior(list_mod[[1]])
+rhats <- rhat(list_mod[[1]])
 color_scheme_set("brightblue")
-mcmc_rhat(rhats) #rhat values close to 1, so we assume chains have converged.
+mcmc_rhat(rhats)                 #rhat values close to 1, so we assume chains have converged.  
+
+#Mod 2
+posterior <- as.array(list_mod[2]) 
+dim(posterior)
+dimnames(posterior)
+log_posterior(list_mod[[2]])
+rhats <- rhat(list_mod[[2]])
+color_scheme_set("brightblue")
+mcmc_rhat(rhats)                 #rhat values close to 1, so we assume chains have converged.
+
+#Mod 3
+posterior <- as.array(list_mod[3]) 
+dim(posterior)
+dimnames(posterior)
+log_posterior(list_mod[[3]])
+rhats <- rhat(list_mod[[3]])
+color_scheme_set("brightblue")
+mcmc_rhat(rhats)                 #rhat values close to 1, so we assume chains have converged.
+
+#Mod 4
+posterior <- as.array(list_mod[4]) 
+dim(posterior)
+dimnames(posterior)
+log_posterior(list_mod[[4]])
+rhats <- rhat(list_mod[[4]])
+color_scheme_set("brightblue")
+mcmc_rhat(rhats)                 #rhat values close to 1, so we assume chains have converged.
+
+#Mod 5
+posterior <- as.array(list_mod[5]) 
+dim(posterior)
+dimnames(posterior)
+log_posterior(list_mod[[5]])
+rhats <- rhat(list_mod[[5]])
+color_scheme_set("brightblue")
+mcmc_rhat(rhats)                 #rhat values close to 1, so we assume chains have converged.
+
+#Mod 6
+posterior <- as.array(list_mod[6]) 
+dim(posterior)
+dimnames(posterior)
+log_posterior(list_mod[[6]])
+rhats <- rhat(list_mod[[6]])
+color_scheme_set("brightblue")
+mcmc_rhat(rhats)                 #rhat values close to 1, so we assume chains have converged.
+
+#Mod 7
+posterior <- as.array(list_mod[7]) 
+dim(posterior)
+dimnames(posterior)
+log_posterior(list_mod[[7]])
+rhats <- rhat(list_mod[[7]])
+color_scheme_set("brightblue")
+mcmc_rhat(rhats)                 #rhat values close to 1, so we assume chains have converged.
+
+#Mod 8
+posterior <- as.array(list_mod[8]) 
+dim(posterior)
+dimnames(posterior)
+log_posterior(list_mod[[8]])
+rhats <- rhat(list_mod[[8]])
+color_scheme_set("brightblue")
+mcmc_rhat(rhats)                 #rhat values close to 1, so we assume chains have converged.
+
+#Mod 9
+posterior <- as.array(list_mod[9]) 
+dim(posterior)
+dimnames(posterior)
+log_posterior(list_mod[[9]])
+rhats <- rhat(list_mod[[9]])
+color_scheme_set("brightblue")
+mcmc_rhat(rhats)                 #rhat values close to 1, so we assume chains have converged.
+
+#Mod 10
+posterior <- as.array(list_mod[10]) 
+dim(posterior)
+dimnames(posterior)
+log_posterior(list_mod[[10]])
+rhats <- rhat(list_mod[[10]])
+color_scheme_set("brightblue")
+mcmc_rhat(rhats)                 #rhat values close to 1, so we assume chains have converged.
+
 
 #visualizing chains
 color_scheme_set("red")
@@ -594,25 +589,17 @@ mcmc_areas(
   point_est = "mean")
 mcmc_dens_overlay(posterior, pars = c("PDSI_MEAN_2016", "1|2", "2|3", "3|4"))
 
-################################### Identify priors ###########################################
-# documentation at https://cran.r-project.org/web/packages/rstanarm/vignettes/priors.html 
-# this documentation was updated on 11/8/18. Thought I have updated rstanarm, many of the arguments 
-# are not recognized.
-default_prior_test <- list_modb[[1]]
-prior_summary(default_prior_test) #generates NULL
-
-
 
 ############################### Median Absolute Deviation = (MAD)################################ 
 # “Bayesian point estimates” — the posterior medians — are similar to 
 # maximum likelihood estimates
 
 # diagnose posteriors - Bayesian uncertainty intervals
-PI1 <- posterior_interval(list_modb[[1]], prob = 0.95)
-summary(residuals(list_modb[[1]])) # not deviance residuals
+PI1 <- posterior_interval(list_mod[[1]], prob = 0.95)
+summary(residuals(list_mod[[1]])) # not deviance residuals
 
 #check for covariances
-cov2cor(vcov(list_modb[[1]])) # covariance of chains... maybe not helful
+cov2cor(vcov(list_mod[[1]])) # covariance of chains... maybe not helful
 
 
 
@@ -624,51 +611,11 @@ gelman.diag(x, confidence = 0.95, transform=FALSE, autoburnin=TRUE,
 
 str(summary(list_modb))
 
-#Rachel's not elegant (but functional) code
-loo_mod2 <- loo(list_mod[[2]],
-                cores = 2)
-loo_mod3 <- loo(list_mod[[3]],
-                cores = 2)
-loo_mod4 <- loo(list_mod[[4]],
-                cores = 2)
-loo_mod5 <- loo(list_mod[[5]],
-                cores = 2)
-loo_mod6 <- loo(list_mod[[6]],
-                cores = 2)
-loo_mod7 <- loo(list_mod[[7]],
-                cores = 2)
-loo_mod8 <- loo(list_mod[[8]],
-                cores = 2)
-loo_mod9 <- loo(list_mod[[9]],
-                cores = 2)
-loo_mod10 <- loo(list_mod[[10]],
-                 cores = 2)
-loo_mod11 <- loo(list_mod[[11]],
-                 cores = 2)
 
-print(loo_mod2)
-print(loo_mod3)
-print(loo_mod4)
-print(loo_mod5)
-print(loo_mod6)
-print(loo_mod7)
-print(loo_mod8)
-print(loo_mod9)
-print(loo_mod10)
-print(loo_mod11)
-
-#compare models
-compareloo <- compare(x=list(loo_mod2,
-              loo_mod3,
-              loo_mod4,
-              loo_mod5,
-              loo_mod6,
-              loo_mod7,
-              loo_mod8,
-              loo_mod9,
-              loo_mod10,
-              loo_mod11))
-
+#################################### For the paper #######################################
+list_mod[[10]]$stanfit # gives n_eff, Rhat, mean, SD, and posterior 95% CI
+list_mod[[1]]$summary
+loo_mod[[1]]
 
 ############# PART 4: Create a Table ################
 
@@ -682,16 +629,8 @@ compareloo <- compare(x=list(loo_mod2,
  #                   p.value = 1)
  
 
-## ------------------------------------------------------------------------
-str(list_mod)
-str(summary(list_mod))
-
-## ------------------------------------------------------------------------
-
-print(list_mod, digets = 3)
-
+##### This is where I stopped - Meet with BP?
 rstan::extract(list_mod[[2]]$stanfit,pars="PercLossDrought")
-list_mod[[2]]$stanfit
 
 ### Still need to fix this part to extract the coef
 #round(apply(rstan:: extract(list_mod$stanfit, pars = "drought") [[1]], 2, median), digits = 3)
@@ -728,7 +667,8 @@ list_mod[[2]]$stanfit
 
 #write.csv(table1, file = 'table1.csv')
 
-##### Testing the Parellel Regression Assumption of POLR ############
+############################## Testing the Parellel Regression Assumption of POLR ###################
+# References:
 # https://stats.idre.ucla.edu/r/dae/ordinal-logistic-regression/
 
 sf <- function(y) {
