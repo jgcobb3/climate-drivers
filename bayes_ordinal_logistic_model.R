@@ -115,22 +115,16 @@ in_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers"
 #ARGS 2
 #out_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/outputs"
 #out_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers/output"
-<<<<<<< HEAD
-#out_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers/output"
-=======
+
 out_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers/output"
->>>>>>> 285c8f0f67c63b54be688f7f69350b24865fcbae
+
 
 #ARGS 3:
 create_out_dir_param=TRUE #create a new ouput dir if TRUE
 
 #ARGS 7
-<<<<<<< HEAD
 
 out_suffix <-"02222019" #output suffix for the files and ouptut folder
-=======
-out_suffix <-"01012019" #output suffix for the files and ouptut folder
->>>>>>> 285c8f0f67c63b54be688f7f69350b24865fcbae
 
 #ARGS 8
 num_cores <- 2 # number of cores
@@ -293,7 +287,6 @@ myprior <- R2(0.5, "mean") #assumes that mode, mean and median of the Beta distr
 #                    mc.preschedule = F,
 #                    mc.cores = 1)
 
-<<<<<<< HEAD
 list_mod <- lapply(list_model_formulasb[1:10],
                      FUN=run_model_ordinal_logistic,
                      data = data_subset,
@@ -308,53 +301,6 @@ list_mod <- lapply(list_model_formulasb[1:10],
 list_mod[[10]]
 
 # If you want to run them all seperatly, you could use the Mods below
-Mod1 <- lapply(mod_mean2016b,
-                   FUN = run_model_ordinal_logistic,
-                   data = data_subset, 
-                   #prior = Norm_prior,
-                   prior = R2(0.2, "mean"),
-                   #prior = myprior, 
-                   #shape = NULL, 
-                   #algorithm = "sampling",
-                   #adapt_delta = NULL, 
-                   #do_residuals = TRUE),
-                   prior_counts = dirichlet(1),
-                   chains = 4, 
-                   num_cores = 4, 
-                   seed_val = 1234, 
-                   iter_val = 200)
-
-Mod2 <- lapply(mod_mean2014b,
-               FUN = run_model_ordinal_logistic,
-               data = data_subset, 
-               prior = myprior,
-               #shape = NULL, 
-               #algorithm = "sampling",
-               #adapt_delta = NULL, 
-               #do_residuals = TRUE),
-               prior_counts = dirichlet(1),
-               chains = 4, 
-               num_cores = 4, 
-               seed_val = 1234, 
-               iter_val = 200)
-=======
-#First set of models         
-#list_mod <- lapply(list_model_formulas[1:11],
-#                     FUN=run_model_ordinal_logistic,
-#                     data = data_subset,
-#                     prior = normal(location = 0, scale = NULL, autoscale = TRUE),
-#                     prior_counts = dirichlet(1),
-#                     shape = NULL,
-#                    chains = 4, 
-#                     num_cores = 4, 
-#                     seed_val = 1234, 
-#                     iter_val = 200)
-
-#list_mod[[11]]
-
-#Second set of models
-#suggestions for setting priors: https://github.com/stan-dev/stan/wiki/Prior-Choice-Recommendations
-#another helpful source: https://rdrr.io/cran/rstanarm/man/priors.html 
 
 Mod1 <- stan_polr(mod_mean2016b,
                data = data_subset, 
@@ -424,7 +370,6 @@ save(Mod5, file = file.path(out_dir,mod_outfilename))
 ############# PART 3: MODEL ASSESSMENT ################
 # Reference for posterior checks: 
 # http://mc-stan.org/rstanarm/reference/pp_check.stanreg.html
->>>>>>> 285c8f0f67c63b54be688f7f69350b24865fcbae
 
 prior_summary(Mod1)
 pp_check(Mod1, plotfun = "bars", nreps = 500, prob = 0.5)
@@ -475,7 +420,6 @@ rhats2 <- rhat(Mod2)
 color_scheme_set("brightblue")
 mcmc_rhat(rhats2) #rhat values close to 1, so we assume chains have converged.
 
-<<<<<<< HEAD
 Mod6 <- lapply(mod_DEV_2016b,
                FUN = run_model_ordinal_logistic,
                data = data_subset, 
@@ -556,7 +500,7 @@ save(list_mod,
 mod_outfilename <- paste0("Mod10",out_suffix,".RData")
 save(Mod10, 
      file = file.path(out_dir,mod_outfilename))
-=======
+
 stan_trace(Mod3, inc_warmup=TRUE) 
 rhats3 <- rhat(Mod3)
 color_scheme_set("brightblue")
@@ -665,6 +609,42 @@ prior_summary(list_mod[[1]])
 #str(list_mod[[2]])  
 #names(list_mod[[1]])
 list_mod[[1]]$stanfit
+
+
+####################################### Extracting info for paper ############################
+list_mod_LC <- loo_mod # make a copy that will not be modified
+list_mod <- loo_mod
+
+extract_multinom_mod_information <- function(list_mod){
+  
+  if(class(list_mod)!="list"){
+    list_mod <- list(list_mod)
+  }else{
+    list_mod <- list_mod
+    rm(list_mod)
+  }
+  #neff ration = Effective sample size
+  names_mod <- paste("mod",1:length(list_mod),sep="")
+  LOOIC_values <- unlist(lapply(list_mod,function(x){x$looic}))
+  names(LOOIC_values) <- names_mod
+  list_elpd_loo <- unlist(lapply(list_mod,function(x){x$elpd_loo}))
+  names(list_elpd_loo) <- names_mod
+  #adding extraction of odds ratio
+  #list_odds <- lapply(list_mod,function(x){exp(coef(x))})
+  #names(list_odds) <- names_mod
+  #list_formulas <- lapply(list_mod,function(x){summary(x)$formula})
+  #list_extract_coef_p_values <- lapply(list_mod,FUN=extract_coef_p_values)
+  #names(list_extract_coef_p_values) <- names_mod
+  multinom_extract_obj <- list(LOOIC_values, list_elpd_loo)                               #list_coef,list_extract_coef_p_values,list_odds)
+  names(multinom_extract_obj) <- c("LOOIC_values", "elpd_loo")
+                                                                          #"list_coef","list_extract_coef_p_values","list_odds")
+  return(multinom_extract_obj)
+}
+
+loo_list <- extract_multinom_mod_information(list_mod=loo_mod)
+#now transform into dataframe and write into CSV
+#https://github.com/bparment1/LUCC_yucatan/blob/master/analyses_fire_yucatan_functions.R
+#start on line 446
 
 ################################### Check for chain covergence ###########################################
 # Resources:
