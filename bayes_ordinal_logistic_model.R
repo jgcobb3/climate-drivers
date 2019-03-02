@@ -18,6 +18,7 @@
 
 ## Very good reference:
 #http://rpsychologist.com/r-guide-longitudinal-lme-lmer
+#http://mc-stan.org/rstanarm/reference/index.html
 
 ## Reference for model evaluation:
 #https://arxiv.org/pdf/1507.04544.pdf 
@@ -26,8 +27,6 @@
 #
 
 ###### Library used
-
-## ------------------------------------------------------------------------
 library("MASS")
 library("lme4")
 library("rstanarm")
@@ -72,16 +71,16 @@ load_obj <- function(f){
 
 #Benoit setup
 #script_path <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/scripts"
-#modeling_functions <- "bayes_logistic_model_functions_11272018.R"
+modeling_functions <- "bayes_logistic_model_functions_11272018.R"
 #source(file.path(script_path,modeling_functions))
 
 #Rachel setup local - Fed computer
-#script_path <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers"
+script_path <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers"
 #modeling_functions <- "bayes_logistic_model_functions.R"
 #source(file.path(script_path,modeling_functions))
 
 #Rachel setup - home computer
-script_path <- "C:/Users/rache/Documents/GitHub/climate-drivers"
+#script_path <- "C:/Users/rache/Documents/GitHub/climate-drivers"
 modeling_functions <- "bayes_logistic_model_functions.R"
 source(file.path(script_path,modeling_functions))
 
@@ -90,41 +89,20 @@ source(file.path(script_path,modeling_functions))
 #####  Parameters and argument set up ########### 
 
 #ARGS 1
-<<<<<<< HEAD
-
-=======
->>>>>>> 285c8f0f67c63b54be688f7f69350b24865fcbae
 #in_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/data"
-#in_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers"
-in_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers"
-
-#ARGS 2
-#out_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/outputs"
-#out_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers/output"
-<<<<<<< HEAD
-
-#in_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/data"
-#in_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers"
+in_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers"
 #in_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers"
-=======
-#in_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/data"
-#in_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers"
-in_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers"
->>>>>>> 285c8f0f67c63b54be688f7f69350b24865fcbae
 
 #ARGS 2
 #out_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/outputs"
-#out_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers/output"
-
-out_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers/output"
-
+out_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers/output"
+#out_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers/output"
 
 #ARGS 3:
 create_out_dir_param=TRUE #create a new ouput dir if TRUE
 
 #ARGS 7
-
-out_suffix <-"02222019" #output suffix for the files and ouptut folder
+out_suffix <-"03022019" #output suffix for the files and ouptut folder
 
 #ARGS 8
 num_cores <- 2 # number of cores
@@ -240,7 +218,7 @@ mod_DEV_2016b <- "y_var ~ PDSI_DEV_2016"
 mod_DEV_2014b <- "y_var ~ PDSI_DEV_2014"
 mod_DEV_2012b <- "y_var ~ PDSI_DEV_2012"
 mod_DEV_2007b <- "y_var ~ PDSI_DEV_2007"
-mod_DEV_2002b <-  "y_var ~ PDSI_DEV_2002"
+mod_DEV_2002b <- "y_var ~ PDSI_DEV_2002"
 
 list_model_formulasb <- list(mod_mean2016b,
                              mod_mean2014b,
@@ -290,14 +268,16 @@ myprior <- R2(0.5, "mean") #assumes that mode, mean and median of the Beta distr
 list_mod <- lapply(list_model_formulasb[1:10],
                      FUN=run_model_ordinal_logistic,
                      data = data_subset,
-                     prior = myprior,
+                     prior = R2(0.5, "mean"),
                      prior_counts = dirichlet(1),
                      #shape = NULL,
                      chains = 4, 
                      num_cores = 4, 
                      seed_val = 1234, 
-                     iter_val = 200)
+                     iter_val = 2000)
 
+mod_outfilename <- paste0("list_mod_",out_suffix,".RData")
+save(list_mod, file = file.path(out_dir,mod_outfilename))
 list_mod[[10]]
 
 # If you want to run them all seperatly, you could use the Mods below
@@ -371,12 +351,12 @@ save(Mod5, file = file.path(out_dir,mod_outfilename))
 # Reference for posterior checks: 
 # http://mc-stan.org/rstanarm/reference/pp_check.stanreg.html
 
-prior_summary(Mod1)
-pp_check(Mod1, plotfun = "bars", nreps = 500, prob = 0.5)
-pp_check(Mod1) #density overlay plot
-pp_check(Mod1, "stat")
-pp_check(Mod1, "stat_2d")
-# Mod1: posterior draws accuratly refelect the actual distrubtion of the data
+prior_summary(list_mod[[10]])
+pp_check(list_mod[[10]], plotfun = "bars", nreps = 500, prob = 0.5)
+pp_check(list_mod[[10]]) #density overlay plot
+pp_check(list_mod[[10]], "stat")
+pp_check(list_mod[[10]], "stat_2d")
+# Mod10: posterior draws accuratly refelect the actual distrubtion of the data
 
 prior_summary(Mod2)
 pp_check(Mod2, plotfun = "bars", nreps = 500, prob = 0.5)
@@ -541,32 +521,6 @@ Mod3$coefficients
 Mod4$coefficients
 Mod5$coefficients
 
-########### Section 8: LOOIC ######################
-# Compare models
-loo1 <- loo(Mod1) 
-loo2 <- loo(Mod2) 
-loo3 <- loo(Mod3) 
-loo4 <- loo(Mod4) 
-loo5 <- loo(Mod5) 
-                                          
-
-#list_modb <- lapply(list_model_formulasb,
-#                    FUN = run_model_ordinal_logistic,
-#                    data = data_subset, 
-#                    #prior = Norm_prior,
-#                    prior = R2(0.2, "mean"),
-#                    #shape = NULL, 
-#                    #algorithm = "sampling",
-#                    #adapt_delta = NULL, 
-#                    #do_residuals = TRUE),
-#                    prior_counts = dirichlet(1),
-#                    chains = 4, 
-#                    num_cores = 4, 
-#                    seed_val = 1234, 
-#                    iter_val = 200)
-
-
-
 
 ############# PART 3: Model assessment ################
 
@@ -609,25 +563,56 @@ prior_summary(list_mod[[1]])
 #str(list_mod[[2]])  
 #names(list_mod[[1]])
 list_mod[[1]]$stanfit
-
+r2(list_mod[[1]])
 
 ####################################### Extracting info for paper ############################
-list_mod_LC <- loo_mod # make a copy that will not be modified
-list_mod <- loo_mod
-
+########## Extract Model Parameters  #neff ration = Effective sample size
+list_archive <- list_mod
 extract_multinom_mod_information <- function(list_mod){
   
   if(class(list_mod)!="list"){
-    list_mod <- list(list_mod)
+    loo_mod <- list(list_mod)
   }else{
     list_mod <- list_mod
     rm(list_mod)
   }
-  #neff ration = Effective sample size
+  
   names_mod <- paste("mod",1:length(list_mod),sep="")
-  LOOIC_values <- unlist(lapply(list_mod,function(x){x$looic}))
+  model_output_values <- unlist(lapply(list_mod,function(x){x$mean})) #error with X - is this because we only want to subset the last row?
+  names(x[log-posterior]$mean) <- names_mod
+  se_mean <- unlist(lapply(list_mod,function(x){x$se_mean}))
+  names(se_mean_values) <- names_mod
+  #adding extraction of odds ratio
+  #list_odds <- lapply(list_mod,function(x){exp(coef(x))})
+  #names(list_odds) <- names_mod
+  #list_formulas <- lapply(list_mod,function(x){summary(x)$formula})
+  #list_extract_coef_p_values <- lapply(list_mod,FUN=extract_coef_p_values)
+  #names(list_extract_coef_p_values) <- names_mod
+  multinom_extract_obj <- list(x[log-posterior]$mean, se_mean_values)               #list_coef,list_extract_coef_p_values,list_odds)
+  names(multinom_extract_obj) <- c("Mean of Log Posterior", "SE Mean")
+  #"list_coef","list_extract_coef_p_values","list_odds")
+  return(multinom_extract_obj)
+}
+
+model_summary_table <- extract_multinom_mod_information(list_mod=list_mod)
+
+########### Extract Loo info 
+loo_archive <- loo_mod # make a copy that will not be modified
+
+
+extract_multinom_mod_information <- function(loo_mod){
+  
+  if(class(loo_mod)!="list"){
+    loo_mod <- list(loo_mod)
+  }else{
+    loo_mod <- loo_mod
+    rm(loo_mod)
+  }
+ 
+  names_mod <- paste("mod",1:length(loo_mod),sep="")
+  LOOIC_values <- unlist(lapply(loo_mod,function(x){x$looic}))
   names(LOOIC_values) <- names_mod
-  list_elpd_loo <- unlist(lapply(list_mod,function(x){x$elpd_loo}))
+  list_elpd_loo <- unlist(lapply(loo_mod,function(x){x$elpd_loo}))
   names(list_elpd_loo) <- names_mod
   #adding extraction of odds ratio
   #list_odds <- lapply(list_mod,function(x){exp(coef(x))})
@@ -635,14 +620,38 @@ extract_multinom_mod_information <- function(list_mod){
   #list_formulas <- lapply(list_mod,function(x){summary(x)$formula})
   #list_extract_coef_p_values <- lapply(list_mod,FUN=extract_coef_p_values)
   #names(list_extract_coef_p_values) <- names_mod
-  multinom_extract_obj <- list(LOOIC_values, list_elpd_loo)                               #list_coef,list_extract_coef_p_values,list_odds)
+  multinom_extract_obj <- list(LOOIC_values, list_elpd_loo)               #list_coef,list_extract_coef_p_values,list_odds)
   names(multinom_extract_obj) <- c("LOOIC_values", "elpd_loo")
                                                                           #"list_coef","list_extract_coef_p_values","list_odds")
   return(multinom_extract_obj)
 }
 
-loo_list <- extract_multinom_mod_information(list_mod=loo_mod)
-#now transform into dataframe and write into CSV
+loo_list <- extract_multinom_mod_information(loo_mod=loo_mod)
+
+#Transform list into dataframe and write into CSV
+
+loo_table <- data.frame(mod = loo_list,
+                     LOOIC = LOOIC_values
+                     #ESS = list_elpd_loo
+                     #loglikelihood=loglikelihood_values,
+                     #LR = LR_Chi_values,
+                     #LR_p=LR_Chi_p_values
+                     #n=n_obs
+                     )
+loo_table$LOOIC
+#df_val$mod <- rownames(df_val)
+rownames(loo_table) <- NULL
+loo_list[[i]] <- loo_table
+{
+
+loo_all <-do.call(rbind,loo_list)
+out_filename <- file.path(out_dir,paste("loo_table_",out_suffix,".txt",sep=""))
+write.table(df_all,file=out_filename,sep=",",row.names = FALSE)
+
+return(loo_all) 
+}
+
+
 #https://github.com/bparment1/LUCC_yucatan/blob/master/analyses_fire_yucatan_functions.R
 #start on line 446
 
