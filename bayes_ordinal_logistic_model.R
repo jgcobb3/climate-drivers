@@ -563,8 +563,26 @@ prior_summary(list_mod[[1]])
 #str(list_mod[[2]])  
 #names(list_mod[[1]])
 list_mod[[1]]$stanfit
-r2(list_mod[[1]])
 
+# Report Condifence Intervales from Posterior draws. Default is 90% CIs.
+Post_int <- lapply(list_mod[[1:10]], rstanarm::posterior_interval(list_mod[[1:10]]), prob = .95) #errot: recursive indexing failed at level 3
+
+Post_int1 <- rstanarm::posterior_interval(list_mod[[1]], prob = .95)
+Post_int2 <- rstanarm::posterior_interval(list_mod[[2]], prob = .95)
+Post_int3 <- rstanarm::posterior_interval(list_mod[[3]], prob = .95)
+Post_int4 <- rstanarm::posterior_interval(list_mod[[4]], prob = .95)
+Post_int5 <- rstanarm::posterior_interval(list_mod[[5]], prob = .95)
+Post_int6 <- rstanarm::posterior_interval(list_mod[[6]], prob = .95)
+Post_int7 <- rstanarm::posterior_interval(list_mod[[7]], prob = .95)
+Post_int8 <- rstanarm::posterior_interval(list_mod[[8]], prob = .95)
+Post_int9 <- rstanarm::posterior_interval(list_mod[[9]], prob = .95)
+Post_int10 <- rstanarm::posterior_interval(list_mod[[10]], prob = .95)
+
+PP1<-rstanarm::posterior_predict(list_mod[[1]])
+print(list_mod[[1]])
+plot(list_mod[[1]])
+list_mod[[10]]$stanfit
+get_posterior_mean(list_mod[1])
 ####################################### Extracting info for paper ############################
 ########## Extract Model Parameters  #neff ration = Effective sample size
 list_archive <- list_mod
@@ -655,142 +673,14 @@ return(loo_all)
 #https://github.com/bparment1/LUCC_yucatan/blob/master/analyses_fire_yucatan_functions.R
 #start on line 446
 
-################################### Check for chain covergence ###########################################
-# Resources:
-# http://mc-stan.org/bayesplot/articles/plotting-mcmc-draws.html 
-# http://mc-stan.org/bayesplot/articles/visual-mcmc-diagnostics.html 
-
-# Can we lapply this so we can check all mods at once?
-# Mod 1
-posterior <- as.array(list_mod[1]) 
-dim(posterior)
-dimnames(posterior)
-log_posterior(list_mod[[1]])
-rhats <- rhat(list_mod[[1]])
-color_scheme_set("brightblue")
-mcmc_rhat(rhats)                 #rhat values close to 1, so we assume chains have converged.  
-
-#Mod 2
-posterior <- as.array(list_mod[2]) 
-dim(posterior)
-dimnames(posterior)
-log_posterior(list_mod[[2]])
-rhats <- rhat(list_mod[[2]])
-color_scheme_set("brightblue")
-mcmc_rhat(rhats)                 #rhat values close to 1, so we assume chains have converged.
-
-#Mod 3
-posterior <- as.array(list_mod[3]) 
-dim(posterior)
-dimnames(posterior)
-log_posterior(list_mod[[3]])
-rhats <- rhat(list_mod[[3]])
-color_scheme_set("brightblue")
-mcmc_rhat(rhats)                 #rhat values close to 1, so we assume chains have converged.
-
-#Mod 4
-posterior <- as.array(list_mod[4]) 
-dim(posterior)
-dimnames(posterior)
-log_posterior(list_mod[[4]])
-rhats <- rhat(list_mod[[4]])
-color_scheme_set("brightblue")
-mcmc_rhat(rhats)                 #rhat values close to 1, so we assume chains have converged.
-
-#Mod 5
-posterior <- as.array(list_mod[5]) 
-dim(posterior)
-dimnames(posterior)
-log_posterior(list_mod[[5]])
-rhats <- rhat(list_mod[[5]])
-color_scheme_set("brightblue")
-mcmc_rhat(rhats)                 #rhat values close to 1, so we assume chains have converged.
-
-#Mod 6
-posterior <- as.array(list_mod[6]) 
-dim(posterior)
-dimnames(posterior)
-log_posterior(list_mod[[6]])
-rhats <- rhat(list_mod[[6]])
-color_scheme_set("brightblue")
-mcmc_rhat(rhats)                 #rhat values close to 1, so we assume chains have converged.
-
-#Mod 7
-posterior <- as.array(list_mod[7]) 
-dim(posterior)
-dimnames(posterior)
-log_posterior(list_mod[[7]])
-rhats <- rhat(list_mod[[7]])
-color_scheme_set("brightblue")
-mcmc_rhat(rhats)                 #rhat values close to 1, so we assume chains have converged.
-
-#Mod 8
-posterior <- as.array(list_mod[8]) 
-dim(posterior)
-dimnames(posterior)
-log_posterior(list_mod[[8]])
-rhats <- rhat(list_mod[[8]])
-color_scheme_set("brightblue")
-mcmc_rhat(rhats)                 #rhat values close to 1, so we assume chains have converged.
-
-#Mod 9
-posterior <- as.array(list_mod[9]) 
-dim(posterior)
-dimnames(posterior)
-log_posterior(list_mod[[9]])
-rhats <- rhat(list_mod[[9]])
-color_scheme_set("brightblue")
-mcmc_rhat(rhats)                 #rhat values close to 1, so we assume chains have converged.
-
-#Mod 10
-posterior <- as.array(list_mod[10]) 
-dim(posterior)
-dimnames(posterior)
-log_posterior(list_mod[[10]])
-rhats <- rhat(list_mod[[10]])
-color_scheme_set("brightblue")
-mcmc_rhat(rhats)                 #rhat values close to 1, so we assume chains have converged.
-
-
-#visualizing chains
-color_scheme_set("red")
-mcmc_intervals(posterior, pars = c("PDSI_MEAN_2016", "1|2", "2|3", "3|4"))
-mcmc_areas(
-  posterior,
-  pars = c("PDSI_MEAN_2016", "1|2", "2|3", "3|4"),
-  prob = 0.8, # 80% intervals
-  prob_outer = 0.99, #99%
-  point_est = "mean")
-mcmc_dens_overlay(posterior, pars = c("PDSI_MEAN_2016", "1|2", "2|3", "3|4"))
-
-
-############################### Median Absolute Deviation = (MAD)################################ 
-# “Bayesian point estimates” — the posterior medians — are similar to 
-# maximum likelihood estimates
-
-# diagnose posteriors - Bayesian uncertainty intervals
-PI1 <- posterior_interval(list_mod[[1]], prob = 0.95)
-summary(residuals(list_mod[[1]])) # not deviance residuals
-
-#check for covariances
-cov2cor(vcov(list_mod[[1]])) # covariance of chains... maybe not helful
-
-
-
-# Visually check for convergence of MCMC chains
-# requires coda package
-# x must be an mcmc list
-gelman.diag(x, confidence = 0.95, transform=FALSE, autoburnin=TRUE,
-            multivariate=TRUE)
-
-str(summary(list_modb))
 
 
 #################################### For the paper #######################################
 list_mod[[10]]$stanfit # gives n_eff, Rhat, mean, SD, and posterior 95% CI
-list_mod[[1]]$summary
+
 loo_mod[[10]]$estimates
 list_mod[[10]]$coefficients
+
 ############# PART 4: Create a Table ################
 
 
@@ -807,7 +697,10 @@ list_mod[[10]]$coefficients
 rstan::extract(list_mod[[2]]$stanfit,pars="PercLossDrought")
 
 ### Still need to fix this part to extract the coef
-#round(apply(rstan:: extract(list_mod$stanfit, pars = "drought") [[1]], 2, median), digits = 3)
+list_mod[[1]]$coefficients
+?coefficients
+rstanarm::R2(list_mod[[1]])
+COEF <- round(apply(rstan::extract(list_mod[[1]]$stanfit, pars = "Dry/Drought"), 2, median), digits = 3)
 
 #loo(x, list_mod, cores = 1)
   #save_psis = FALSE, K_threshold = NULL)
@@ -887,82 +780,3 @@ gplot1 <- ggerrorplot(posterior_M1, x = x_var_clean,
   #stat_compare_means(label.y = -5, label.x = 1.5) +
   geom_hline(yintercept= -0.5, linetype="dashed", color = "red", show.legend = TRUE, label_value(labels, multi_line = TRUE))
 
-
-############################## Testing the Parellel Regression Assumption of POLR ###################
-# References:
-
-## Plotting:
-##https://mjskay.github.io/tidybayes/articles/tidy-rstanarm.html 
-
-##### Testing the Parellel Regression Assumption of POLR ############
-
-# https://stats.idre.ucla.edu/r/dae/ordinal-logistic-regression/
-
-sf <- function(y) {
-  c('Y>=1' = qlogis(mean(y >= 1)),
-    'Y>=2' = qlogis(mean(y >= 2)),
-    'Y>=3' = qlogis(mean(y >= 3)),
-    'Y>=4' = qlogis(mean(y >= 4)))
-}
-
-(s_mean2016 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_MEAN_2016, fun=sf)))
-(s_mean2014 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_MEAN_2014, fun=sf)))
-(s_mean2012 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_MEAN_2012, fun=sf)))
-(s_mean2007 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_MEAN_2007, fun=sf)))
-(s_mean2002 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_MEAN_2002, fun=sf)))
-(s_std2016 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_STD_2016, fun=sf)))
-(s_std2014 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_STD_2014, fun=sf)))
-(s_std2012 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_STD_2012, fun=sf)))
-(s_std2007 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_STD_2007, fun=sf)))
-(s_std2002 <- with(data_subset, summary(as.numeric(Concern_DryDrought) ~ PDSI_STD_2002, fun=sf)))
-
-# The above functions display the linear predicted variables we would get if we regressed Concern (the predicted variable)
-# on our predictor variables without the parallel slopes assumption. To evaluate the parallel slops assumption, we now will
-# run a series of binary logistic regressesions with varying cutpoints on the dependent variable and checking the equality
-# of coefficients across cutpoints.
-
-#PDSI_MEAN_2016 - parallel slopes assumption holds.
-glm(I(as.numeric(Concern_DryDrought) >= 2) ~ PDSI_MEAN_2016, family="binomial", data = data_subset)
-glm(I(as.numeric(Concern_DryDrought) >= 3) ~ PDSI_MEAN_2016, family="binomial", data = data_subset) # dif between intercept 2/3 = 1.648
-glm(I(as.numeric(Concern_DryDrought) >= 4) ~ PDSI_MEAN_2016, family="binomial", data = data_subset)# dif between intercept 3/4 = 1.648
-
-plot(s_mean2016, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_mean2016[,3:4]))
-
-#PDSI_MEAN_2014 - parallel slopes assumption holds.
-glm(I(as.numeric(Concern_DryDrought) >= 2) ~ PDSI_MEAN_2014, family="binomial", data = data_subset)
-glm(I(as.numeric(Concern_DryDrought) >= 3) ~ PDSI_MEAN_2014, family="binomial", data = data_subset) # dif between intercept 2/3 = 1.658
-glm(I(as.numeric(Concern_DryDrought) >= 4) ~ PDSI_MEAN_2014, family="binomial", data = data_subset)# dif between intercept 3/4 = 1.655
-
-plot(s_mean2014, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_mean2014[,3:4]))
-
-#PDSI_MEAN_2012 - does the parallel slopes assumption hold? The plot looks similar to the 2014 and 2016 plots, so I would say yes...ish?
-glm(I(as.numeric(Concern_DryDrought) >= 2) ~ PDSI_MEAN_2012, family="binomial", data = data_subset)
-glm(I(as.numeric(Concern_DryDrought) >= 3) ~ PDSI_MEAN_2012, family="binomial", data = data_subset) # dif between intercept 2/3 = 1.623
-glm(I(as.numeric(Concern_DryDrought) >= 4) ~ PDSI_MEAN_2012, family="binomial", data = data_subset)# dif between intercept 3/4 = 1.700
-
-plot(s_mean2012, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_mean2012[,3:4]))
-
-#PDSI_MEAN_2007 - does the parallel slopes assumption hold? Same as above
-glm(I(as.numeric(Concern_DryDrought) >= 2) ~ PDSI_MEAN_2007, family="binomial", data = data_subset)
-glm(I(as.numeric(Concern_DryDrought) >= 3) ~ PDSI_MEAN_2007, family="binomial", data = data_subset) # dif between intercept 2/3 = 1.618
-glm(I(as.numeric(Concern_DryDrought) >= 4) ~ PDSI_MEAN_2007, family="binomial", data = data_subset)# dif between intercept 3/4 = 1.693
-
-plot(s_mean2007, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_mean2007[,3:4]))
-
-#PDSI_MEAN_2002 - does the parallel slopes assumption hold? Same as above
-glm(I(as.numeric(Concern_DryDrought) >= 2) ~ PDSI_MEAN_2002, family="binomial", data = data_subset)
-glm(I(as.numeric(Concern_DryDrought) >= 3) ~ PDSI_MEAN_2002, family="binomial", data = data_subset) # dif between intercept 2/3 = 1.618
-glm(I(as.numeric(Concern_DryDrought) >= 4) ~ PDSI_MEAN_2002, family="binomial", data = data_subset)# dif between intercept 3/4 = 1.70
-
-plot(s_mean2002, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_mean2002[,3:4]))
-
-# All STD model plots are reasonable - I think the parrallet slopes assumptions holds on all of our models.
-plot(s_std2016, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_std2016[,3:4]))
-plot(s_std2014, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_std2014[,3:4]))
-plot(s_std2012, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_std2012[,3:4]))
-plot(s_std2007, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_std2007[,3:4]))
-plot(s_std2002, which=1:4, pch=1:3, xlab='logit', main=' ', xlim=range(s_std2002[,3:4]))
-
-
-
-################################# End of script ######################################
