@@ -507,6 +507,7 @@ posterior_interval(Mod5, prob = 0.95)
 ######## Section 6: Shiny Stan Diagnostics #############################
 # much of the code above could be accomplished just by running shiny stan
 # but it was good practice to do it
+
 launch_shinystan(Mod1)
 launch_shinystan(Mod2)
 launch_shinystan(Mod3)
@@ -514,13 +515,13 @@ launch_shinystan(Mod4)
 launch_shinystan(Mod5)
 
 ######### Section 7: COEFFICIENTs #########################################
+
 summary.stanreg(Mod1)
 Mod1$coefficients
 Mod2$coefficients
 Mod3$coefficients
 Mod4$coefficients
 Mod5$coefficients
-
 
 ############# PART 3: Model assessment ################
 
@@ -673,7 +674,18 @@ return(loo_all)
 #https://github.com/bparment1/LUCC_yucatan/blob/master/analyses_fire_yucatan_functions.R
 #start on line 446
 
-
+###### Critque model using posterior simulations   # not yet functioning
+#http://mc-stan.org/rstanarm/articles/rstanarm.html#step-3-criticize-the-model
+y_repMOD1 <- posterior_predict(list_mod[[1]])
+dim(y_repMOD1)
+par(mfrow = 1:2, mar = c(5,4,4,2) + 0.1, las = 3)
+boxplot(sweep(y_repMOD1[,data_subset$y_var == 4], 2, STATS = 
+                data_subset$PDSI_MEAN_2016[data_subset$y_var == 4], FUN = "/"),
+        axes = FALSE, main = "Very Concerned", pch = NA,
+        xlab = "PDSI Mean 2016", ylab = "Level of concern")
+with(data_subset, axis(1, at = y_var[y_var == "4"] +1,
+                       lables = 0:20))
+axis(2, las = 1)
 
 #################################### For the paper #######################################
 list_mod[[9]]$stanfit # gives n_eff, Rhat, mean, SD, and posterior 95% CI
@@ -681,8 +693,24 @@ list_mod[[9]]$stanfit # gives n_eff, Rhat, mean, SD, and posterior 95% CI
 loo_mod[[10]]$estimates
 list_mod[[10]]$coefficients
 
-############# PART 4: Create a Table ################
+extract_model_parameters <- function(list_mod){
+  #Function to extract model param for polr (ordinal logistic) and stan
+  
+  mod <- list_mod[[1]]
+  
+  coef <- mod$coefficients
+  inter_250
+  inter_975
+  
+  data_extracted_param_df <- data.frame(coef=coef,inter_250,inter_975)
+  
+  return(data_extracted_param_df)
+  
+}
 
+############# PART 4: Create a Table ################
+#https://github.com/bparment1/LUCC_yucatan/blob/master/analyses_fire_yucatan_functions.R
+#start on line 446
 
 #table1 <- data.frame (list_mod = 1, 
  #                   intercept = 1, 
@@ -747,7 +775,7 @@ library(tidyselect)
 library(rstan)
 library(StanHeaders)
 
-posterior_M1 <- as.matrix(Mod1)
+posterior_M1 <- as.matrix(list_mod[[1]])
 
 plot_title <- ggtitle("Posterior distributions",
                       "with medians and 80% intervals")
