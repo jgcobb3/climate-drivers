@@ -189,24 +189,9 @@ data_subset <- na.omit(data_subset)
 
 data_subset$y_var <- factor(data_subset[[y_var_name]])
 
-## Model formulas used in the 1st analysis:
 
-#mod_noPDSI <- "y_var ~ PercLossDrought + stdiv"
-#mod_mean2016 <- "y_var ~ PercLossDrought + PDSI_MEAN_2016"
-#mod_mean2014 <- "y_var ~ PercLossDrought + PDSI_MEAN_2014"
-#mod_mean2012 <- "y_var ~ PercLossDrought + PDSI_MEAN_2012"
-#mod_mean2007 <- "y_var ~ PercLossDrought + PDSI_MEAN_2007"
-#mod_mean2002 <- "y_var ~ PercLossDrought + PDSI_MEAN_2002"
-#mod_STD2016 <- "y_var ~ PercLossDrought + PDSI_STD_2016"
-#mod_STD2014 <- "y_var ~ PercLossDrought + PDSI_STD_2014"
-#mod_STD2012 <- "y_var ~ PercLossDrought + PDSI_STD_2012"
-#mod_STD2007 <- "y_var ~ PercLossDrought + PDSI_STD_2007"
-#mod_STD2002 <-  "y_var ~ PercLossDrought + PDSI_STD_2002"
 
-#list_model_formulas <- list(mod_noPDSI,mod_mean2016,mod_mean2014,mod_mean2012,mod_mean2007,mod_mean2002,
-#                   mod_STD2016,mod_STD2014,mod_STD2012,mod_STD2007,mod_STD2002)
-
-## Model formulas used in the 2nd analysis:
+## Model formulas used in the 3rd analysis:
 
 
 mod_mean2016c <- "y_var ~ PDSI_MEAN_2016 + PDSI_DEV_2016"

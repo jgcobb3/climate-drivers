@@ -676,7 +676,7 @@ return(loo_all)
 
 
 #################################### For the paper #######################################
-list_mod[[10]]$stanfit # gives n_eff, Rhat, mean, SD, and posterior 95% CI
+list_mod[[9]]$stanfit # gives n_eff, Rhat, mean, SD, and posterior 95% CI
 
 loo_mod[[10]]$estimates
 list_mod[[10]]$coefficients
@@ -739,9 +739,9 @@ COEF <- round(apply(rstan::extract(list_mod[[1]]$stanfit, pars = "Dry/Drought"),
 ########### Section 9: PLOTS ######################
 ## Source: http://mc-stan.org/bayesplot/ 
 ## Step one: create new data frame using posterior draws
-install.packages("bayesplot")
+#install.packages("bayesplot")
 library("bayesplot")
-install.packages("ggplot2")
+#install.packages("ggplot2")
 library(ggplot2)
 library(tidyselect)
 library(rstan)
