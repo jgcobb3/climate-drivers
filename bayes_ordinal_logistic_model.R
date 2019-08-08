@@ -699,8 +699,10 @@ extract_model_parameters <- function(list_mod){
   mod <- list_mod[[1]]
   
   coef <- mod$coefficients
-  inter_250
+  inter_250 <-
   inter_975
+  
+  class(mod$stan_summary)
   
   data_extracted_param_df <- data.frame(coef=coef,inter_250,inter_975)
   
