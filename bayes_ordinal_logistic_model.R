@@ -60,6 +60,7 @@ create_dir_fun <- function(outDir,out_suffix=NULL){
   return(outDir)
 }
 
+
 #Used to load RData object saved within the functions produced.
 load_obj <- function(f){
   env <- new.env()
