@@ -71,11 +71,13 @@ load_obj <- function(f){
 
 #Benoit setup
 #script_path <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/scripts"
-modeling_functions <- "bayes_logistic_model_functions_11272018.R"
+script_path <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/climate-drivers"
+
+#modeling_functions <- "bayes_logistic_model_functions_11272018.R"
 #source(file.path(script_path,modeling_functions))
 
 #Rachel setup local - Fed computer
-script_path <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers"
+#script_path <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers"
 #modeling_functions <- "bayes_logistic_model_functions.R"
 #source(file.path(script_path,modeling_functions))
 
@@ -89,20 +91,20 @@ source(file.path(script_path,modeling_functions))
 #####  Parameters and argument set up ########### 
 
 #ARGS 1
-#in_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/data"
-in_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers"
+in_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/climate-drivers"
+#in_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers"
 #in_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers"
 
 #ARGS 2
-#out_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/outputs"
-out_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers/output"
+out_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/outputs"
+#out_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers/output"
 #out_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers/output"
 
 #ARGS 3:
 create_out_dir_param=TRUE #create a new ouput dir if TRUE
 
 #ARGS 7
-out_suffix <-"03022019" #output suffix for the files and ouptut folder
+out_suffix <-"07112019" #output suffix for the files and ouptut folder
 
 #ARGS 8
 num_cores <- 2 # number of cores
