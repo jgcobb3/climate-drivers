@@ -96,15 +96,15 @@ in_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/climate-driv
 #in_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers"
 
 #ARGS 2
-out_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/outputs"
-#out_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers/output"
+#out_dir <- "/nfs/bparmentier-data/Data/projects/soilsesfeedback-data/outputs"
+out_dir <- "C:/Users/rschattman/Documents/Research/climate-drivers-master/climate-drivers/output"
 #out_dir <- "C:/Users/rache/Documents/GitHub/climate-drivers/output"
 
 #ARGS 3:
 create_out_dir_param=TRUE #create a new ouput dir if TRUE
 
 #ARGS 7
-out_suffix <-"07112019" #output suffix for the files and ouptut folder
+out_suffix <-"08082019" #output suffix for the files and ouptut folder
 
 #ARGS 8
 num_cores <- 2 # number of cores
@@ -474,6 +474,7 @@ Mod10 <- lapply(mod_DEV_2002b,
                seed_val = 1234, 
                iter_val = 200)
 
+
 # Save mods
 mod_outfilename <- paste0("list_mod_",out_suffix,".RData")
 save(list_mod, 
@@ -515,15 +516,6 @@ launch_shinystan(Mod2)
 launch_shinystan(Mod3)
 launch_shinystan(Mod4)
 launch_shinystan(Mod5)
-
-######### Section 7: COEFFICIENTs #########################################
-
-summary.stanreg(Mod1)
-Mod1$coefficients
-Mod2$coefficients
-Mod3$coefficients
-Mod4$coefficients
-Mod5$coefficients
 
 ############# PART 3: Model assessment ################
 

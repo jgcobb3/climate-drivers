@@ -18,10 +18,16 @@
 ######## Load packages 
 library(margins)
 
+####### Create path
+source(file.path(script_path,bayes_ordinal_logistic_model.R))
+
 
 ######## Good resource
-https://osf.io/gyfj7/download
+# https://osf.io/gyfj7/download
 
 
 ####### Create box plot
-marginal_effects(list_mod[[1]], "belief", categorical = TRUE)
+figure1 <- marginal_effects(model = Mod1, 
+                            variables = "PDSI_MEAN_2016", 
+                            categorical = TRUE)
+print(figure1)
