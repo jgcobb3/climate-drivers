@@ -446,7 +446,7 @@ posterior_M1 <- as.matrix(Mod1)
 plot_title <- ggtitle("Posterior distributions",
                       "with medians and 80% intervals")
 mcmc_areas(posterior,
-           pars = c("1", "2", "3", "4"),
+           pars = ,
            prob = 0.8) 
 
 #colnames(y_rep) <- c("1", "2", "3", "4") 
