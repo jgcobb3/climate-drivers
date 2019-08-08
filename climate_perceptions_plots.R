@@ -5,8 +5,8 @@
 ##crop loss between 2013-2016, and (3) mean and standard deviations of drought data over 1, 3, 5, 10, and 15 year periods.
 ##
 ##
-## DATE CREATED: 11/19/2018
-## DATE MODIFIED: xxx
+## DATE CREATED: November 19, 2018
+## DATE MODIFIED: May 20, 2019
 ## AUTHORS: Rachel Schattman, Benoit Parmentier  
 ## Version: 1
 ## PROJECT: Climate Percecption
@@ -24,11 +24,11 @@ colnames(data_years)[colnames(data_years)=="PDSI_MEAN_2014"] <- "Mean 3-years"
 colnames(data_years)[colnames(data_years)=="PDSI_MEAN_2012"] <- "Mean 5-years"
 colnames(data_years)[colnames(data_years)=="PDSI_MEAN_2007"] <- "Mean 10-years"
 colnames(data_years)[colnames(data_years)=="PDSI_MEAN_2002"] <- "Mean 15-years"
-colnames(data_years)[colnames(data_years)=="PDSI_STD_2016"] <- "Standard deviation 1-year"
-colnames(data_years)[colnames(data_years)=="PDSI_STD_2014"] <- "Standard deviation 3-years"
-colnames(data_years)[colnames(data_years)=="PDSI_STD_2012"] <- "Standard deviation 5-years"
-colnames(data_years)[colnames(data_years)=="PDSI_STD_2007"] <- "Standard deviation 10-years"
-colnames(data_years)[colnames(data_years)=="PDSI_STD_2002"] <- "Standard deviation 15-years"
+colnames(data_years)[colnames(data_years)=="PDSI_DEV_2016"] <- "2016 deviation from 1986-2016 mean"
+colnames(data_years)[colnames(data_years)=="PDSI_DEV_2014"] <- "2014-2016 mean deviation from 1986-2016 mean"
+colnames(data_years)[colnames(data_years)=="PDSI_DEV_2012"] <- "2012-2016 mean deviation from 1986-2016 mean"
+colnames(data_years)[colnames(data_years)=="PDSI_DEV_2007"] <- "2007-2016 mean deviation from 1986-2016 mean"
+colnames(data_years)[colnames(data_years)=="PDSI_DEV_2002"] <- "2002-2016 mean deviation from 1986-2016 mean"
 
 # add column with PDSI categories
 data_years_cat <- data_years
