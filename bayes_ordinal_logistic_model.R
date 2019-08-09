@@ -203,7 +203,7 @@ data_subset$y_var <- factor(data_subset[[y_var_name]])
 #mod_STD2012 <- "y_var ~ PercLossDrought + PDSI_STD_2012"
 #mod_STD2007 <- "y_var ~ PercLossDrought + PDSI_STD_2007"
 #mod_STD2002 <-  "y_var ~ PercLossDrought + PDSI_STD_2002"
-               
+
 #list_model_formulas <- list(mod_noPDSI,mod_mean2016,mod_mean2014,mod_mean2012,mod_mean2007,mod_mean2002,
 #                   mod_STD2016,mod_STD2014,mod_STD2012,mod_STD2007,mod_STD2002)
 
@@ -222,7 +222,7 @@ mod_STD2007b <- "y_var ~ PDSI_STD_2007"
 mod_STD2002b <-  "y_var ~ PDSI_STD_2002"
 
 list_model_formulasb <- list(mod_mean2016b,mod_mean2014b,mod_mean2012b,mod_mean2007b,mod_mean2002b,
-                            mod_STD2016b,mod_STD2014b,mod_STD2012b,mod_STD2007b,mod_STD2002b)
+                             mod_STD2016b,mod_STD2014b,mod_STD2012b,mod_STD2007b,mod_STD2002b)
 
 ############ PART 2: Run model with option for bayesian ordinal logistic
 
@@ -269,14 +269,14 @@ list_model_formulasb <- list(mod_mean2016b,mod_mean2014b,mod_mean2012b,mod_mean2
 #another helpful source: https://rdrr.io/cran/rstanarm/man/priors.html 
 
 Mod1 <- stan_polr(mod_mean2016b,
-               data = data_subset, 
-               prior = R2(0.5, "mean"), 
-               shape = NULL, 
-               algorithm = "sampling",
-               adapt_delta = NULL, 
-               do_residuals = TRUE,
-               prior_counts = dirichlet(1),
-               prior_PD = FALSE)
+                  data = data_subset, 
+                  prior = R2(0.5, "mean"), 
+                  shape = NULL, 
+                  algorithm = "sampling",
+                  adapt_delta = NULL, 
+                  do_residuals = TRUE,
+                  prior_counts = dirichlet(1),
+                  prior_PD = FALSE)
 
 Mod2 <- stan_polr(mod_mean2014b,
                   data = data_subset, 
@@ -433,7 +433,7 @@ loo2 <- loo(Mod2)
 loo3 <- loo(Mod3) 
 loo4 <- loo(Mod4) 
 loo5 <- loo(Mod5) 
-                                          
+
 ########### Section 9: PLOTS ######################
 ## Source: http://mc-stan.org/bayesplot/ 
 ## Step one: create new data frame using posterior draws
@@ -568,28 +568,28 @@ print(loo_mod11)
 
 #compare models
 compareloo <- compare(x=list(loo_mod2,
-              loo_mod3,
-              loo_mod4,
-              loo_mod5,
-              loo_mod6,
-              loo_mod7,
-              loo_mod8,
-              loo_mod9,
-              loo_mod10,
-              loo_mod11))
+                             loo_mod3,
+                             loo_mod4,
+                             loo_mod5,
+                             loo_mod6,
+                             loo_mod7,
+                             loo_mod8,
+                             loo_mod9,
+                             loo_mod10,
+                             loo_mod11))
 
 
 ############# PART 4: Create a Table ################
 
 
 #table1 <- data.frame (list_mod = 1, 
- #                   intercept = 1, 
- #                   intercept.se = 1, 
- #                   slope = 1, 
- #                   slope.se = 1, 
- #                   r.squared = 1, 
- #                   p.value = 1)
- 
+#                   intercept = 1, 
+#                   intercept.se = 1, 
+#                   slope = 1, 
+#                   slope.se = 1, 
+#                   r.squared = 1, 
+#                   p.value = 1)
+
 
 ## ------------------------------------------------------------------------
 str(list_mod)
@@ -606,7 +606,7 @@ list_mod[[2]]$stanfit
 #round(apply(rstan:: extract(list_mod$stanfit, pars = "drought") [[1]], 2, median), digits = 3)
 
 #loo(x, list_mod, cores = 1)
-  #save_psis = FALSE, K_threshold = NULL)
+#save_psis = FALSE, K_threshold = NULL)
 
 #table1 <- data.frame (list_mod = 1, 
 #                    intercept = 1, 
