@@ -582,7 +582,7 @@ Post_int10 <- rstanarm::posterior_interval(list_mod[[10]], prob = .95)
 PP1<-rstanarm::posterior_predict(list_mod[[1]])
 print(list_mod[[1]])
 plot(list_mod[[1]])
-list_mod[[10]]$stanfit
+list_mod[[6]]$stanfit
 get_posterior_mean(list_mod[1])
 ####################################### Extracting info for paper ############################
 ########## Extract Model Parameters  #neff ration = Effective sample size
@@ -781,3 +781,6 @@ gplot1 <- ggerrorplot(posterior_M1, x = x_var_clean,
   #stat_compare_means(label.y = -5, label.x = 1.5) +
   geom_hline(yintercept= -0.5, linetype="dashed", color = "red", show.legend = TRUE, label_value(labels, multi_line = TRUE))
 
+
+list_mod[[10]]$stanfit
+loo_mod[[7]]$looic

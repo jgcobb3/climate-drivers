@@ -17,13 +17,21 @@
 
 ######## Load packages 
 library(margins)
+library(ggeffects)
+library(sjmisc)
 
 ####### Create path
 source(file.path(script_path,bayes_ordinal_logistic_model.R))
 
 
-######## Good resource
+######## Good resources
 # https://osf.io/gyfj7/download
+# https://cran.r-project.org/web/packages/ggeffects/vignettes/ggeffects.html 
+# https://cran.r-project.org/web/packages/ggeffects/vignettes/introduction_plotmethod.html
+
+####### Use ggeffects package
+dat <- ggpredict(list_mod[[1]], terms = c("COncern"))
+plot(dat, rawdata = TRUE)
 
 
 ####### Create box plot
