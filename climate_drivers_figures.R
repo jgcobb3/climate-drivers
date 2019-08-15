@@ -20,6 +20,8 @@ library(margins)
 library(ggeffects)
 library(sjmisc)
 
+library("rstanarm")
+
 ####### Create path
 source(file.path(script_path,bayes_ordinal_logistic_model.R))
 
@@ -29,13 +31,18 @@ source(file.path(script_path,bayes_ordinal_logistic_model.R))
 # https://cran.r-project.org/web/packages/ggeffects/vignettes/ggeffects.html 
 # https://cran.r-project.org/web/packages/ggeffects/vignettes/introduction_plotmethod.html
 
-####### Use ggeffects package
-dat <- ggpredict(list_mod[[1]], terms = c("COncern"))
-plot(dat, rawdata = TRUE)
+### using rstanarm
+# http://mc-stan.org/rstanarm/articles/rstanarm.html 
+y_rep <- posterior_predict(list_mod[[1]])
+dim(y_rep) #columns are the number of observations in the data set, rows are the posterior draws
+PlotDat <- dataDR # create copy so original data frame is protected
+y_rep_DF <- as.data.frame(y_rep) 
+
+plot(y_rep)
+
+Plot_MEAN2016 <- boxplot(y_rep_DF)
+
+### End Script
 
 
-####### Create box plot
-figure1 <- marginal_effects(model = Mod1, 
-                            variables = "PDSI_MEAN_2016", 
-                            categorical = TRUE)
-print(figure1)
+

@@ -6,12 +6,12 @@
 ##
 ##
 ## DATE CREATED: 09/27/2018
-## DATE MODIFIED: 8/8/2019
+## DATE MODIFIED: 8/15/2019
 ## AUTHORS: Rachel Schattman, Benoit Parmentier  
 ## Version: 2
 ## PROJECT: Climate Percecption
 ## ISSUE: 
-## TO DO:
+## TO DO: Clean up code
 ##
 ## COMMIT: modifying code
 ##
@@ -115,9 +115,6 @@ y_var_name <- "Concern_DryDrought"
 
 ################# START SCRIPT ######################################
 
-
-########################################################
-
 ######### PART 0: Set up the output dir ################
 
 options(scipen=999)
@@ -207,8 +204,6 @@ data_subset$y_var <- factor(data_subset[[y_var_name]])
 #                   mod_STD2016,mod_STD2014,mod_STD2012,mod_STD2007,mod_STD2002)
 
 ## Model formulas used in the 2nd analysis:
-
-
 mod_mean2016b <- "y_var ~ PDSI_MEAN_2016"
 mod_mean2014b <- "y_var ~ PDSI_MEAN_2014"
 mod_mean2012b <- "y_var ~ PDSI_MEAN_2012"
@@ -251,20 +246,7 @@ myprior <- R2(0.5, "mean") #assumes that mode, mean and median of the Beta distr
 #                           seed_val = 1234, 
 #                           iter_val = 200)
 
-## does not work
-#list_mod <- mclapply(list_model_formulas,
-#                     FUN=run_model_ordinal_logistic,
-#                     data = data_subset, 
-#                     prior = NULL,
-#                     prior_counts = dirichlet(1),
-#                     shape = NULL,
-#                     chains = 4, 
-#                     num_cores = 4, 
-#                     seed_val = 1234, 
-#                     iter_val = 200,
-#                    mc.preschedule = F,
-#                    mc.cores = 1)
-
+# Run model
 list_mod <- lapply(list_model_formulasb[1:10],
                    FUN=run_model_ordinal_logistic,
                    data = data_subset,
@@ -280,251 +262,61 @@ mod_outfilename <- paste0("list_mod_",out_suffix,".RData")
 save(list_mod, file = file.path(out_dir,mod_outfilename))
 list_mod[[10]]
 
-# If you want to run them all seperatly, you could use the Mods below
-
-Mod1 <- stan_polr(mod_mean2016b,
-                  data = data_subset, 
-                  prior = R2(0.5, "mean"), 
-                  shape = NULL, 
-                  algorithm = "sampling",
-                  adapt_delta = NULL, 
-                  do_residuals = TRUE,
-                  prior_counts = dirichlet(1),
-                  prior_PD = FALSE)
-
-Mod2 <- stan_polr(mod_mean2014b,
-                  data = data_subset, 
-                  prior = R2(0.5, "mean"), 
-                  shape = NULL, 
-                  algorithm = "sampling",
-                  adapt_delta = NULL, 
-                  do_residuals = TRUE,
-                  prior_counts = dirichlet(1),
-                  prior_PD = FALSE)
-
-Mod3 <- stan_polr(mod_mean2012b,
-                  data = data_subset, 
-                  prior = R2(0.5, "mean"), 
-                  shape = NULL, 
-                  algorithm = "sampling",
-                  adapt_delta = NULL, 
-                  do_residuals = TRUE,
-                  prior_counts = dirichlet(1),
-                  prior_PD = FALSE)
-
-Mod4 <- stan_polr(mod_mean2007b,
-                  data = data_subset, 
-                  prior = R2(0.5, "mean"), 
-                  shape = NULL, 
-                  algorithm = "sampling",
-                  adapt_delta = NULL, 
-                  do_residuals = TRUE,
-                  prior_counts = dirichlet(1),
-                  prior_PD = FALSE)
-
-Mod5 <- stan_polr(mod_mean2002b,
-                  data = data_subset, 
-                  prior = R2(0.5, "mean"), 
-                  shape = NULL, 
-                  algorithm = "sampling",
-                  adapt_delta = NULL, 
-                  do_residuals = TRUE,
-                  prior_counts = dirichlet(1),
-                  prior_PD = FALSE)
-
-mod_outfilename <- paste0("Mod1_",out_suffix,".RData")
-save(Mod1, file = file.path(out_dir,mod_outfilename))
-
-mod_outfilename <- paste0("Mod2_",out_suffix,".RData")
-save(Mod2, file = file.path(out_dir,mod_outfilename))
-
-mod_outfilename <- paste0("Mod3_",out_suffix,".RData")
-save(Mod3, file = file.path(out_dir,mod_outfilename))
-
-mod_outfilename <- paste0("Mod4_",out_suffix,".RData")
-save(Mod4, file = file.path(out_dir,mod_outfilename))
-
-mod_outfilename <- paste0("Mod5_",out_suffix,".RData")
-save(Mod5, file = file.path(out_dir,mod_outfilename))
 
 ############# PART 3: MODEL ASSESSMENT ################
 # Reference for posterior checks: 
 # http://mc-stan.org/rstanarm/reference/pp_check.stanreg.html
 
 prior_summary(list_mod[[10]])
-pp_check(list_mod[[10]], plotfun = "bars", nreps = 500, prob = 0.5)
-pp_check(list_mod[[10]]) #density overlay plot
-pp_check(list_mod[[10]], "stat")
-pp_check(list_mod[[10]], "stat_2d")
-# Mod10: posterior draws accuratly refelect the actual distrubtion of the data
-
-prior_summary(Mod2)
-pp_check(Mod2, plotfun = "bars", nreps = 500, prob = 0.5)
-pp_check(Mod2) #density overlay plot
-pp_check(Mod2, "stat")
-pp_check(Mod2, "stat_2d")
-# Mod2: posterior draws accuratly refelect the actual distrubtion of the data
-
-prior_summary(Mod3)
-pp_check(Mod3, plotfun = "bars", nreps = 500, prob = 0.5)
-pp_check(Mod3) #density overlay plot
-pp_check(Mod3, "stat")
-pp_check(Mod3, "stat_2d")
-# Mod3: posterior draws accuratly refelect the actual distrubtion of the data
-
-prior_summary(Mod4)
-pp_check(Mod4, plotfun = "bars", nreps = 500, prob = 0.5)
-pp_check(Mod4) #density overlay plot
-pp_check(Mod4, "stat")
-pp_check(Mod4, "stat_2d")
-# Mod4: posterior draws accuratly refelect the actual distrubtion of the data
-
-prior_summary(Mod5)
-pp_check(Mod5, plotfun = "bars", nreps = 500, prob = 0.5)
-pp_check(Mod5) #density overlay plot
-pp_check(Mod5, "stat")
-pp_check(Mod5, "stat_2d")
-# Mod5: posterior draws accuratly refelect the actual distrubtion of the data
+pp_check(list_mod[[1]], plotfun = "bars", nreps = 500, prob = 0.5)
+pp_check(list_mod[[1]]) #density overlay plot
+pp_check(list_mod[[1]], "stat")
+pp_check(list_mod[[1]], "stat_2d")
+# Mod1: posterior draws accuratly refelect the actual distrubtion of the data
 
 ## Check for chain convergence
 # good resource: http://mc-stan.org/bayesplot/articles/plotting-mcmc-draws.html 
 # another: http://mc-stan.org/bayesplot/articles/visual-mcmc-diagnostics.html 
 
-stan_trace(Mod1, inc_warmup=TRUE) 
-rhats1 <- rhat(Mod1)
-color_scheme_set("brightblue")
-mcmc_rhat(rhats1) #rhat values close to 1, so we assume chains have converged.
 
-stan_trace(Mod2, inc_warmup=TRUE) 
-rhats2 <- rhat(Mod2)
-color_scheme_set("brightblue")
-mcmc_rhat(rhats2) #rhat values close to 1, so we assume chains have converged.
-
-Mod6 <- lapply(mod_DEV_2016b,
-               FUN = run_model_ordinal_logistic,
-               data = data_subset, 
-               prior = myprior,
-               #shape = NULL, 
-               #algorithm = "sampling",
-               #adapt_delta = NULL, 
-               #do_residuals = TRUE),
-               prior_counts = dirichlet(1),
-               chains = 4, 
-               num_cores = 4, 
-               seed_val = 1234, 
-               iter_val = 200)
-
-Mod7 <- lapply(mod_DEV_2014b,
-               FUN = run_model_ordinal_logistic,
-               data = data_subset, 
-               prior = myprior, 
-               #prior = R2(0.5, "mean"), #assumes that mode, mean and median of the Beta distribution are equal. Indicated for polr
-               #shape = NULL, 
-               #algorithm = "sampling",
-               #adapt_delta = NULL, 
-               #do_residuals = TRUE),
-               prior_counts = dirichlet(1),
-               chains = 4, 
-               num_cores = 4, 
-               seed_val = 1234, 
-               iter_val = 200)
-
-Mod8 <- lapply(mod_DEV_2012b,
-               FUN = run_model_ordinal_logistic,
-               data = data_subset, 
-               prior = myprior,
-               #shape = NULL, 
-               #algorithm = "sampling",
-               #adapt_delta = NULL, 
-               #do_residuals = TRUE),
-               prior_counts = dirichlet(1),
-               chains = 4, 
-               num_cores = 4, 
-               seed_val = 1234, 
-               iter_val = 200)
-
-Mod9 <- lapply(mod_DEV_2007b,
-               FUN = run_model_ordinal_logistic,
-               data = data_subset, 
-               prior = myprior,
-               #shape = NULL, 
-               #algorithm = "sampling",
-               #adapt_delta = NULL, 
-               #do_residuals = TRUE),
-               prior_counts = dirichlet(1),
-               chains = 4, 
-               num_cores = 4, 
-               seed_val = 1234, 
-               iter_val = 200)
-
-Mod10 <- lapply(mod_DEV_2002b,
-                FUN = run_model_ordinal_logistic,
-                data = data_subset, 
-                prior = myprior,
-                #prior = R2(0.5, "mean"), #assumes that mode, mean and median of the Beta distribution are equal. Indicated for polr
-                #shape = NULL, 
-                #algorithm = "sampling",
-                #adapt_delta = NULL, 
-                #do_residuals = TRUE),
-                prior_counts = dirichlet(1),
-                chains = 4, 
-                num_cores = 4, 
-                seed_val = 1234, 
-                iter_val = 200)
-
-# Save mods
-mod_outfilename <- paste0("list_mod_",out_suffix,".RData")
-save(list_mod, 
-     file = file.path(out_dir,mod_outfilename))
-
-mod_outfilename <- paste0("Mod10",out_suffix,".RData")
-save(Mod10, 
-     file = file.path(out_dir,mod_outfilename))
-
+# Diagnostic plots
 stan_trace(Mod3, inc_warmup=TRUE) 
 rhats3 <- rhat(Mod3)
 color_scheme_set("brightblue")
 mcmc_rhat(rhats3) #rhat values close to 1, so we assume chains have converged.
 
-stan_trace(Mod4, inc_warmup=TRUE) 
-rhats4 <- rhat(Mod4)
-color_scheme_set("brightblue")
-mcmc_rhat(rhats4) #rhat values close to 1, so we assume chains have converged.
 
-stan_trace(Mod5, inc_warmup=TRUE) 
-rhats5 <- rhat(Mod5)
-color_scheme_set("brightblue")
-mcmc_rhat(rhats5) #rhat values close to 1, so we assume chains have converged.
-
-
-########### Section 4: CREDIBILITY INTERVALS ######################
+# Credibility intervals
 posterior_interval(Mod1, prob = 0.95)
-posterior_interval(Mod2, prob = 0.95)
-posterior_interval(Mod3, prob = 0.95)
-posterior_interval(Mod4, prob = 0.95)
-posterior_interval(Mod5, prob = 0.95)
 
-######## Section 6: Shiny Stan Diagnostics #############################
-# much of the code above could be accomplished just by running shiny stan
-# but it was good practice to do it
+
+# Shiny Stan Diagnostics 
 launch_shinystan(Mod1)
-launch_shinystan(Mod2)
-launch_shinystan(Mod3)
-launch_shinystan(Mod4)
-launch_shinystan(Mod5)
 
-######### Section 7: COEFFICIENTs #########################################
+# Extract coefficients 
 summary.stanreg(Mod1)
 Mod1$coefficients
-Mod2$coefficients
-Mod3$coefficients
-Mod4$coefficients
-Mod5$coefficients
+
+# check priors
+prior_summary(list_mod[[1]])
+
+# check the structure of the mod 
+#str(list_mod[[2]])  
+#names(list_mod[[1]])
+list_mod[[1]]$stanfit
+
+# Report Condifence Intervales from Posterior draws. Default is 90% CIs.
+Post_int <- lapply(list_mod[[1:10]], rstanarm::posterior_interval(list_mod[[1:10]]), prob = .95) #error: recursive indexing failed at level 3
+Post_int1 <- rstanarm::posterior_interval(list_mod[[1]], prob = .95)
 
 
+PP1<-rstanarm::posterior_predict(list_mod[[1]])
+print(list_mod[[1]])
+plot(list_mod[[1]])
+list_mod[[6]]$stanfit
+get_posterior_mean(list_mod[1])
 
-############# PART 3: Model assessment ################
-
+# Compare models using LOOIC
 loo_mod <- mclapply(list_mod,
                     FUN = run_model_assessment,
                     k_threshold = 0.7,
@@ -556,34 +348,7 @@ print(loomod_compare) # this is great, except all rows are labled "mod" and you 
 #mc.preschedule = FALSE,
 #mc.cores=1)
 
-# check your priors
-prior_summary(list_mod[[1]])
 
-
-# check the structure of the mod 
-#str(list_mod[[2]])  
-#names(list_mod[[1]])
-list_mod[[1]]$stanfit
-
-# Report Condifence Intervales from Posterior draws. Default is 90% CIs.
-Post_int <- lapply(list_mod[[1:10]], rstanarm::posterior_interval(list_mod[[1:10]]), prob = .95) #errot: recursive indexing failed at level 3
-
-Post_int1 <- rstanarm::posterior_interval(list_mod[[1]], prob = .95)
-Post_int2 <- rstanarm::posterior_interval(list_mod[[2]], prob = .95)
-Post_int3 <- rstanarm::posterior_interval(list_mod[[3]], prob = .95)
-Post_int4 <- rstanarm::posterior_interval(list_mod[[4]], prob = .95)
-Post_int5 <- rstanarm::posterior_interval(list_mod[[5]], prob = .95)
-Post_int6 <- rstanarm::posterior_interval(list_mod[[6]], prob = .95)
-Post_int7 <- rstanarm::posterior_interval(list_mod[[7]], prob = .95)
-Post_int8 <- rstanarm::posterior_interval(list_mod[[8]], prob = .95)
-Post_int9 <- rstanarm::posterior_interval(list_mod[[9]], prob = .95)
-Post_int10 <- rstanarm::posterior_interval(list_mod[[10]], prob = .95)
-
-PP1<-rstanarm::posterior_predict(list_mod[[1]])
-print(list_mod[[1]])
-plot(list_mod[[1]])
-list_mod[[6]]$stanfit
-get_posterior_mean(list_mod[1])
 ####################################### Extracting info for paper ############################
 ########## Extract Model Parameters  #neff ration = Effective sample size
 list_archive <- list_mod
@@ -615,7 +380,7 @@ extract_multinom_mod_information <- function(list_mod){
 
 model_summary_table <- extract_multinom_mod_information(list_mod=list_mod)
 
-########### Extract Loo info 
+# Extract Loo info 
 loo_archive <- loo_mod # make a copy that will not be modified
 
 
@@ -648,7 +413,6 @@ extract_multinom_mod_information <- function(loo_mod){
 loo_list <- extract_multinom_mod_information(loo_mod=loo_mod)
 
 #Transform list into dataframe and write into CSV
-
 loo_table <- data.frame(mod = loo_list,
                         LOOIC = LOOIC_values
                         #ESS = list_elpd_loo
@@ -678,7 +442,6 @@ loo_list[[i]] <- loo_table
 
 #################################### For the paper #######################################
 list_mod[[10]]$stanfit # gives n_eff, Rhat, mean, SD, and posterior 95% CI
-
 loo_mod[[10]]$estimates
 list_mod[[10]]$coefficients
 
@@ -784,3 +547,163 @@ gplot1 <- ggerrorplot(posterior_M1, x = x_var_clean,
 
 list_mod[[10]]$stanfit
 loo_mod[[7]]$looic
+
+
+# Had trouble running all models as a list, so here is code for running seperatly:
+Mod1 <- stan_polr(mod_mean2016b,
+                  data = data_subset, 
+                  prior = R2(0.5, "mean"), 
+                  shape = NULL, 
+                  algorithm = "sampling",
+                  adapt_delta = NULL, 
+                  do_residuals = TRUE,
+                  prior_counts = dirichlet(1),
+                  prior_PD = FALSE)
+
+Mod2 <- stan_polr(mod_mean2014b,
+                  data = data_subset, 
+                  prior = R2(0.5, "mean"), 
+                  shape = NULL, 
+                  algorithm = "sampling",
+                  adapt_delta = NULL, 
+                  do_residuals = TRUE,
+                  prior_counts = dirichlet(1),
+                  prior_PD = FALSE)
+
+Mod3 <- stan_polr(mod_mean2012b,
+                  data = data_subset, 
+                  prior = R2(0.5, "mean"), 
+                  shape = NULL, 
+                  algorithm = "sampling",
+                  adapt_delta = NULL, 
+                  do_residuals = TRUE,
+                  prior_counts = dirichlet(1),
+                  prior_PD = FALSE)
+
+Mod4 <- stan_polr(mod_mean2007b,
+                  data = data_subset, 
+                  prior = R2(0.5, "mean"), 
+                  shape = NULL, 
+                  algorithm = "sampling",
+                  adapt_delta = NULL, 
+                  do_residuals = TRUE,
+                  prior_counts = dirichlet(1),
+                  prior_PD = FALSE)
+
+Mod5 <- stan_polr(mod_mean2002b,
+                  data = data_subset, 
+                  prior = R2(0.5, "mean"), 
+                  shape = NULL, 
+                  algorithm = "sampling",
+                  adapt_delta = NULL, 
+                  do_residuals = TRUE,
+                  prior_counts = dirichlet(1),
+                  prior_PD = FALSE)
+
+mod_outfilename <- paste0("Mod1_",out_suffix,".RData")
+save(Mod1, file = file.path(out_dir,mod_outfilename))
+
+mod_outfilename <- paste0("Mod2_",out_suffix,".RData")
+save(Mod2, file = file.path(out_dir,mod_outfilename))
+
+mod_outfilename <- paste0("Mod3_",out_suffix,".RData")
+save(Mod3, file = file.path(out_dir,mod_outfilename))
+
+mod_outfilename <- paste0("Mod4_",out_suffix,".RData")
+save(Mod4, file = file.path(out_dir,mod_outfilename))
+
+mod_outfilename <- paste0("Mod5_",out_suffix,".RData")
+save(Mod5, file = file.path(out_dir,mod_outfilename))
+
+
+
+
+
+Mod6 <- lapply(mod_DEV_2016b,
+               FUN = run_model_ordinal_logistic,
+               data = data_subset, 
+               prior = myprior,
+               #shape = NULL, 
+               #algorithm = "sampling",
+               #adapt_delta = NULL, 
+               #do_residuals = TRUE),
+               prior_counts = dirichlet(1),
+               chains = 4, 
+               num_cores = 4, 
+               seed_val = 1234, 
+               iter_val = 200)
+
+Mod7 <- lapply(mod_DEV_2014b,
+               FUN = run_model_ordinal_logistic,
+               data = data_subset, 
+               prior = myprior, 
+               #prior = R2(0.5, "mean"), #assumes that mode, mean and median of the Beta distribution are equal. Indicated for polr
+               #shape = NULL, 
+               #algorithm = "sampling",
+               #adapt_delta = NULL, 
+               #do_residuals = TRUE),
+               prior_counts = dirichlet(1),
+               chains = 4, 
+               num_cores = 4, 
+               seed_val = 1234, 
+               iter_val = 200)
+
+Mod8 <- lapply(mod_DEV_2012b,
+               FUN = run_model_ordinal_logistic,
+               data = data_subset, 
+               prior = myprior,
+               #shape = NULL, 
+               #algorithm = "sampling",
+               #adapt_delta = NULL, 
+               #do_residuals = TRUE),
+               prior_counts = dirichlet(1),
+               chains = 4, 
+               num_cores = 4, 
+               seed_val = 1234, 
+               iter_val = 200)
+
+Mod9 <- lapply(mod_DEV_2007b,
+               FUN = run_model_ordinal_logistic,
+               data = data_subset, 
+               prior = myprior,
+               #shape = NULL, 
+               #algorithm = "sampling",
+               #adapt_delta = NULL, 
+               #do_residuals = TRUE),
+               prior_counts = dirichlet(1),
+               chains = 4, 
+               num_cores = 4, 
+               seed_val = 1234, 
+               iter_val = 200)
+
+Mod10 <- lapply(mod_DEV_2002b,
+                FUN = run_model_ordinal_logistic,
+                data = data_subset, 
+                prior = myprior,
+                #prior = R2(0.5, "mean"), #assumes that mode, mean and median of the Beta distribution are equal. Indicated for polr
+                #shape = NULL, 
+                #algorithm = "sampling",
+                #adapt_delta = NULL, 
+                #do_residuals = TRUE),
+                prior_counts = dirichlet(1),
+                chains = 4, 
+                num_cores = 4, 
+                seed_val = 1234, 
+                iter_val = 200)
+
+# Save mods
+mod_outfilename <- paste0("list_mod_",out_suffix,".RData")
+save(list_mod, 
+     file = file.path(out_dir,mod_outfilename))
+
+mod_outfilename <- paste0("Mod10",out_suffix,".RData")
+save(Mod10, 
+     file = file.path(out_dir,mod_outfilename))
+
+
+
+
+fit <- list_mod[[1]]$fitted.values
+res <- residuals(list_mod[[1]])
+binnedplot(fit, res)
+library(arm)
