@@ -42,7 +42,12 @@ plot(y_rep)
 
 Plot_MEAN2016 <- boxplot(y_rep_DF)
 
+### using marginal effects
+
+plot1 <- marginal_effects(list_mod[[1]], data=list_mod[[1]]$data, categorical = TRUE)
+
+
+  
+marginal_effects(mod, "dependent variable", categorical = TRUE)
 ### End Script
-
-
 
