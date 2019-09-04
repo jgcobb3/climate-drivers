@@ -31,6 +31,14 @@ source(file.path(script_path,bayes_ordinal_logistic_model.R))
 # https://cran.r-project.org/web/packages/ggeffects/vignettes/ggeffects.html 
 # https://cran.r-project.org/web/packages/ggeffects/vignettes/introduction_plotmethod.html
 
+### using plotly
+library(plotly)
+plot1 <- plot_ly(dataDR, x = ~PDSI_MEAN_2002, color = ~y_var, type = "violin")
+
+# This creates nice interactive plots that are not substantially different than the ones I made using ggerrorplot last year - they all 
+# use the actual data rather than the polr model output. If we want to include any voilin plots, I think the ones I made last year are better.
+# though plotly is much easier to use than ggerrorplot!
+
 ### using rstanarm
 # http://mc-stan.org/rstanarm/articles/rstanarm.html 
 y_rep <- posterior_predict(list_mod[[1]])

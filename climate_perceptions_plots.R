@@ -198,24 +198,37 @@ gplot1 <- ggerrorplot(data_years, x = "Concern_DryDrought",
 
 #as_ggplot(leg)
 
-# SDs - concern on x axis
-ggerrorplot(data_years, x = "Concern_DryDrought", 
-            y = c("Standard deviation 1-year", "Standard deviation 3-years", "Standard deviation 5-years", "Standard deviation 10-years", "Standard deviation 15-years"),
+
+# Deviation from normal - concern on x axis
+gplot2 <- ggerrorplot(data_years, x = "Concern_DryDrought", 
+            y = c("2016 deviation from 1986-2016 mean", 
+                  "2014-2016 mean deviation from 1986-2016 mean",
+                  "2012-2016 mean deviation from 1986-2016 mean", 
+                  "2007-2016 mean deviation from 1986-2016 mean", 
+                  "2002-2016 mean deviation from 1986-2016 mean"),
             combine = TRUE, merge = FALSE,
-            desc_stat = "mean_sd", 
+            desc_stat = "mean_sd",  
             color = "black",
             palette = "npg",
-            title = "Level of concern and standard deviation of PDSI over 5-time scales",
-            add = "violin", add.params = list(color = "darkgray", fill="lightgray"),
-            ylim = c(-2, 8),
-            legend = "bottom",
-            legend.title = "Concern", 
+            title = "Level of concern and PDSI deviation from 30-year normal over 5-time scales",
+            add = "violin", add.params = list(color = "darkgray", fill="Concern_DryDrought"),
+            ylim = c(-6, 12),
+            common.legend = TRUE,
+            legend = "top", top = 12,
+            legend.title = "Level of Concern", 
             xlab = "level of concern",
             ylab = "PDSI",
-            caption = "Level of concern about drought: Not concerned = 1, 
-            Slightly concerned = 2, Concerned = 3, Very concerned = 4")+
+            orientation = "vertical")+
+  #caption = "Level of concern about drought: Not concerned = 1, 
+  #Slightly concerned = 2, Concerned = 3, Very concerned = 4")+
   stat_compare_means(comparisons = my_comparisons) +
-  stat_compare_means(label.y = -1, label.x = 1.5)
+  stat_compare_means(label.y = -5, label.x = 1.5)
+#geom_hline(yintercept= -0.5, linetype="dashed", color = "red", show.legend = TRUE, label_value(labels, multi_line = TRUE))
+#geom_hline(yintercept= -1, linetype="dotdash", color = "blue", show.legend = TRUE)+
+#geom_hline(yintercept= -2, linetype="dotted", color = "black", show.legend = TRUE)+
+#geom_hline(yintercept= -3, linetype="longdash", color = "red", show.legend = TRUE)+
+#geom_hline(yintercept= -4, linetype="twodash", color = "blue", show.legend = TRUE)
+
 
 # Means - concern on Y axis
 # this works, but it's ugly
